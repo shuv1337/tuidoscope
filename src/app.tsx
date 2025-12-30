@@ -33,6 +33,9 @@ export const App: Component<AppProps> = (props) => {
   // Initialize session path
   initSessionPath(props.config)
 
+  // Track if initial autostart has run
+  const [hasAutostarted, setHasAutostarted] = createSignal(false)
+
   // Start an app
   const startApp = (entry: AppEntry) => {
     // Don't start if already running
@@ -41,7 +44,16 @@ export const App: Component<AppProps> = (props) => {
     }
 
     const dims = terminalDims()
-    const ptyProcess = spawnPty(entry, { cols: dims.width - props.config.tab_width - 4, rows: dims.height - 3 })
+    const cols = dims.width - props.config.tab_width - 4
+    const rows = dims.height - 3
+
+    // Don't spawn with invalid dimensions
+    if (cols < 10 || rows < 3) {
+      console.warn(`Skipping start for ${entry.name}: invalid dimensions ${cols}x${rows}`)
+      return
+    }
+
+    const ptyProcess = spawnPty(entry, { cols, rows })
 
     const runningApp: RunningApp = {
       entry,
@@ -241,21 +253,31 @@ export const App: Component<AppProps> = (props) => {
     }
   })
 
-  // Auto-start apps
+  // Auto-start apps and restore session once dimensions are valid
   createEffect(() => {
+    const dims = terminalDims()
+    const cols = dims.width - props.config.tab_width - 4
+    const rows = dims.height - 3
+
+    // Wait for valid dimensions
+    if (cols < 10 || rows < 3 || hasAutostarted()) {
+      return
+    }
+
+    setHasAutostarted(true)
+
+    // Auto-start configured apps
     for (const entry of appsStore.store.entries) {
       if (entry.autostart) {
         startApp(entry)
       }
     }
-  })
 
-  // Restore session
-  createEffect(() => {
+    // Restore session
     if (props.session) {
       for (const id of props.session.runningApps) {
         const entry = appsStore.getEntry(id)
-        if (entry) {
+        if (entry && !entry.autostart) {
           startApp(entry)
         }
       }
@@ -272,9 +294,16 @@ export const App: Component<AppProps> = (props) => {
     const termWidth = dims.width - props.config.tab_width - 4
     const termHeight = dims.height - 3
 
+    // Only resize with valid dimensions
+    if (termWidth < 10 || termHeight < 3) {
+      return
+    }
+
     // Resize all running PTYs
     for (const [, app] of tabsStore.store.runningApps) {
-      resizePty(app.pty, termWidth, termHeight)
+      if (app.status === "running") {
+        resizePty(app.pty, termWidth, termHeight)
+      }
     }
   })
 
