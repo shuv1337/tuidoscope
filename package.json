@@ -1,0 +1,26 @@
+{
+  "name": "tuidiscope",
+  "version": "0.1.0",
+  "description": "A centralized TUI management app for running TUI applications in embedded terminal windows",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.1.63",
+    "@opentui/solid": "^0.1.63",
+    "ghostty-opentui": "^0.0.9",
+    "solid-js": "^1.9.3",
+    "node-pty": "^1.0.0",
+    "yaml": "^2.6.1",
+    "zod": "^3.24.1",
+    "fuse.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,34 @@
+# tuidiscope default configuration
+
+version: 1
+
+# Theme configuration
+theme:
+  primary: "#7aa2f7"      # Tab highlight, borders
+  background: "#1a1b26"   # Main background
+  foreground: "#c0caf5"   # Text color
+  accent: "#bb9af7"       # Active indicators
+  muted: "#565f89"        # Inactive elements
+
+# Global keybindings (customizable)
+keybinds:
+  next_tab: "ctrl+n"
+  prev_tab: "ctrl+p"
+  close_tab: "ctrl+w"
+  new_tab: "ctrl+t"
+  toggle_focus: "ctrl+a"    # Switch between tab list and terminal
+  rename_tab: "ctrl+r"
+  restart_app: "ctrl+shift+r"
+  command_palette: "ctrl+p" # Fuzzy finder for apps and commands
+  quit: "ctrl+q"
+
+# Tab width (characters)
+tab_width: 20
+
+# TUI application entries
+apps: []
+
+# Session persistence
+session:
+  persist: true
+  file: "~/.local/state/tuidiscope/session.yaml"
