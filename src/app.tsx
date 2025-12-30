@@ -1,4 +1,5 @@
-import { Component, Show, createSignal, createEffect, onCleanup, createMemo } from "solid-js"
+import { Component, Show, createSignal, createEffect, onCleanup, createMemo, onMount } from "solid-js"
+import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
 import { TabList } from "./components/TabList"
 import { TerminalPane } from "./components/TerminalPane"
 import { StatusBar } from "./components/StatusBar"
@@ -9,7 +10,7 @@ import { createTabsStore } from "./stores/tabs"
 import { createUIStore } from "./stores/ui"
 import { spawnPty, killPty, resizePty } from "./lib/pty"
 import { initSessionPath, saveSession } from "./lib/session"
-import { createKeybindHandler, type KeyEvent } from "./lib/keybinds"
+import { createKeybindHandler } from "./lib/keybinds"
 import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp } from "./types"
 
 export interface AppProps {
@@ -23,8 +24,8 @@ export const App: Component<AppProps> = (props) => {
   const tabsStore = createTabsStore()
   const uiStore = createUIStore()
 
-  // Terminal dimensions
-  const [terminalDims, setTerminalDims] = createSignal({ cols: 80, rows: 24 })
+  // Get terminal dimensions from opentui
+  const terminalDims = useTerminalDimensions()
 
   // Tab list selection (separate from active tab for keyboard navigation)
   const [selectedIndex, setSelectedIndex] = createSignal(0)
@@ -40,7 +41,7 @@ export const App: Component<AppProps> = (props) => {
     }
 
     const dims = terminalDims()
-    const ptyProcess = spawnPty(entry, { cols: dims.cols, rows: dims.rows })
+    const ptyProcess = spawnPty(entry, { cols: dims.width - props.config.tab_width - 4, rows: dims.height - 3 })
 
     const runningApp: RunningApp = {
       entry,
@@ -181,6 +182,65 @@ export const App: Component<AppProps> = (props) => {
     },
   })
 
+  // Hook up keyboard events from opentui
+  useKeyboard((event) => {
+    // If a modal is open, let it handle keys (except Escape which closes modals)
+    if (uiStore.store.activeModal) {
+      if (event.name === "escape") {
+        uiStore.closeModal()
+        event.preventDefault()
+      }
+      return
+    }
+
+    // In terminal focus mode, pass most keys to the terminal
+    if (tabsStore.store.focusMode === "terminal") {
+      // Check for global keybinds first
+      if (handleKeybind(event)) {
+        event.preventDefault()
+        return
+      }
+
+      // Pass raw input to terminal
+      const activeApp = tabsStore.store.activeTabId
+        ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
+        : undefined
+
+      if (activeApp && event.sequence) {
+        activeApp.pty.write(event.sequence)
+        event.preventDefault()
+      }
+      return
+    }
+
+    // In tabs focus mode, handle navigation
+    if (event.name === "j" || event.name === "down") {
+      handleTabNavigation("down")
+      event.preventDefault()
+      return
+    }
+
+    if (event.name === "k" || event.name === "up") {
+      handleTabNavigation("up")
+      event.preventDefault()
+      return
+    }
+
+    if (event.name === "return" || event.name === "enter") {
+      const entries = appsStore.store.entries
+      if (entries.length > 0 && selectedIndex() < entries.length) {
+        handleSelectApp(entries[selectedIndex()].id)
+        event.preventDefault()
+      }
+      return
+    }
+
+    // Check for global keybinds
+    if (handleKeybind(event)) {
+      event.preventDefault()
+    }
+  })
+
   // Auto-start apps
   createEffect(() => {
     for (const entry of appsStore.store.entries) {
@@ -206,15 +266,17 @@ export const App: Component<AppProps> = (props) => {
     }
   })
 
-  // Handle terminal resize
-  const handleTerminalResize = (cols: number, rows: number) => {
-    setTerminalDims({ cols, rows })
+  // Handle terminal resize based on terminal dimensions
+  createEffect(() => {
+    const dims = terminalDims()
+    const termWidth = dims.width - props.config.tab_width - 4
+    const termHeight = dims.height - 3
 
     // Resize all running PTYs
     for (const [, app] of tabsStore.store.runningApps) {
-      resizePty(app.pty, cols, rows)
+      resizePty(app.pty, termWidth, termHeight)
     }
-  }
+  })
 
   // Handle input to terminal
   const handleTerminalInput = (data: string) => {
@@ -252,7 +314,7 @@ export const App: Component<AppProps> = (props) => {
           getStatus={getAppStatus}
           isFocused={tabsStore.store.focusMode === "tabs"}
           width={props.config.tab_width}
-          height={24} // Will be dynamic
+          height={terminalDims().height - 1}
           scrollOffset={tabsStore.store.scrollOffset}
           theme={props.config.theme}
           onSelect={handleSelectApp}
@@ -263,11 +325,10 @@ export const App: Component<AppProps> = (props) => {
         <TerminalPane
           runningApp={activeRunningApp()}
           isFocused={tabsStore.store.focusMode === "terminal"}
-          width={80} // Will be dynamic
-          height={24} // Will be dynamic
+          width={terminalDims().width - props.config.tab_width}
+          height={terminalDims().height - 1}
           theme={props.config.theme}
           onInput={handleTerminalInput}
-          onResize={handleTerminalResize}
         />
       </box>
 

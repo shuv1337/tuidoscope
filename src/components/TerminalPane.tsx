@@ -1,4 +1,4 @@
-import { Component, Show, createEffect } from "solid-js"
+import { Component, Show } from "solid-js"
 import type { RunningApp, ThemeConfig } from "../types"
 
 export interface TerminalPaneProps {
@@ -8,17 +8,9 @@ export interface TerminalPaneProps {
   height: number
   theme: ThemeConfig
   onInput?: (data: string) => void
-  onResize?: (cols: number, rows: number) => void
 }
 
 export const TerminalPane: Component<TerminalPaneProps> = (props) => {
-  // Track resize
-  createEffect(() => {
-    if (props.onResize && props.width > 0 && props.height > 0) {
-      props.onResize(props.width - 2, props.height - 2) // Account for border
-    }
-  })
-
   return (
     <box
       flexDirection="column"

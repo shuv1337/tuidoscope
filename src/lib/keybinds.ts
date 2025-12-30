@@ -1,3 +1,4 @@
+import type { KeyEvent } from "@opentui/core"
 import type { KeybindConfig } from "../types"
 
 export type KeybindAction =
@@ -11,7 +12,7 @@ export type KeybindAction =
   | "command_palette"
   | "quit"
 
-export interface KeyEvent {
+interface ParsedKeybind {
   key: string
   ctrl: boolean
   alt: boolean
@@ -22,7 +23,7 @@ export interface KeyEvent {
 /**
  * Parse a keybind string like "ctrl+p" into components
  */
-export function parseKeybind(keybind: string): KeyEvent {
+export function parseKeybind(keybind: string): ParsedKeybind {
   const parts = keybind.toLowerCase().split("+")
   const key = parts[parts.length - 1]
 
@@ -36,15 +37,18 @@ export function parseKeybind(keybind: string): KeyEvent {
 }
 
 /**
- * Check if a key event matches a keybind
+ * Check if an opentui KeyEvent matches a keybind string
  */
 export function matchesKeybind(event: KeyEvent, keybind: string): boolean {
   const parsed = parseKeybind(keybind)
 
+  // opentui uses 'option' for alt on Mac, we check both
+  const eventAlt = event.option ?? false
+
   return (
-    event.key.toLowerCase() === parsed.key &&
+    event.name.toLowerCase() === parsed.key &&
     event.ctrl === parsed.ctrl &&
-    event.alt === parsed.alt &&
+    eventAlt === parsed.alt &&
     event.shift === parsed.shift &&
     event.meta === parsed.meta
   )
