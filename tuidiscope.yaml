@@ -1,0 +1,41 @@
+# Local test configuration for tuidiscope
+# This file is used when running from this directory
+
+version: 1
+
+theme:
+  primary: "#7aa2f7"
+  background: "#1a1b26"
+  foreground: "#c0caf5"
+  accent: "#bb9af7"
+  muted: "#565f89"
+
+keybinds:
+  next_tab: "ctrl+n"
+  prev_tab: "ctrl+p"
+  close_tab: "ctrl+w"
+  new_tab: "ctrl+t"
+  toggle_focus: "ctrl+a"
+  rename_tab: "ctrl+r"
+  restart_app: "ctrl+shift+r"
+  command_palette: "ctrl+space"
+  quit: "ctrl+q"
+
+tab_width: 20
+
+apps:
+  - name: "Shell"
+    command: "bash"
+    cwd: "~"
+    autostart: true
+    env:
+      TERM: "xterm-256color"
+
+  - name: "Top"
+    command: "top"
+    cwd: "~"
+    autostart: false
+
+session:
+  persist: true
+  file: "~/.local/state/tuidiscope/session.yaml"
