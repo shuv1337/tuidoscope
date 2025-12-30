@@ -11,9 +11,9 @@
     "outDir": "dist",
     "rootDir": "src",
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "types": ["node"],
-    "lib": ["ESNext"]
+    "jsxImportSource": "@opentui/solid",
+    "types": ["node", "@opentui/solid/jsx-runtime"],
+    "lib": ["ESNext", "DOM"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
