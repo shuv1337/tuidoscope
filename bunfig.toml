@@ -1,0 +1,2 @@
+# Use the opentui solid plugin for JSX transformation
+preload = ["@opentui/solid/preload"]
