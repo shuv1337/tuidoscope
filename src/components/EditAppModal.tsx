@@ -1,10 +1,10 @@
-import { Component, createEffect, createSignal } from "solid-js"
+import { Component, createSignal } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntry } from "../types"
 
 export interface EditAppModalProps {
   theme: ThemeConfig
-  entry: AppEntry
+  entry: Pick<AppEntry, "id" | "name" | "command" | "args" | "cwd">
   onSave: (updates: { name: string; command: string; args?: string; cwd: string }) => void
   onClose: () => void
 }
@@ -12,10 +12,11 @@ export interface EditAppModalProps {
 type Field = "name" | "command" | "args" | "cwd"
 
 export const EditAppModal: Component<EditAppModalProps> = (props) => {
-  const [name, setName] = createSignal(props.entry.name)
-  const [command, setCommand] = createSignal(props.entry.command)
+  // Initialize directly from props
+  const [name, setName] = createSignal(props.entry.name ?? "")
+  const [command, setCommand] = createSignal(props.entry.command ?? "")
   const [args, setArgs] = createSignal(props.entry.args ?? "")
-  const [cwd, setCwd] = createSignal(props.entry.cwd)
+  const [cwd, setCwd] = createSignal(props.entry.cwd ?? "")
   const [focusedField, setFocusedField] = createSignal<Field>("name")
 
   const fields: { key: Field; label: string; value: () => string; setValue: (v: string) => void }[] = [
@@ -24,14 +25,6 @@ export const EditAppModal: Component<EditAppModalProps> = (props) => {
     { key: "args", label: "Arguments", value: args, setValue: setArgs },
     { key: "cwd", label: "Directory", value: cwd, setValue: setCwd },
   ]
-
-  createEffect(() => {
-    setName(props.entry.name)
-    setCommand(props.entry.command)
-    setArgs(props.entry.args ?? "")
-    setCwd(props.entry.cwd)
-    setFocusedField("name")
-  })
 
   const focusIndex = () => fields.findIndex((field) => field.key === focusedField())
   const setFocusByIndex = (index: number) => {
@@ -107,23 +100,22 @@ export const EditAppModal: Component<EditAppModalProps> = (props) => {
       </box>
 
       {/* Fields */}
-      {fields.map((field) => (
-        <box height={1} flexDirection="row">
-          <box width={12}>
-            <text fg={props.theme.muted}>{field.label}:</text>
-          </box>
-          <box
-            flexGrow={1}
-            borderStyle={focusedField() === field.key ? "single" : undefined}
-            borderColor={props.theme.primary}
-          >
-            <text fg={props.theme.foreground}>
-              {field.value()}
-              {focusedField() === field.key ? "█" : ""}
+      {fields.map((field) => {
+        const isFocused = () => focusedField() === field.key
+        return (
+          <box height={1} flexDirection="row">
+            <box width={12}>
+              <text fg={isFocused() ? props.theme.accent : props.theme.muted}>{field.label}:</text>
+            </box>
+            <text
+              fg={isFocused() ? props.theme.foreground : props.theme.muted}
+              bg={isFocused() ? props.theme.primary : undefined}
+            >
+              {" "}{field.value()}{isFocused() ? "█" : " "}
             </text>
           </box>
-        </box>
-      ))}
+        )
+      })}
 
       {/* Footer */}
       <box height={1}>
