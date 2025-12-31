@@ -1,4 +1,4 @@
-import type { IPty } from "node-pty"
+import type { PtyProcess } from "../lib/pty"
 
 // Configuration types
 export interface ThemeConfig {
@@ -18,6 +18,8 @@ export interface KeybindConfig {
   rename_tab: string
   restart_app: string
   command_palette: string
+  stop_app: string
+  kill_all: string
   quit: string
 }
 
@@ -59,7 +61,7 @@ export type AppStatus = "stopped" | "running" | "error"
 
 export interface RunningApp {
   entry: AppEntry
-  pty: IPty
+  pty: PtyProcess
   status: AppStatus
   buffer: string
 }
