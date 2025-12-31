@@ -221,6 +221,21 @@ export const App: Component<AppProps> = (props) => {
       if (activeId) stopApp(activeId)
     },
     stop_app: () => {
+      if (tabsStore.store.focusMode === "tabs") {
+        const entries = appsStore.store.entries
+        const entry = entries[selectedIndex()]
+        if (!entry) {
+          uiStore.showTemporaryMessage("No app selected")
+          return
+        }
+        if (tabsStore.store.runningApps.has(entry.id)) {
+          stopApp(entry.id)
+        } else {
+          uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
+        }
+        return
+      }
+
       const activeId = tabsStore.store.activeTabId
       if (activeId) {
         stopApp(activeId)
@@ -288,6 +303,12 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
+    // Check for global keybinds first (before navigation keys)
+    if (handleKeybind(event)) {
+      event.preventDefault()
+      return
+    }
+
     // In tabs focus mode, handle navigation
     if (event.name === "j" || event.name === "down") {
       handleTabNavigation("down")
@@ -308,11 +329,6 @@ export const App: Component<AppProps> = (props) => {
         event.preventDefault()
       }
       return
-    }
-
-    // Check for global keybinds
-    if (handleKeybind(event)) {
-      event.preventDefault()
     }
   })
 
