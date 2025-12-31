@@ -11,6 +11,9 @@ export interface TerminalPaneProps {
 }
 
 export const TerminalPane: Component<TerminalPaneProps> = (props) => {
+  const contentWidth = () => Math.max(1, props.width - 2)
+  const contentHeight = () => Math.max(1, props.height - 3)
+
   return (
     <box
       flexDirection="column"
@@ -41,11 +44,15 @@ export const TerminalPane: Component<TerminalPaneProps> = (props) => {
               </text>
             </box>
 
-            {/* Terminal content - will be replaced with GhosttyTerminalRenderable */}
-            <box flexGrow={1} overflow="hidden">
-              <text fg={props.theme.foreground}>
-                {app().buffer.slice(-5000)}
-              </text>
+            {/* Terminal content */}
+            <box width={contentWidth()} height={contentHeight()} overflow="hidden">
+              <ghostty-terminal
+                ansi={app().buffer}
+                cols={contentWidth()}
+                rows={contentHeight()}
+                showCursor
+                style={{ width: contentWidth(), height: contentHeight() }}
+              />
             </box>
           </box>
         )}

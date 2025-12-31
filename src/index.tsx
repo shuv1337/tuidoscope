@@ -1,7 +1,10 @@
-import { render } from "@opentui/solid"
+import { render, extend } from "@opentui/solid"
+import { GhosttyTerminalRenderable } from "ghostty-opentui/terminal-buffer"
 import { App } from "./app"
 import { loadConfig } from "./lib/config"
 import { initSessionPath, restoreSession } from "./lib/session"
+
+extend({ "ghostty-terminal": GhosttyTerminalRenderable })
 
 async function main() {
   try {
