@@ -19,28 +19,84 @@ keybinds:
   rename_tab: "ctrl+r"
   restart_app: "ctrl+shift+r"
   command_palette: "ctrl+p"
+  stop_app: "ctrl+k"
+  kill_all: "ctrl+shift+k"
   quit: "ctrl+q"
 
 tab_width: 20
 
 apps:
-  - name: "htop"
-    command: "htop"
+  - name: "Shell"
+    command: "zsh"
     cwd: "~"
     autostart: true
     env:
       TERM: "xterm-256color"
+
+  - name: "Top"
+    command: "top"
+    cwd: "~"
+    autostart: false
+
+  - name: "htop"
+    command: "htop"
+    cwd: "~"
+    autostart: false
+
+  - name: "btop"
+    command: "btop"
+    cwd: "~"
+    autostart: false
 
   - name: "lazygit"
     command: "lazygit"
     cwd: "<CONFIG_DIR>"
     autostart: false
 
-  - name: "System Monitor"
-    command: "btm"
+  - name: "tig"
+    command: "tig"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  - name: "neovim"
+    command: "nvim"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  - name: "ranger"
+    command: "ranger"
     cwd: "~"
     autostart: false
-    restart_on_exit: false
+
+  - name: "midnight commander"
+    command: "mc"
+    cwd: "~"
+    autostart: false
+
+  - name: "weechat"
+    command: "weechat"
+    cwd: "~"
+    autostart: false
+
+  - name: "k9s"
+    command: "k9s"
+    cwd: "~"
+    autostart: false
+
+  - name: "glances"
+    command: "glances"
+    cwd: "~"
+    autostart: false
+
+  - name: "gh dash"
+    command: "gh dash"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  - name: "gh enhance"
+    command: "gh enhance"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
 
 session:
   persist: true

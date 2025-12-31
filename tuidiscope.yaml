@@ -19,13 +19,15 @@ keybinds:
   rename_tab: "ctrl+r"
   restart_app: "ctrl+shift+r"
   command_palette: "ctrl+space"
+  stop_app: "ctrl+k"
+  kill_all: "ctrl+shift+k"
   quit: "ctrl+q"
 
 tab_width: 20
 
 apps:
   - name: "Shell"
-    command: "bash"
+    command: "zsh"
     cwd: "~"
     autostart: true
     env:
@@ -34,6 +36,51 @@ apps:
   - name: "Top"
     command: "top"
     cwd: "~"
+    autostart: false
+
+  - name: "htop"
+    command: "htop"
+    cwd: "~"
+    autostart: false
+
+  - name: "btop"
+    command: "btop"
+    cwd: "~"
+    autostart: false
+
+  - name: "lazygit"
+    command: "lazygit"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  - name: "tig"
+    command: "tig"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  - name: "neovim"
+    command: "nvim"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  - name: "yazi"
+    command: "yazi"
+    cwd: "~"
+    autostart: false
+
+  - name: "glances"
+    command: "glances"
+    cwd: "~"
+    autostart: false
+
+  - name: "shuvdash"
+    command: "gh dash"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  - name: "shuvflow"
+    command: "gh enhance"
+    cwd: "<CONFIG_DIR>"
     autostart: false
 
 session:
