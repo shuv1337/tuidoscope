@@ -4,11 +4,11 @@
 version: 1
 
 theme:
-  primary: "#7aa2f7"
-  background: "#1a1b26"
-  foreground: "#c0caf5"
-  accent: "#bb9af7"
-  muted: "#565f89"
+  primary: "#82aaff"      # Blue - selections, highlights  
+  background: "#011627"   # Deep dark blue
+  foreground: "#d6deeb"   # Light gray-blue text
+  accent: "#7fdbca"       # Cyan/teal - active indicators
+  muted: "#637777"        # Gray-blue for inactive elements
 
 keybinds:
   next_tab: "ctrl+n"

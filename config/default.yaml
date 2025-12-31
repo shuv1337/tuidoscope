@@ -4,11 +4,11 @@ version: 1
 
 # Theme configuration (Night Owl)
 theme:
-  primary: "#82aaff"      # Tab highlight, borders
-  background: "#011627"   # Main background
-  foreground: "#d6deeb"   # Text color
-  accent: "#c792ea"       # Active indicators
-  muted: "#5f7e97"        # Inactive elements
+  primary: "#82aaff"      # Blue - selections, highlights
+  background: "#011627"   # Deep dark blue
+  foreground: "#d6deeb"   # Light gray-blue text
+  accent: "#7fdbca"       # Cyan/teal - active indicators
+  muted: "#637777"        # Gray-blue for inactive elements
 
 # Global keybindings (customizable)
 keybinds:

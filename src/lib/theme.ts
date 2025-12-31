@@ -2,11 +2,11 @@ import type { ThemeConfig } from "../types"
 
 // Default Night Owl-inspired theme
 export const defaultTheme: ThemeConfig = {
-  primary: "#82aaff",
-  background: "#011627",
-  foreground: "#d6deeb",
-  accent: "#c792ea",
-  muted: "#5f7e97",
+  primary: "#82aaff",     // Blue - selections, highlights
+  background: "#011627",  // Deep dark blue
+  foreground: "#d6deeb",  // Light gray-blue text
+  accent: "#7fdbca",      // Cyan/teal - active indicators (was purple)
+  muted: "#637777",       // Gray-blue for inactive elements
 }
 
 /**
