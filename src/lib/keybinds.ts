@@ -7,7 +7,7 @@ export type KeybindAction =
   | "close_tab"
   | "new_tab"
   | "toggle_focus"
-  | "rename_tab"
+  | "edit_app"
   | "restart_app"
   | "command_palette"
   | "stop_app"
@@ -80,7 +80,7 @@ export function createKeybindHandler(
     [config.close_tab]: "close_tab",
     [config.new_tab]: "new_tab",
     [config.toggle_focus]: "toggle_focus",
-    [config.rename_tab]: "rename_tab",
+    [config.edit_app]: "edit_app",
     [config.restart_app]: "restart_app",
     [config.command_palette]: "command_palette",
     [config.stop_app]: "stop_app",

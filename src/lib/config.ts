@@ -26,17 +26,22 @@ const KeybindSchema = z.object({
   close_tab: z.string().default("ctrl+w"),
   new_tab: z.string().default("ctrl+t"),
   toggle_focus: z.string().default("ctrl+a"),
-  rename_tab: z.string().default("ctrl+r"),
+  edit_app: z.string().optional(),
+  rename_tab: z.string().optional(),
   restart_app: z.string().default("ctrl+shift+r"),
   command_palette: z.string().default("ctrl+p"),
   stop_app: z.string().default("ctrl+x"),
   kill_all: z.string().default("ctrl+shift+k"),
   quit: z.string().default("ctrl+q"),
-})
+}).transform(({ rename_tab, edit_app, ...rest }) => ({
+  ...rest,
+  edit_app: edit_app ?? rename_tab ?? "ctrl+e",
+}))
 
 const AppEntrySchema = z.object({
   name: z.string(),
   command: z.string(),
+  args: z.string().optional(),
   cwd: z.string().default("~"),
   autostart: z.boolean().default(false),
   restart_on_exit: z.boolean().default(false),
