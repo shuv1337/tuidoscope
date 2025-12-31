@@ -2,11 +2,12 @@ import { Component, For, createSignal, createMemo, createEffect } from "solid-js
 import { useKeyboard } from "@opentui/solid"
 import type { AppEntry, ThemeConfig } from "../types"
 import { createAppSearch } from "../lib/fuzzy"
+import { buildEntryCommand } from "../lib/command"
 
 export interface CommandPaletteProps {
   entries: AppEntry[]
   theme: ThemeConfig
-  onSelect: (entry: AppEntry, action: "switch" | "start" | "stop" | "restart") => void
+  onSelect: (entry: AppEntry, action: "switch" | "start" | "stop" | "restart" | "edit") => void
   onClose: () => void
 }
 
@@ -40,6 +41,15 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       const selected = results()[selectedIndex()]
       if (selected) {
         props.onSelect(selected.item, "stop")
+      }
+      event.preventDefault()
+      return
+    }
+
+    if ((event.ctrl && event.name === "e") || event.sequence === "\u0005") {
+      const selected = results()[selectedIndex()]
+      if (selected) {
+        props.onSelect(selected.item, "edit")
       }
       event.preventDefault()
       return
@@ -113,7 +123,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
                 fg={index() === selectedIndex() ? props.theme.background : props.theme.foreground}
                 bg={index() === selectedIndex() ? props.theme.primary : props.theme.background}
               >
-                {" "}{`${result.item.name} - ${result.item.command}`}
+                {" "}{`${result.item.name} - ${buildEntryCommand(result.item)}`}
               </text>
             </box>
           )}
@@ -123,7 +133,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       {/* Footer hints */}
       <box height={1} borderStyle="single" borderColor={props.theme.muted}>
         <text fg={props.theme.muted}>
-          Enter:Select | x:Stop | Esc:Close | ↑↓:Navigate
+          Enter:Select | x:Stop | Ctrl+E:Edit | Esc:Close | ↑↓:Navigate
         </text>
       </box>
     </box>

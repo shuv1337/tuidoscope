@@ -11,7 +11,7 @@ export interface SearchResult {
  */
 export function createAppSearch(entries: AppEntry[]) {
   const fuse = new Fuse(entries, {
-    keys: ["name", "command"],
+    keys: ["name", "command", "args"],
     threshold: 0.4,
     includeScore: true,
   })
