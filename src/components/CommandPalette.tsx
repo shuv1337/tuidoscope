@@ -88,10 +88,13 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       backgroundColor={props.theme.background}
     >
       {/* Search input */}
-      <box height={1} borderStyle="single" borderColor={props.theme.muted}>
-        <text fg={props.theme.accent}>{">"} </text>
-        <text fg={props.theme.foreground}>{query()}</text>
-        <text fg={props.theme.accent}>█</text>
+      <box
+        height={1}
+        flexDirection="row"
+        borderStyle="single"
+        borderColor={props.theme.muted}
+      >
+        <text fg={props.theme.foreground}>{`> ${query()}█`}</text>
       </box>
 
       {/* Results list */}

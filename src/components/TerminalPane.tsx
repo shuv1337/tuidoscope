@@ -35,7 +35,7 @@ export const TerminalPane: Component<TerminalPaneProps> = (props) => {
         {(app) => (
           <box flexDirection="column" flexGrow={1}>
             {/* Terminal header */}
-            <box height={1}>
+            <box height={1} flexDirection="row">
               <text fg={props.theme.accent}>
                 <b>{app().entry.name}</b>
               </text>
