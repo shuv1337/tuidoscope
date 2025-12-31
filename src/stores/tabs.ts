@@ -57,11 +57,13 @@ export function createTabsStore() {
   }
 
   const appendToBuffer = (id: string, data: string) => {
+    const MAX_BUFFER_CHARS = 200_000
     setStore("runningApps", (apps) => {
       const app = apps.get(id)
       if (app) {
+        const nextBuffer = (app.buffer + data).slice(-MAX_BUFFER_CHARS)
         const newApps = new Map(apps)
-        newApps.set(id, { ...app, buffer: app.buffer + data })
+        newApps.set(id, { ...app, buffer: nextBuffer })
         return newApps
       }
       return apps
