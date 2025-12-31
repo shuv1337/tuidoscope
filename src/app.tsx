@@ -1,5 +1,5 @@
 import { Component, Show, createSignal, createEffect, onCleanup, createMemo, onMount } from "solid-js"
-import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
+import { useKeyboard, useTerminalDimensions, useRenderer } from "@opentui/solid"
 import { TabList } from "./components/TabList"
 import { TerminalPane } from "./components/TerminalPane"
 import { StatusBar } from "./components/StatusBar"
@@ -19,6 +19,8 @@ export interface AppProps {
 }
 
 export const App: Component<AppProps> = (props) => {
+  const renderer = useRenderer()
+
   // Initialize stores
   const appsStore = createAppsStore(props.config.apps)
   const tabsStore = createTabsStore()
@@ -35,6 +37,14 @@ export const App: Component<AppProps> = (props) => {
 
   // Track if initial autostart has run
   const [hasAutostarted, setHasAutostarted] = createSignal(false)
+  const [isQuitting, setIsQuitting] = createSignal(false)
+
+  const getPtyDimensions = () => {
+    const dims = terminalDims()
+    const cols = dims.width - props.config.tab_width - 2
+    const rows = dims.height - 4
+    return { cols, rows }
+  }
 
   // Start an app
   const startApp = (entry: AppEntry) => {
@@ -44,8 +54,7 @@ export const App: Component<AppProps> = (props) => {
     }
 
     const dims = terminalDims()
-    const cols = dims.width - props.config.tab_width - 4
-    const rows = dims.height - 3
+    const { cols, rows } = getPtyDimensions()
 
     // Don't spawn with invalid dimensions
     if (cols < 10 || rows < 3) {
@@ -62,13 +71,30 @@ export const App: Component<AppProps> = (props) => {
       buffer: "",
     }
 
+    let pendingOutput = ""
+    let flushTimer: ReturnType<typeof setTimeout> | null = null
+
+    const flushOutput = () => {
+      if (pendingOutput.length === 0) {
+        flushTimer = null
+        return
+      }
+      tabsStore.appendToBuffer(entry.id, pendingOutput)
+      pendingOutput = ""
+      flushTimer = null
+    }
+
     // Handle PTY output
     ptyProcess.onData((data) => {
-      tabsStore.appendToBuffer(entry.id, data)
+      pendingOutput += data
+      if (!flushTimer) {
+        flushTimer = setTimeout(flushOutput, 50)
+      }
     })
 
     // Handle PTY exit
     ptyProcess.onExit(({ exitCode }) => {
+      flushOutput()
       if (exitCode === 0) {
         tabsStore.updateAppStatus(entry.id, "stopped")
       } else {
@@ -87,12 +113,36 @@ export const App: Component<AppProps> = (props) => {
   }
 
   // Stop an app
-  const stopApp = (id: string) => {
+  const stopApp = (id: string, options: { silent?: boolean } = {}) => {
     const app = tabsStore.getRunningApp(id)
     if (app) {
       killPty(app.pty)
       tabsStore.removeRunningApp(id)
-      uiStore.showTemporaryMessage(`Stopped: ${app.entry.name}`)
+      if (!options.silent) {
+        uiStore.showTemporaryMessage(`Stopped: ${app.entry.name}`)
+      }
+    }
+  }
+
+  const stopAllApps = (options: { showMessage?: boolean } = {}) => {
+    const runningIds = Array.from(tabsStore.store.runningApps.keys())
+    if (runningIds.length === 0) {
+      if (options.showMessage) {
+        uiStore.showTemporaryMessage("No running apps")
+      }
+      return
+    }
+
+    for (const id of runningIds) {
+      stopApp(id, { silent: true })
+    }
+
+    tabsStore.setActiveTab(null)
+
+    if (options.showMessage) {
+      uiStore.showTemporaryMessage(
+        `Stopped ${runningIds.length} app${runningIds.length === 1 ? "" : "s"}`
+      )
     }
   }
 
@@ -170,11 +220,25 @@ export const App: Component<AppProps> = (props) => {
       const activeId = tabsStore.store.activeTabId
       if (activeId) stopApp(activeId)
     },
+    stop_app: () => {
+      const activeId = tabsStore.store.activeTabId
+      if (activeId) {
+        stopApp(activeId)
+      } else {
+        uiStore.showTemporaryMessage("No active app")
+      }
+    },
+    kill_all: () => stopAllApps({ showMessage: true }),
     restart_app: () => {
       const activeId = tabsStore.store.activeTabId
       if (activeId) restartApp(activeId)
     },
     quit: () => {
+      if (isQuitting()) {
+        return
+      }
+      setIsQuitting(true)
+
       // Save session and exit
       if (props.config.session.persist) {
         const runningIds = Array.from(tabsStore.store.runningApps.keys())
@@ -186,11 +250,10 @@ export const App: Component<AppProps> = (props) => {
       }
 
       // Kill all running apps
-      for (const [id] of tabsStore.store.runningApps) {
-        stopApp(id)
-      }
+      stopAllApps({ showMessage: false })
 
-      process.exit(0)
+      renderer.destroy()
+      setTimeout(() => process.exit(0), 50)
     },
   })
 
@@ -255,9 +318,7 @@ export const App: Component<AppProps> = (props) => {
 
   // Auto-start apps and restore session once dimensions are valid
   createEffect(() => {
-    const dims = terminalDims()
-    const cols = dims.width - props.config.tab_width - 4
-    const rows = dims.height - 3
+    const { cols, rows } = getPtyDimensions()
 
     // Wait for valid dimensions
     if (cols < 10 || rows < 3 || hasAutostarted()) {
@@ -290,9 +351,7 @@ export const App: Component<AppProps> = (props) => {
 
   // Handle terminal resize based on terminal dimensions
   createEffect(() => {
-    const dims = terminalDims()
-    const termWidth = dims.width - props.config.tab_width - 4
-    const termHeight = dims.height - 3
+    const { cols: termWidth, rows: termHeight } = getPtyDimensions()
 
     // Only resize with valid dimensions
     if (termWidth < 10 || termHeight < 3) {
@@ -321,7 +380,7 @@ export const App: Component<AppProps> = (props) => {
   // Cleanup on unmount
   onCleanup(() => {
     for (const [id] of tabsStore.store.runningApps) {
-      stopApp(id)
+      stopApp(id, { silent: true })
     }
   })
 
@@ -371,6 +430,8 @@ export const App: Component<AppProps> = (props) => {
         keybinds={{
           toggle_focus: props.config.keybinds.toggle_focus,
           command_palette: props.config.keybinds.command_palette,
+          stop_app: props.config.keybinds.stop_app,
+          kill_all: props.config.keybinds.kill_all,
           quit: props.config.keybinds.quit,
         }}
       />
@@ -384,6 +445,12 @@ export const App: Component<AppProps> = (props) => {
             uiStore.closeModal()
             if (action === "switch") {
               handleSelectApp(entry.id)
+            } else if (action === "stop") {
+              if (tabsStore.store.runningApps.has(entry.id)) {
+                stopApp(entry.id)
+              } else {
+                uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
+              }
             }
           }}
           onClose={() => uiStore.closeModal()}
