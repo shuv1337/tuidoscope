@@ -20,7 +20,7 @@ keybinds:
   rename_tab: "ctrl+r"
   restart_app: "ctrl+shift+r"
   command_palette: "ctrl+p" # Fuzzy finder for apps and commands
-  stop_app: "ctrl+k"
+  stop_app: "ctrl+x"
   kill_all: "ctrl+shift+k"
   quit: "ctrl+q"
 

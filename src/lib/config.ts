@@ -29,7 +29,7 @@ const KeybindSchema = z.object({
   rename_tab: z.string().default("ctrl+r"),
   restart_app: z.string().default("ctrl+shift+r"),
   command_palette: z.string().default("ctrl+p"),
-  stop_app: z.string().default("ctrl+k"),
+  stop_app: z.string().default("ctrl+x"),
   kill_all: z.string().default("ctrl+shift+k"),
   quit: z.string().default("ctrl+q"),
 })

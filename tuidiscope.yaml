@@ -19,7 +19,7 @@ keybinds:
   rename_tab: "ctrl+r"
   restart_app: "ctrl+shift+r"
   command_palette: "ctrl+space"
-  stop_app: "ctrl+k"
+  stop_app: "ctrl+x"
   kill_all: "ctrl+shift+k"
   quit: "ctrl+q"
 
