@@ -19,7 +19,107 @@ export interface PtyProcess {
 }
 
 // List of common shells that need interactive mode
-const INTERACTIVE_SHELLS = ['bash', 'zsh', 'fish', 'sh', 'dash', 'ksh', 'tcsh', 'csh']
+const INTERACTIVE_SHELLS = ["bash", "zsh", "fish", "sh", "dash", "ksh", "tcsh", "csh"]
+
+const DEFAULT_FG = "#c0caf5"
+const DEFAULT_BG = "#1a1b26"
+
+function normalizeHexColor(value: string | undefined, fallback: string): string {
+  if (!value) return fallback
+  const trimmed = value.trim()
+  if (/^#[0-9a-fA-F]{6}$/.test(trimmed)) return trimmed.toLowerCase()
+  if (/^#[0-9a-fA-F]{3}$/.test(trimmed)) {
+    const chars = trimmed.slice(1).split("")
+    return `#${chars.map((c) => c + c).join("")}`.toLowerCase()
+  }
+  return fallback
+}
+
+function hexToOscRgb(hex: string): string {
+  const normalized = normalizeHexColor(hex, DEFAULT_BG).slice(1)
+  const r = normalized.slice(0, 2)
+  const g = normalized.slice(2, 4)
+  const b = normalized.slice(4, 6)
+  return `rgb:${r}/${g}/${b}`
+}
+
+function buildColorResponse(code: "10" | "11", hex: string): string {
+  return `\u001b]${code};${hexToOscRgb(hex)}\u001b\\`
+}
+
+function buildCursorPositionReport(): string {
+  return "\u001b[1;1R"
+}
+
+function stripTerminalQueries(
+  input: string,
+  colors: { fg: string; bg: string }
+): { output: string; responses: string[]; pending: string } {
+  let output = ""
+  const responses: string[] = []
+  let i = 0
+  const prefixes = ["\u001b[6n", "\u001b[?6n", "\u001b]10;?", "\u001b]11;?"]
+
+  while (i < input.length) {
+    const char = input[i]
+    if (char !== "\u001b") {
+      output += char
+      i += 1
+      continue
+    }
+
+    const remaining = input.slice(i)
+    const hasPartialPrefix = prefixes.some(
+      (prefix) => prefix.startsWith(remaining) && remaining.length < prefix.length
+    )
+    if (hasPartialPrefix) {
+      return { output, responses, pending: remaining }
+    }
+
+    const next = input[i + 1]
+    if (next === "[") {
+      if (input.startsWith("\u001b[6n", i)) {
+        responses.push(buildCursorPositionReport())
+        i += 4
+        continue
+      }
+      if (input.startsWith("\u001b[?6n", i)) {
+        responses.push(buildCursorPositionReport())
+        i += 5
+        continue
+      }
+    }
+
+    if (next === "]") {
+      if (input.startsWith("\u001b]10;?", i) || input.startsWith("\u001b]11;?", i)) {
+        const isForeground = input.startsWith("\u001b]10;?", i)
+        const terminatorIndex = input.indexOf("\u0007", i + 5)
+        const stIndex = input.indexOf("\u001b\\", i + 5)
+        let endIndex = -1
+        let terminatorLength = 0
+
+        if (terminatorIndex !== -1) {
+          endIndex = terminatorIndex
+          terminatorLength = 1
+        } else if (stIndex !== -1) {
+          endIndex = stIndex
+          terminatorLength = 2
+        } else {
+          return { output, responses, pending: input.slice(i) }
+        }
+
+        responses.push(buildColorResponse(isForeground ? "10" : "11", isForeground ? colors.fg : colors.bg))
+        i = endIndex + terminatorLength
+        continue
+      }
+    }
+
+    output += char
+    i += 1
+  }
+
+  return { output, responses, pending: "" }
+}
 
 /**
  * Build a command string for shell execution.
@@ -62,6 +162,11 @@ export function spawnPty(
   const { cols = 80, rows = 24 } = options
   const cwd = expandPath(entry.cwd)
 
+  const colorOverrides = {
+    fg: normalizeHexColor(entry.env?.TUIDISCOPE_FG ?? process.env.TUIDISCOPE_FG, DEFAULT_FG),
+    bg: normalizeHexColor(entry.env?.TUIDISCOPE_BG ?? process.env.TUIDISCOPE_BG, DEFAULT_BG),
+  }
+
   const env: Record<string, string> = {
     ...process.env as Record<string, string>,
     TERM: "xterm-256color",
@@ -80,14 +185,23 @@ export function spawnPty(
   let dataCallback: ((data: string) => void) | null = null
   let exitCallback: ((info: { exitCode: number; signal: number }) => void) | null = null
 
+  let pendingControl = ""
+
   // Create terminal with callbacks
   const terminal = new Bun.Terminal({
     cols,
     rows,
     data(_term, data) {
       const str = typeof data === "string" ? data : new TextDecoder().decode(data)
-      if (dataCallback) {
-        dataCallback(str)
+      const parsed = stripTerminalQueries(pendingControl + str, colorOverrides)
+      pendingControl = parsed.pending
+
+      if (parsed.responses.length > 0) {
+        terminal.write(parsed.responses.join(""))
+      }
+
+      if (dataCallback && parsed.output.length > 0) {
+        dataCallback(parsed.output)
       }
     },
     exit(_term) {
