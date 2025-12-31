@@ -98,6 +98,31 @@ apps:
     cwd: "<CONFIG_DIR>"
     autostart: false
 
+  - name: "shuvcode"
+    command: "shuvcode"
+    cwd: "~"
+    autostart: false
+
+  - name: "opencode"
+    command: "opencode"
+    cwd: "~"
+    autostart: false
+
+  - name: "claude"
+    command: "claude"
+    cwd: "~"
+    autostart: false
+
+  - name: "codex"
+    command: "codex"
+    cwd: "~"
+    autostart: false
+
+  - name: "gemini"
+    command: "gemini"
+    cwd: "~"
+    autostart: false
+
 session:
   persist: true
   file: "~/.local/state/tuidiscope/session.yaml"
