@@ -1,6 +1,6 @@
 import { createStore } from "solid-js/store"
 
-export type ModalType = "add-tab" | "command-palette" | null
+export type ModalType = "add-tab" | "command-palette" | "edit-app" | null
 
 export interface UIStore {
   activeModal: ModalType

@@ -10,6 +10,7 @@ function configToEntry(config: AppEntryConfig): AppEntry {
     id: generateId(),
     name: config.name,
     command: config.command,
+    args: config.args,
     cwd: config.cwd,
     env: config.env,
     autostart: config.autostart ?? false,

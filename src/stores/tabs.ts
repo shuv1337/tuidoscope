@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store"
-import type { AppStatus, FocusMode, RunningApp } from "../types"
+import type { AppEntry, AppStatus, FocusMode, RunningApp } from "../types"
 
 export interface TabsStore {
   activeTabId: string | null
@@ -56,6 +56,18 @@ export function createTabsStore() {
     })
   }
 
+  const updateRunningEntry = (id: string, updates: Partial<AppEntry>) => {
+    setStore("runningApps", (apps) => {
+      const app = apps.get(id)
+      if (app) {
+        const newApps = new Map(apps)
+        newApps.set(id, { ...app, entry: { ...app.entry, ...updates } })
+        return newApps
+      }
+      return apps
+    })
+  }
+
   const appendToBuffer = (id: string, data: string) => {
     const MAX_BUFFER_CHARS = 200_000
     setStore("runningApps", (apps) => {
@@ -86,6 +98,7 @@ export function createTabsStore() {
     addRunningApp,
     removeRunningApp,
     updateAppStatus,
+    updateRunningEntry,
     appendToBuffer,
     getRunningApp,
     setScrollOffset,
