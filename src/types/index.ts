@@ -15,7 +15,7 @@ export interface KeybindConfig {
   close_tab: string
   new_tab: string
   toggle_focus: string
-  rename_tab: string
+  edit_app: string
   restart_app: string
   command_palette: string
   stop_app: string
@@ -26,6 +26,7 @@ export interface KeybindConfig {
 export interface AppEntryConfig {
   name: string
   command: string
+  args?: string
   cwd: string
   autostart?: boolean
   restart_on_exit?: boolean
@@ -51,6 +52,7 @@ export interface AppEntry {
   id: string
   name: string
   command: string
+  args?: string
   cwd: string
   env?: Record<string, string>
   autostart: boolean
