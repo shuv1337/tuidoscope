@@ -99,23 +99,22 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
       </box>
 
       {/* Fields */}
-      {fields.map((field) => (
-        <box height={1} flexDirection="row">
-          <box width={12}>
-            <text fg={props.theme.muted}>{field.label}:</text>
-          </box>
-          <box
-            flexGrow={1}
-            borderStyle={focusedField() === field.key ? "single" : undefined}
-            borderColor={props.theme.primary}
-          >
-            <text fg={props.theme.foreground}>
-              {field.value()}
-              {focusedField() === field.key ? "█" : ""}
+      {fields.map((field) => {
+        const isFocused = () => focusedField() === field.key
+        return (
+          <box height={1} flexDirection="row">
+            <box width={12}>
+              <text fg={isFocused() ? props.theme.accent : props.theme.muted}>{field.label}:</text>
+            </box>
+            <text
+              fg={isFocused() ? props.theme.foreground : props.theme.muted}
+              bg={isFocused() ? props.theme.primary : undefined}
+            >
+              {" "}{field.value()}{isFocused() ? "█" : " "}
             </text>
           </box>
-        </box>
-      ))}
+        )
+      })}
 
       {/* Footer */}
       <box height={1}>
