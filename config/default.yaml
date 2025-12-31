@@ -2,13 +2,13 @@
 
 version: 1
 
-# Theme configuration
+# Theme configuration (Night Owl)
 theme:
-  primary: "#7aa2f7"      # Tab highlight, borders
-  background: "#1a1b26"   # Main background
-  foreground: "#c0caf5"   # Text color
-  accent: "#bb9af7"       # Active indicators
-  muted: "#565f89"        # Inactive elements
+  primary: "#82aaff"      # Tab highlight, borders
+  background: "#011627"   # Main background
+  foreground: "#d6deeb"   # Text color
+  accent: "#c792ea"       # Active indicators
+  muted: "#5f7e97"        # Inactive elements
 
 # Global keybindings (customizable)
 keybinds:
@@ -20,6 +20,8 @@ keybinds:
   rename_tab: "ctrl+r"
   restart_app: "ctrl+shift+r"
   command_palette: "ctrl+p" # Fuzzy finder for apps and commands
+  stop_app: "ctrl+k"
+  kill_all: "ctrl+shift+k"
   quit: "ctrl+q"
 
 # Tab width (characters)

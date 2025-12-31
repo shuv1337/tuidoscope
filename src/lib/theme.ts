@@ -1,12 +1,12 @@
 import type { ThemeConfig } from "../types"
 
-// Default Tokyo Night-inspired theme
+// Default Night Owl-inspired theme
 export const defaultTheme: ThemeConfig = {
-  primary: "#7aa2f7",
-  background: "#1a1b26",
-  foreground: "#c0caf5",
-  accent: "#bb9af7",
-  muted: "#565f89",
+  primary: "#82aaff",
+  background: "#011627",
+  foreground: "#d6deeb",
+  accent: "#c792ea",
+  muted: "#5f7e97",
 }
 
 /**
