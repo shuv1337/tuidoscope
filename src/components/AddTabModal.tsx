@@ -1,4 +1,5 @@
 import { Component, createSignal } from "solid-js"
+import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntryConfig } from "../types"
 
 export interface AddTabModalProps {
@@ -21,6 +22,12 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
     { key: "cwd", label: "Directory", value: cwd, setValue: setCwd },
   ]
 
+  const focusIndex = () => fields.findIndex((field) => field.key === focusedField())
+  const setFocusByIndex = (index: number) => {
+    const clamped = Math.max(0, Math.min(fields.length - 1, index))
+    setFocusedField(fields[clamped].key)
+  }
+
   const handleSubmit = () => {
     if (name() && command()) {
       props.onAdd({
@@ -31,6 +38,43 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
       })
     }
   }
+
+  useKeyboard((event) => {
+    if (event.name === "escape") {
+      props.onClose()
+      event.preventDefault()
+      return
+    }
+
+    if (event.name === "tab") {
+      const direction = event.shift ? -1 : 1
+      setFocusByIndex(focusIndex() + direction)
+      event.preventDefault()
+      return
+    }
+
+    if (event.name === "return" || event.name === "enter") {
+      handleSubmit()
+      event.preventDefault()
+      return
+    }
+
+    const focused = fields[focusIndex()]
+    if (!focused) {
+      return
+    }
+
+    if (event.name === "backspace") {
+      focused.setValue(focused.value().slice(0, -1))
+      event.preventDefault()
+      return
+    }
+
+    if (!event.ctrl && !event.meta && !event.option && event.sequence && event.sequence.length === 1) {
+      focused.setValue(focused.value() + event.sequence)
+      event.preventDefault()
+    }
+  })
 
   return (
     <box
