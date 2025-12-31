@@ -178,8 +178,23 @@ export function spawnPty(
   const useScript = process.platform !== "win32" && !process.env.TUIDISCOPE_NO_SCRIPT
   const commandString = buildCommandString(entry.command)
   const { program, args } = parseCommand(entry.command)
-  const spawnProgram = useScript ? "script" : program
-  const spawnArgs = useScript ? ["-q", "-c", commandString, "/dev/null"] : args
+
+  let spawnProgram: string
+  let spawnArgs: string[]
+
+  if (useScript) {
+    spawnProgram = "script"
+    if (process.platform === "darwin") {
+      // macOS: script -q /dev/null command args...
+      spawnArgs = ["-q", "/dev/null", program, ...args]
+    } else {
+      // Linux: script -q -c "command" /dev/null
+      spawnArgs = ["-q", "-c", commandString, "/dev/null"]
+    }
+  } else {
+    spawnProgram = program
+    spawnArgs = args
+  }
 
   // Callbacks storage
   let dataCallback: ((data: string) => void) | null = null
