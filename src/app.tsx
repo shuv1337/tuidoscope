@@ -5,11 +5,13 @@ import { TerminalPane } from "./components/TerminalPane"
 import { StatusBar } from "./components/StatusBar"
 import { CommandPalette } from "./components/CommandPalette"
 import { AddTabModal } from "./components/AddTabModal"
+import { EditAppModal } from "./components/EditAppModal"
 import { createAppsStore } from "./stores/apps"
 import { createTabsStore } from "./stores/tabs"
 import { createUIStore } from "./stores/ui"
 import { spawnPty, killPty, resizePty } from "./lib/pty"
 import { initSessionPath, saveSession } from "./lib/session"
+import { saveConfig } from "./lib/config"
 import { createKeybindHandler } from "./lib/keybinds"
 import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp } from "./types"
 
@@ -38,6 +40,7 @@ export const App: Component<AppProps> = (props) => {
   // Track if initial autostart has run
   const [hasAutostarted, setHasAutostarted] = createSignal(false)
   const [isQuitting, setIsQuitting] = createSignal(false)
+  const [editingEntryId, setEditingEntryId] = createSignal<string | null>(null)
 
   const getPtyDimensions = () => {
     const dims = terminalDims()
@@ -202,11 +205,55 @@ export const App: Component<AppProps> = (props) => {
     }
   }
 
+  const persistAppsConfig = async () => {
+    const nextApps: AppEntryConfig[] = appsStore.store.entries.map((entry) => ({
+      name: entry.name,
+      command: entry.command,
+      args: entry.args?.trim() || undefined,
+      cwd: entry.cwd,
+      autostart: entry.autostart,
+      restart_on_exit: entry.restartOnExit,
+      env: entry.env,
+    }))
+
+    const nextConfig: Config = { ...props.config, apps: nextApps }
+    props.config.apps = nextApps
+
+    try {
+      await saveConfig(nextConfig)
+    } catch (error) {
+      console.error("Failed to save config:", error)
+      uiStore.showTemporaryMessage("Failed to save config")
+    }
+  }
+
   // Add a new app
+  const openEditModal = (id: string) => {
+    setEditingEntryId(id)
+    uiStore.openModal("edit-app")
+  }
+
   const handleAddApp = (config: AppEntryConfig) => {
     const entry = appsStore.addEntry(config)
     uiStore.closeModal()
     uiStore.showTemporaryMessage(`Added: ${entry.name}`)
+    void persistAppsConfig()
+  }
+
+  const handleEditApp = (id: string, updates: Pick<AppEntryConfig, "name" | "command" | "args" | "cwd">) => {
+    appsStore.updateEntry(id, updates)
+    tabsStore.updateRunningEntry(id, updates)
+    uiStore.closeModal()
+    setEditingEntryId(null)
+
+    const updatedName = appsStore.getEntry(id)?.name ?? updates.name
+    if (tabsStore.store.runningApps.has(id)) {
+      uiStore.showTemporaryMessage(`Updated: ${updatedName} (restart to apply)`)
+    } else {
+      uiStore.showTemporaryMessage(`Updated: ${updatedName}`)
+    }
+
+    void persistAppsConfig()
   }
 
   // Create keybind handler
@@ -215,6 +262,18 @@ export const App: Component<AppProps> = (props) => {
     prev_tab: () => handleTabNavigation("up"),
     toggle_focus: () => tabsStore.toggleFocus(),
     new_tab: () => uiStore.openModal("add-tab"),
+    edit_app: () => {
+      if (tabsStore.store.focusMode !== "tabs") {
+        uiStore.showTemporaryMessage("Switch to tabs to edit")
+        return
+      }
+      const entry = appsStore.store.entries[selectedIndex()]
+      if (!entry) {
+        uiStore.showTemporaryMessage("No app selected")
+        return
+      }
+      openEditModal(entry.id)
+    },
     command_palette: () => uiStore.openModal("command-palette"),
     close_tab: () => {
       const activeId = tabsStore.store.activeTabId
@@ -277,9 +336,12 @@ export const App: Component<AppProps> = (props) => {
     // If a modal is open, let it handle keys (except Escape which closes modals)
     if (uiStore.store.activeModal) {
       if (event.name === "escape") {
+        if (uiStore.store.activeModal === "edit-app") {
+          setEditingEntryId(null)
+        }
         uiStore.closeModal()
-        event.preventDefault()
       }
+      event.preventDefault()
       return
     }
 
@@ -406,6 +468,11 @@ export const App: Component<AppProps> = (props) => {
     return activeId ? tabsStore.getRunningApp(activeId) : undefined
   })
 
+  const editingEntry = createMemo(() => {
+    const id = editingEntryId()
+    return id ? appsStore.getEntry(id) : undefined
+  })
+
   return (
     <box flexDirection="column" width="100%" height="100%">
       {/* Main content area */}
@@ -446,6 +513,7 @@ export const App: Component<AppProps> = (props) => {
         keybinds={{
           toggle_focus: props.config.keybinds.toggle_focus,
           command_palette: props.config.keybinds.command_palette,
+          edit_app: props.config.keybinds.edit_app,
           stop_app: props.config.keybinds.stop_app,
           kill_all: props.config.keybinds.kill_all,
           quit: props.config.keybinds.quit,
@@ -458,6 +526,11 @@ export const App: Component<AppProps> = (props) => {
           entries={appsStore.store.entries}
           theme={props.config.theme}
           onSelect={(entry, action) => {
+            if (action === "edit") {
+              openEditModal(entry.id)
+              return
+            }
+
             uiStore.closeModal()
             if (action === "switch") {
               handleSelectApp(entry.id)
@@ -479,6 +552,20 @@ export const App: Component<AppProps> = (props) => {
           onAdd={handleAddApp}
           onClose={() => uiStore.closeModal()}
         />
+      </Show>
+
+      <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()} keyed>
+        {(entry) => (
+          <EditAppModal
+            theme={props.config.theme}
+            entry={entry}
+            onSave={(updates) => handleEditApp(entry.id, updates)}
+            onClose={() => {
+              uiStore.closeModal()
+              setEditingEntryId(null)
+            }}
+          />
+        )}
       </Show>
     </box>
   )

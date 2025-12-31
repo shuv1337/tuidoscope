@@ -1,5 +1,6 @@
 import type { Subprocess, Terminal } from "bun"
 import { expandPath } from "./config"
+import { buildEntryCommand } from "./command"
 import type { AppEntry } from "../types"
 
 export interface PtyOptions {
@@ -176,8 +177,9 @@ export function spawnPty(
   }
 
   const useScript = process.platform !== "win32" && !process.env.TUIDISCOPE_NO_SCRIPT
-  const commandString = buildCommandString(entry.command)
-  const { program, args } = parseCommand(entry.command)
+  const entryCommand = buildEntryCommand(entry)
+  const commandString = buildCommandString(entryCommand)
+  const { program, args } = parseCommand(entryCommand)
 
   let spawnProgram: string
   let spawnArgs: string[]
