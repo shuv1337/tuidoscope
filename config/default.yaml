@@ -17,7 +17,7 @@ keybinds:
   close_tab: "ctrl+w"
   new_tab: "ctrl+t"
   toggle_focus: "ctrl+a"    # Switch between tab list and terminal
-  rename_tab: "ctrl+r"
+  edit_app: "ctrl+e"
   restart_app: "ctrl+shift+r"
   command_palette: "ctrl+p" # Fuzzy finder for apps and commands
   stop_app: "ctrl+x"
