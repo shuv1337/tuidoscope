@@ -8,17 +8,19 @@ export interface AddTabModalProps {
   onClose: () => void
 }
 
-type Field = "name" | "command" | "cwd"
+type Field = "name" | "command" | "args" | "cwd"
 
 export const AddTabModal: Component<AddTabModalProps> = (props) => {
   const [name, setName] = createSignal("")
   const [command, setCommand] = createSignal("")
+  const [args, setArgs] = createSignal("")
   const [cwd, setCwd] = createSignal("~")
   const [focusedField, setFocusedField] = createSignal<Field>("name")
 
   const fields: { key: Field; label: string; value: () => string; setValue: (v: string) => void }[] = [
     { key: "name", label: "Name", value: name, setValue: setName },
     { key: "command", label: "Command", value: command, setValue: setCommand },
+    { key: "args", label: "Arguments", value: args, setValue: setArgs },
     { key: "cwd", label: "Directory", value: cwd, setValue: setCwd },
   ]
 
@@ -33,6 +35,7 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
       props.onAdd({
         name: name(),
         command: command(),
+        args: args().trim() || undefined,
         cwd: cwd() || "~",
         autostart: false,
       })
@@ -82,7 +85,7 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
       top="30%"
       left="25%"
       width="50%"
-      height={10}
+      height={11}
       flexDirection="column"
       borderStyle="double"
       borderColor={props.theme.primary}
