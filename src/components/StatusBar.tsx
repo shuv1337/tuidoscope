@@ -11,6 +11,8 @@ export interface StatusBarProps {
   keybinds: {
     toggle_focus: string
     command_palette: string
+    stop_app: string
+    kill_all: string
     quit: string
   }
 }
@@ -29,6 +31,10 @@ export const StatusBar: Component<StatusBarProps> = (props) => {
           {formatKeybind(props.keybinds.toggle_focus)}:Focus
           {" | "}
           {formatKeybind(props.keybinds.command_palette)}:Palette
+          {" | "}
+          {formatKeybind(props.keybinds.stop_app)}:Stop
+          {" | "}
+          {formatKeybind(props.keybinds.kill_all)}:KillAll
           {" | "}
           {formatKeybind(props.keybinds.quit)}:Quit
         </text>

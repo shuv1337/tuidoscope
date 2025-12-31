@@ -10,6 +10,8 @@ export type KeybindAction =
   | "rename_tab"
   | "restart_app"
   | "command_palette"
+  | "stop_app"
+  | "kill_all"
   | "quit"
 
 interface ParsedKeybind {
@@ -44,10 +46,21 @@ export function matchesKeybind(event: KeyEvent, keybind: string): boolean {
 
   // opentui uses 'option' for alt on Mac, we check both
   const eventAlt = event.option ?? false
+  const eventName = event.name.toLowerCase()
+  const isSpaceKey = parsed.key === "space"
+  const eventIsSpace =
+    eventName === "space" || eventName === " " || event.sequence === " " || event.sequence === "\x00"
+  const ctrlSequence =
+    parsed.ctrl && parsed.key.length === 1 && parsed.key >= "a" && parsed.key <= "z"
+      ? String.fromCharCode(parsed.key.charCodeAt(0) - 96)
+      : null
+  const ctrlSequenceMatch = !!ctrlSequence && event.sequence === ctrlSequence
+  const keyMatches = isSpaceKey ? eventIsSpace : eventName === parsed.key || ctrlSequenceMatch
+  const ctrlMatches = parsed.ctrl ? (event.ctrl || ctrlSequenceMatch) : !event.ctrl
 
   return (
-    event.name.toLowerCase() === parsed.key &&
-    event.ctrl === parsed.ctrl &&
+    keyMatches &&
+    ctrlMatches &&
     eventAlt === parsed.alt &&
     event.shift === parsed.shift &&
     event.meta === parsed.meta
@@ -70,6 +83,8 @@ export function createKeybindHandler(
     [config.rename_tab]: "rename_tab",
     [config.restart_app]: "restart_app",
     [config.command_palette]: "command_palette",
+    [config.stop_app]: "stop_app",
+    [config.kill_all]: "kill_all",
     [config.quit]: "quit",
   }
 
