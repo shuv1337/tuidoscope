@@ -13,6 +13,7 @@ import { spawnPty, killPty, resizePty } from "./lib/pty"
 import { initSessionPath, saveSession } from "./lib/session"
 import { saveConfig } from "./lib/config"
 import { createKeybindHandler } from "./lib/keybinds"
+import { debugLog } from "./lib/debug"
 import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp } from "./types"
 
 export interface AppProps {
@@ -333,15 +334,18 @@ export const App: Component<AppProps> = (props) => {
 
   // Hook up keyboard events from opentui
   useKeyboard((event) => {
-    // If a modal is open, let it handle keys (except Escape which closes modals)
+    debugLog(`[App] key: ${event.name} modal: ${uiStore.store.activeModal} prevented: ${event.defaultPrevented}`)
+
+    // If a modal is open, let it handle its own keys (except Escape which closes modals)
     if (uiStore.store.activeModal) {
       if (event.name === "escape") {
         if (uiStore.store.activeModal === "edit-app") {
           setEditingEntryId(null)
         }
         uiStore.closeModal()
+        event.preventDefault()
       }
-      event.preventDefault()
+      // Don't preventDefault for other events - let the modal handle them
       return
     }
 
@@ -470,7 +474,8 @@ export const App: Component<AppProps> = (props) => {
 
   const editingEntry = createMemo(() => {
     const id = editingEntryId()
-    return id ? appsStore.getEntry(id) : undefined
+    const entry = id ? appsStore.getEntry(id) : undefined
+    return entry
   })
 
   return (
@@ -554,18 +559,16 @@ export const App: Component<AppProps> = (props) => {
         />
       </Show>
 
-      <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()} keyed>
-        {(entry) => (
-          <EditAppModal
-            theme={props.config.theme}
-            entry={entry}
-            onSave={(updates) => handleEditApp(entry.id, updates)}
-            onClose={() => {
-              uiStore.closeModal()
-              setEditingEntryId(null)
-            }}
-          />
-        )}
+      <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()}>
+        <EditAppModal
+          theme={props.config.theme}
+          entry={editingEntry()!}
+          onSave={(updates) => handleEditApp(editingEntry()!.id, updates)}
+          onClose={() => {
+            uiStore.closeModal()
+            setEditingEntryId(null)
+          }}
+        />
       </Show>
     </box>
   )
