@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "dev": "bun run src/index.tsx",
-    "build": "bun build src/index.tsx --outdir dist --target bun --packages external && echo '#!/usr/bin/env bun' | cat - dist/index.js > dist/temp && mv dist/temp dist/index.js",
+    "build": "bun run build.ts && echo '#!/usr/bin/env bun' | cat - dist/index.js > dist/temp && mv dist/temp dist/index.js",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
