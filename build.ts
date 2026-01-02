@@ -4,7 +4,8 @@ const result = await Bun.build({
   entrypoints: ["./src/index.tsx"],
   outdir: "./dist",
   target: "bun",
-  packages: "external",
+  // Bundle everything except native modules that can't be bundled
+  external: ["node-pty", "yoga-layout"],
   plugins: [solidPlugin],
 })
 
