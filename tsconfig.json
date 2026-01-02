@@ -12,7 +12,7 @@
     "rootDir": "src",
     "jsx": "preserve",
     "jsxImportSource": "@opentui/solid",
-    "types": ["node", "@opentui/solid/jsx-runtime"],
+    "types": ["node", "bun", "@opentui/solid/jsx-runtime"],
     "lib": ["ESNext", "DOM"]
   },
   "include": ["src/**/*"],
