@@ -10,7 +10,7 @@ export interface PtyOptions {
 
 export interface PtyProcess {
   terminal: Terminal
-  proc: Subprocess<"ignore", "ignore", "ignore">
+  proc: Subprocess<any, any, any>
   write: (data: string) => void
   resize: (cols: number, rows: number) => void
   kill: () => void
