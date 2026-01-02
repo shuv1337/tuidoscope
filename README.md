@@ -41,13 +41,37 @@ A centralized TUI management application for running multiple TUI applications i
 - [Bun](https://bun.sh/) runtime installed on your system.
 - A terminal that supports TUI applications (xterm-256color recommended).
 
-### Installation
+### Quick Start (No Install)
+
+Run tuidoscope instantly without installing:
 
 ```bash
-bun install
+bunx tuidoscope
 ```
 
-### Usage
+### Installation
+
+Install globally:
+
+```bash
+bun install -g tuidoscope
+```
+
+Then run from anywhere:
+
+```bash
+tuidoscope
+```
+
+## Development
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/shuv1337/tuidoscope.git
+cd tuidoscope
+bun install
+```
 
 Start the application in development mode:
 
@@ -59,6 +83,12 @@ Build for production:
 
 ```bash
 bun run build
+```
+
+Run typechecks:
+
+```bash
+bun run typecheck
 ```
 
 ## Configuration
@@ -105,6 +135,6 @@ theme:
 - Runtime application configuration (Add/Edit).
 - Path expansion for working directories.
 
-## Development
+## License
 
-- **Typecheck**: `bun run typecheck`
+MIT
