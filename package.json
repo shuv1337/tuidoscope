@@ -3,12 +3,36 @@
   "version": "0.1.0",
   "description": "A centralized TUI management app for running TUI applications in embedded terminal windows",
   "type": "module",
-  "main": "src/index.tsx",
+  "main": "dist/index.js",
+  "bin": {
+    "tuidoscope": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "bun run src/index.tsx",
     "build": "bun build src/index.tsx --outdir dist --target node",
     "typecheck": "tsc --noEmit"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shuv1337/tuidoscope.git"
+  },
+  "keywords": [
+    "tui",
+    "terminal",
+    "cli",
+    "multiplexer",
+    "ghostty",
+    "opentui"
+  ],
+  "author": "shuv1337",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shuv1337/tuidoscope/issues"
+  },
+  "homepage": "https://github.com/shuv1337/tuidoscope#readme",
   "dependencies": {
     "@opentui/core": "^0.1.63",
     "@opentui/solid": "^0.1.63",
