@@ -103,4 +103,4 @@ apps:
     restart_on_exit: false
 session:
   persist: true
-  file: ~/.local/state/tuidiscope/session.yaml
+  file: ~/.local/state/tuidoscope/session.yaml

@@ -1,5 +1,5 @@
-# Example tuidiscope configuration
-# Copy to ~/.config/tuidiscope/config.yaml
+# Example tuidoscope configuration
+# Copy to ~/.config/tuidoscope/config.yaml
 
 version: 1
 
@@ -125,4 +125,4 @@ apps:
 
 session:
   persist: true
-  file: "~/.local/state/tuidiscope/session.yaml"
+  file: "~/.local/state/tuidoscope/session.yaml"

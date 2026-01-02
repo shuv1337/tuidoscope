@@ -22,7 +22,7 @@ async function main() {
 
     // Handle process signals for graceful shutdown
     const handleShutdown = () => {
-      console.log("\nShutting down tuidiscope...")
+      console.log("\nShutting down tuidoscope...")
       process.exit(0)
     }
 
@@ -30,7 +30,7 @@ async function main() {
     process.on("SIGTERM", handleShutdown)
 
   } catch (error) {
-    console.error("Failed to start tuidiscope:", error)
+    console.error("Failed to start tuidoscope:", error)
     process.exit(1)
   }
 }

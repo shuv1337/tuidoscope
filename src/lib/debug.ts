@@ -1,9 +1,9 @@
 import { appendFileSync } from "fs"
 
-const DEBUG_LOG_PATH = process.env.TUIDISCOPE_DEBUG_LOG || "tuidiscope-debug.log"
+const DEBUG_LOG_PATH = process.env.TUIDOSCOPE_DEBUG_LOG || "tuidoscope-debug.log"
 
 export function debugLog(message: string) {
-  if (!process.env.TUIDISCOPE_DEBUG) {
+  if (!process.env.TUIDOSCOPE_DEBUG) {
     return
   }
 

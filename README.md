@@ -1,4 +1,4 @@
-# tuidiscope
+# tuidoscope
 
 A centralized TUI management application for running multiple TUI applications in embedded terminal windows. Built with [OpenTUI](https://github.com/opentui/opentui) and SolidJS.
 
@@ -49,7 +49,7 @@ bun run build
 
 ## Configuration
 
-Tuidiscope looks for a configuration file at `~/.config/tuidiscope/config.yaml`. It also supports a local `tuidiscope.yaml` in the current working directory for project-specific setups.
+Tuidoscope looks for a configuration file at `~/.config/tuidoscope/config.yaml`. It also supports a local `tuidoscope.yaml` in the current working directory for project-specific setups.
 
 ### Default Keybinds
 
@@ -65,7 +65,7 @@ Tuidiscope looks for a configuration file at `~/.config/tuidiscope/config.yaml`.
 | Close Tab | `Ctrl+W` |
 | Restart Current App | `Ctrl+Shift+R` |
 | Kill All Apps | `Ctrl+Shift+K` |
-| Quit Tuidiscope | `Ctrl+Q` |
+| Quit Tuidoscope | `Ctrl+Q` |
 
 ### Theme Customization
 

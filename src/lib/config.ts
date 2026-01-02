@@ -7,9 +7,9 @@ import { dirname, join, resolve } from "path"
 import type { Config } from "../types"
 
 // Default configuration path
-const CONFIG_DIR = join(homedir(), ".config", "tuidiscope")
+const CONFIG_DIR = join(homedir(), ".config", "tuidoscope")
 const CONFIG_PATH = join(CONFIG_DIR, "config.yaml")
-const LOCAL_CONFIG_PATH = "./tuidiscope.yaml"
+const LOCAL_CONFIG_PATH = "./tuidoscope.yaml"
 
 // Zod schema for validation
 const ThemeSchema = z.object({
@@ -50,7 +50,7 @@ const AppEntrySchema = z.object({
 
 const SessionSchema = z.object({
   persist: z.boolean().default(true),
-  file: z.string().default("~/.local/state/tuidiscope/session.yaml"),
+  file: z.string().default("~/.local/state/tuidoscope/session.yaml"),
 })
 
 const ConfigSchema = z.object({

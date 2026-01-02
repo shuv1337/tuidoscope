@@ -1,4 +1,4 @@
-# tuidiscope default configuration
+# tuidoscope default configuration
 
 version: 1
 
@@ -33,4 +33,4 @@ apps: []
 # Session persistence
 session:
   persist: true
-  file: "~/.local/state/tuidiscope/session.yaml"
+  file: "~/.local/state/tuidoscope/session.yaml"
