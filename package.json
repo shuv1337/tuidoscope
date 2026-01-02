@@ -1,6 +1,6 @@
 {
   "name": "tuidoscope",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A centralized TUI management app for running TUI applications in embedded terminal windows",
   "type": "module",
   "main": "dist/index.js",
@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "dev": "bun run src/index.tsx",
-    "build": "bun build src/index.tsx --outdir dist --target bun --packages external",
+    "build": "bun build src/index.tsx --outdir dist --target bun --packages external && echo '#!/usr/bin/env bun' | cat - dist/index.js > dist/temp && mv dist/temp dist/index.js",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
