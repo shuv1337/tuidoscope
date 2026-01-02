@@ -2,6 +2,20 @@
 
 A centralized TUI management application for running multiple TUI applications in embedded terminal windows. Built with [OpenTUI](https://github.com/opentui/opentui) and SolidJS.
 
+## Screenshots
+
+### Main Interface
+![Shell](shell.png)
+
+### Running TUI Applications
+![btop](btop.png)
+
+### Command Palette
+![Command Palette](palette.png)
+
+### Edit App Modal
+![Edit App](edit.png)
+
 ## Features
 
 - **Embedded Terminals**: Run multiple TUIs in a single window using Ghostty's high-performance terminal emulator.
