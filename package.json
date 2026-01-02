@@ -1,6 +1,6 @@
 {
   "name": "tuidoscope",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A centralized TUI management app for running TUI applications in embedded terminal windows",
   "type": "module",
   "main": "dist/index.js",
