@@ -1,113 +1,106 @@
-# Local test configuration for tuidiscope
-# This file is used when running from this directory
-
 version: 1
-
 theme:
-  primary: "#82aaff"      # Blue - selections, highlights  
-  background: "#011627"   # Deep dark blue
-  foreground: "#d6deeb"   # Light gray-blue text
-  accent: "#7fdbca"       # Cyan/teal - active indicators
-  muted: "#637777"        # Gray-blue for inactive elements
-
+  primary: "#82aaff"
+  background: "#011627"
+  foreground: "#d6deeb"
+  accent: "#7fdbca"
+  muted: "#637777"
 keybinds:
-  next_tab: "ctrl+n"
-  prev_tab: "ctrl+p"
-  close_tab: "ctrl+w"
-  new_tab: "ctrl+t"
-  toggle_focus: "ctrl+a"
-  edit_app: "ctrl+e"
-  restart_app: "ctrl+shift+r"
-  command_palette: "ctrl+space"
-  stop_app: "ctrl+x"
-  kill_all: "ctrl+shift+k"
-  quit: "ctrl+q"
-
+  next_tab: ctrl+n
+  prev_tab: ctrl+p
+  close_tab: ctrl+w
+  new_tab: ctrl+t
+  toggle_focus: ctrl+a
+  restart_app: ctrl+shift+r
+  command_palette: ctrl+space
+  stop_app: ctrl+x
+  kill_all: ctrl+shift+k
+  quit: ctrl+q
+  edit_app: ctrl+e
 tab_width: 20
-
 apps:
-  - name: "Shell"
-    command: "zsh"
+  - name: Shell
+    command: zsh
     cwd: "~"
     autostart: true
+    restart_on_exit: false
     env:
-      TERM: "xterm-256color"
-
-  - name: "Top"
-    command: "top"
+      TERM: xterm-256color
+  - name: Top
+    command: top
     cwd: "~"
     autostart: false
-
-  - name: "htop"
-    command: "htop"
+    restart_on_exit: false
+  - name: htop
+    command: htop
     cwd: "~"
     autostart: false
-
-  - name: "btop"
-    command: "btop"
+    restart_on_exit: false
+  - name: btop
+    command: btop
     cwd: "~"
     autostart: false
-
-  - name: "lazygit"
-    command: "lazygit"
-    cwd: "<CONFIG_DIR>"
+    restart_on_exit: false
+  - name: lazygit
+    command: lazygit
+    cwd: <CONFIG_DIR>
     autostart: false
-
-  - name: "tig"
-    command: "tig"
-    cwd: "<CONFIG_DIR>"
+    restart_on_exit: false
+  - name: tig
+    command: tig
+    cwd: <CONFIG_DIR>
     autostart: false
-
-  - name: "neovim"
-    command: "nvim"
-    cwd: "<CONFIG_DIR>"
+    restart_on_exit: false
+  - name: neovim
+    command: nvim
+    cwd: <CONFIG_DIR>
     autostart: false
-
-  - name: "yazi"
-    command: "yazi"
+    restart_on_exit: false
+  - name: yazi
+    command: yazi
     cwd: "~"
     autostart: false
-
-  - name: "glances"
-    command: "glances"
+    restart_on_exit: false
+  - name: glances
+    command: glances
     cwd: "~"
     autostart: false
-
-  - name: "shuvdash"
-    command: "gh dash"
-    cwd: "<CONFIG_DIR>"
+    restart_on_exit: false
+  - name: shuvdash
+    command: gh dash
+    cwd: /home/shuv/repos/worktrees/shuvcode/shuvcode-dev
     autostart: false
-
-  - name: "shuvflow"
-    command: "gh enhance"
-    cwd: "<CONFIG_DIR>"
+    restart_on_exit: false
+  - name: shuvflow
+    command: gh enhance
+    cwd: /home/shuv/repos/worktrees/shuvcode/shuvcode-dev
     autostart: false
-
-  - name: "shuvcode"
-    command: "shuvcode"
+    restart_on_exit: false
+  - name: shuvcode
+    command: shuvcode
     cwd: "~"
     autostart: false
-
-  - name: "opencode"
-    command: "opencode"
+    restart_on_exit: false
+  - name: opencode
+    command: opencode
     cwd: "~"
     autostart: false
-
-  - name: "claude"
-    command: "claude"
+    restart_on_exit: false
+  - name: claude
+    command: claude
     cwd: "~"
     autostart: false
-
-  - name: "codex"
-    command: "codex"
+    restart_on_exit: false
+  - name: codex
+    command: codex
     cwd: "~"
     autostart: false
-
-  - name: "gemini"
-    command: "gemini"
+    restart_on_exit: false
+  - name: gemini
+    command: gemini
     cwd: "~"
     autostart: false
-
+    restart_on_exit: false
 session:
   persist: true
-  file: "~/.local/state/tuidiscope/session.yaml"
+  file: ~/.local/state/tuidiscope/session.yaml
