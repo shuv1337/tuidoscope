@@ -1,12 +1,33 @@
 import solidPlugin from "@opentui/solid/bun-plugin"
+import { type BunPlugin } from "bun"
+
+// Force solid-js to use client version instead of server version
+const solidClientPlugin: BunPlugin = {
+  name: "solid-client-redirect",
+  setup(build) {
+    // Redirect solid-js server imports to client versions
+    build.onResolve({ filter: /^solid-js$/ }, (args) => {
+      return { path: require.resolve("solid-js/dist/solid.js") }
+    })
+    build.onResolve({ filter: /^solid-js\/store$/ }, (args) => {
+      return { path: require.resolve("solid-js/store/dist/store.js") }
+    })
+  },
+}
 
 const result = await Bun.build({
   entrypoints: ["./src/index.tsx"],
   outdir: "./dist",
   target: "bun",
-  // Bundle everything except native modules that can't be bundled
-  external: ["node-pty", "yoga-layout"],
-  plugins: [solidPlugin],
+  // Keep native/FFI modules external, bundle solid-js (client version) and @opentui/solid
+  external: [
+    "node-pty",
+    "yoga-layout",
+    "@opentui/core",
+    "@opentui/core-*",
+    "ghostty-opentui",
+  ],
+  plugins: [solidClientPlugin, solidPlugin],
 })
 
 if (!result.success) {
