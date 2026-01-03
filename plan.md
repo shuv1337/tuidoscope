@@ -493,86 +493,84 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 6.1 Create Wizard Container Structure
 
-- [ ] **6.1.1** Create `src/components/onboarding/OnboardingWizard.tsx`
+- [x] **6.1.1** Create `src/components/onboarding/OnboardingWizard.tsx`
 
-- [ ] **6.1.2** Import all step components from index.ts
+- [x] **6.1.2** Import all step components from index.ts
 
-- [ ] **6.1.3** Import `WizardStep`, `WizardState`, `OnboardingWizardProps` from types.ts
+- [x] **6.1.3** Import `WizardStep`, `WizardState`, `OnboardingWizardProps` from types.ts
 
-- [ ] **6.1.4** Import `APP_PRESETS` from presets.ts
+- [x] **6.1.4** Import `APP_PRESETS` from presets.ts
 
-- [ ] **6.1.5** Import `createStore` from `solid-js/store` for wizard state
+- [x] **6.1.5** Import `createSignal` from `solid-js` for wizard state (Note: used createSignal instead of createStore because SolidJS stores don't work well with Set objects)
 
 ### 6.2 Implement Wizard State Management
 
-- [ ] **6.2.1** Create wizard state store with initial values:
+- [x] **6.2.1** Create wizard state with signals:
   ```typescript
-  const [state, setState] = createStore<WizardState>({
-    currentStep: "welcome",
-    selectedPresets: new Set(),
-    customApps: []
-  })
+  const [currentStep, setCurrentStep] = createSignal<WizardStep>("welcome")
+  const [selectedPresets, setSelectedPresets] = createSignal<Set<string>>(new Set())
+  const [customApps, setCustomApps] = createSignal<AppEntryConfig[]>([])
   ```
 
-- [ ] **6.2.2** Create `goToStep` function to update `currentStep`
+- [x] **6.2.2** Create `goToStep` function to update `currentStep`
 
-- [ ] **6.2.3** Create `togglePreset` function:
+- [x] **6.2.3** Create `togglePreset` function:
   - If preset in set, remove it
   - If preset not in set, add it
   - Update state immutably
 
-- [ ] **6.2.4** Create `addCustomApp` function to append to `customApps` array
+- [x] **6.2.4** Create `addCustomApp` function to append to `customApps` array
 
-- [ ] **6.2.5** Create `removeCustomApp` function to remove by index
+- [x] **6.2.5** Create `removeCustomApp` function to remove by index
 
 ### 6.3 Implement Step Navigation
 
-- [ ] **6.3.1** Create `handleNext` function with step transitions:
+- [x] **6.3.1** Create `handleNext` function with step transitions:
   - welcome -> presets
   - presets -> custom
   - custom -> confirm
 
-- [ ] **6.3.2** Create `handleBack` function with step transitions:
+- [x] **6.3.2** Create `handleBack` function with step transitions:
   - confirm -> custom
   - custom -> presets
   - presets -> welcome
 
-- [ ] **6.3.3** Create `handleConfirm` function:
+- [x] **6.3.3** Create `handleConfirm` function:
   - Build `AppEntryConfig[]` from selected presets
   - Append custom apps to array
   - Call `props.onComplete(apps)`
 
-- [ ] **6.3.4** Create `handleSkip` function that calls `props.onSkip()`
+- [x] **6.3.4** Create `handleSkip` function that calls `props.onSkip()`
 
 ### 6.4 Implement Wizard UI Container
 
-- [ ] **6.4.1** Add outer `<box>` with full width/height, column layout
+- [x] **6.4.1** Add outer `<box>` with full width/height, column layout
 
-- [ ] **6.4.2** Add step indicator at top showing current step:
+- [x] **6.4.2** Add step indicator at top showing current step:
   - Format: "Step X of 4: StepName"
   - Use progress dots: `[*]---[ ]---[ ]---[ ]`
 
-- [ ] **6.4.3** Add content area `<box>` with flexGrow={1}
+- [x] **6.4.3** Add content area `<box>` with flexGrow={1}
 
-- [ ] **6.4.4** Use `<Switch>` / `<Match>` or conditional `<Show>` to render current step
+- [x] **6.4.4** Use `<Switch>` / `<Match>` or conditional `<Show>` to render current step
 
-- [ ] **6.4.5** Render `WelcomeStep` when `currentStep === "welcome"`:
+- [x] **6.4.5** Render `WelcomeStep` when `currentStep === "welcome"`:
   - Pass theme, onNext=handleNext, onSkip=handleSkip
 
-- [ ] **6.4.6** Render `PresetSelectionStep` when `currentStep === "presets"`:
+- [x] **6.4.6** Render `PresetSelectionStep` when `currentStep === "presets"`:
   - Pass theme, selectedPresets, onTogglePreset, onNext, onBack
 
-- [ ] **6.4.7** Render `CustomAppStep` when `currentStep === "custom"`:
+- [x] **6.4.7** Render `CustomAppStep` when `currentStep === "custom"`:
   - Pass theme, customApps, onAddApp, onRemoveApp, onNext, onBack
 
-- [ ] **6.4.8** Render `ConfirmationStep` when `currentStep === "confirm"`:
+- [x] **6.4.8** Render `ConfirmationStep` when `currentStep === "confirm"`:
   - Pass theme, selectedPresets, customApps, onConfirm, onBack
 
 ### 6.5 Export Wizard Container
 
-- [ ] **6.5.1** Export `OnboardingWizard` from component file
+- [x] **6.5.1** Export `OnboardingWizard` from component file
 
-- [ ] **6.5.2** Add export to `src/components/onboarding/index.ts`
+- [x] **6.5.2** Add export to `src/components/onboarding/index.ts`
 
 ---
 
