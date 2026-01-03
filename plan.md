@@ -587,7 +587,7 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 7.2 Implement Wizard Completion Handler
 
-- [ ] **7.2.1** Create `handleWizardComplete` function that receives `apps: AppEntryConfig[]`:
+- [x] **7.2.1** Create `handleWizardComplete` function that receives `apps: AppEntryConfig[]`:
   ```typescript
   const handleWizardComplete = async (apps: AppEntryConfig[]) => {
     // Add each app to the store
