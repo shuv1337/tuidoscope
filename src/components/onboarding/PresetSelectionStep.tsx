@@ -13,8 +13,33 @@ export interface PresetSelectionStepProps {
 
 export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) => {
   const [focusedIndex, setFocusedIndex] = createSignal(0)
+  const [pendingG, setPendingG] = createSignal(false)
 
   useKeyboard((event) => {
+    // Handle gg sequence for jump to top
+    if (pendingG()) {
+      setPendingG(false)
+      if (event.sequence === "g") {
+        setFocusedIndex(0)
+        event.preventDefault()
+        return
+      }
+    }
+
+    // First g in gg sequence
+    if (event.sequence === "g") {
+      setPendingG(true)
+      event.preventDefault()
+      return
+    }
+
+    // G (shift+g) for jump to bottom
+    if (event.sequence === "G") {
+      setFocusedIndex(APP_PRESETS.length - 1)
+      event.preventDefault()
+      return
+    }
+
     // Navigate down
     if (event.name === "j" || event.name === "down") {
       setFocusedIndex((prev) => Math.min(prev + 1, APP_PRESETS.length - 1))
@@ -122,7 +147,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
-          j/k: Navigate | Space: Toggle | Enter: Next | Esc: Back
+          j/k: Navigate | gg/G: Top/Bottom | Space: Toggle | Enter: Next | Esc: Back
         </text>
       </box>
     </box>

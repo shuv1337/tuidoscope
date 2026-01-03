@@ -664,7 +664,7 @@ These tasks address critical issues identified during plan review and must be co
 
 - [ ] **8.1.1** In `WelcomeStep`, ensure Enter and Escape work reliably
 
-- [ ] **8.1.2** In `PresetSelectionStep`, add vim-style navigation (gg for top, G for bottom)
+- [x] **8.1.2** In `PresetSelectionStep`, add vim-style navigation (gg for top, G for bottom)
 
 - [ ] **8.1.3** In `CustomAppStep`, ensure Tab cycles correctly through all fields
 
