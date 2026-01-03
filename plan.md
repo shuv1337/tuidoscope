@@ -714,8 +714,9 @@ These tasks address critical issues identified during plan review and must be co
   - Expected: Wizard shows
   - Verified: Wizard displays correctly with welcome step, progress indicator, and keybind hints
 
-- [ ] **9.1.2** Test scenario: Config exists with apps
+- [x] **9.1.2** Test scenario: Config exists with apps
   - Expected: Wizard does NOT show, main UI displays
+  - Verified: With local `./tuidoscope.yaml` containing 16 apps, the main UI displays with apps list - wizard is correctly skipped
 
 - [ ] **9.1.3** Test scenario: Config exists but empty apps array
   - Expected: Wizard does NOT show (config file exists)
