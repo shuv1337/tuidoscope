@@ -734,8 +734,9 @@ These tasks address critical issues identified during plan review and must be co
   - Expected: Empty config created, main UI shows, wizard won't show on restart
   - Verified: Code review confirms the flow - WelcomeStep handles Esc/Backspace → OnboardingWizard.handleSkip → App.handleWizardSkip → persistAppsConfig() saves empty config to XDG path → setWizardCompleted(true) → main UI shows. On restart, loadConfig() finds config file → configFileFound=true → isFirstRun()=false → wizard skipped.
 
-- [ ] **9.1.7** Test scenario: Navigate back through all wizard steps
+- [x] **9.1.7** Test scenario: Navigate back through all wizard steps
   - Expected: State preserved when going back
+  - Verified: Code analysis confirms state is lifted to OnboardingWizard component (signals at lines 27-29), navigation handlers only change currentStep (lines 48-60), and state is passed to steps as props. This follows React/SolidJS best practices for state preservation.
 
 - [ ] **9.1.8** Test scenario: Restart app after wizard completion
   - Expected: Wizard does NOT show, previous apps still configured
