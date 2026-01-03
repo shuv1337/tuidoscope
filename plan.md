@@ -578,12 +578,12 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 7.1 Import Wizard Component
 
-- [ ] **7.1.1** In `src/app.tsx`, add import for OnboardingWizard:
+- [x] **7.1.1** In `src/app.tsx`, add import for OnboardingWizard:
   ```typescript
   import { OnboardingWizard } from "./components/onboarding"
   ```
 
-- [ ] **7.1.2** Import `AppEntryConfig` type if not already imported
+- [x] **7.1.2** Import `AppEntryConfig` type if not already imported (was already present)
 
 ### 7.2 Implement Wizard Completion Handler
 
