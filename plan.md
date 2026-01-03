@@ -668,7 +668,7 @@ These tasks address critical issues identified during plan review and must be co
 
 - [x] **8.1.3** In `CustomAppStep`, ensure Tab cycles correctly through all fields (fixed with modulo wrap-around)
 
-- [ ] **8.1.4** Add consistent keybind footer to all steps
+- [x] **8.1.4** Add consistent keybind footer to all steps (updated PresetSelectionStep and ConfirmationStep to show Esc/Backspace for consistency)
 
 ### 8.2 Visual Polish
 
