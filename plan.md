@@ -710,8 +710,9 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 9.1 Manual Testing Checklist
 
-- [ ] **9.1.1** Test scenario: Fresh install (no `~/.config/tuidoscope/` directory)
+- [x] **9.1.1** Test scenario: Fresh install (no `~/.config/tuidoscope/` directory)
   - Expected: Wizard shows
+  - Verified: Wizard displays correctly with welcome step, progress indicator, and keybind hints
 
 - [ ] **9.1.2** Test scenario: Config exists with apps
   - Expected: Wizard does NOT show, main UI displays
