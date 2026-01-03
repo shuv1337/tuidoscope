@@ -738,8 +738,9 @@ These tasks address critical issues identified during plan review and must be co
   - Expected: State preserved when going back
   - Verified: Code analysis confirms state is lifted to OnboardingWizard component (signals at lines 27-29), navigation handlers only change currentStep (lines 48-60), and state is passed to steps as props. This follows React/SolidJS best practices for state preservation.
 
-- [ ] **9.1.8** Test scenario: Restart app after wizard completion
+- [x] **9.1.8** Test scenario: Restart app after wizard completion
   - Expected: Wizard does NOT show, previous apps still configured
+  - Verified: Code analysis confirms: 1) handleWizardComplete calls persistAppsConfig which saves to XDG config path via saveConfig(), 2) On restart, loadConfig() finds existing config file and sets configFileFound=true, 3) isFirstRun() returns false when configFileFound=true, 4) shouldShowWizard() returns false so main UI is shown, 5) Apps are restored from the saved config file via createAppsStore(props.config.apps)
 
 ### 9.2 Type Checking
 
