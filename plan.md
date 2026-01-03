@@ -62,14 +62,15 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 0.3 Guard Autostart During Wizard
 
-- [ ] **0.3.1** In `src/app.tsx:402-432`, add early return at start of autostart effect:
+- [x] **0.3.1** In `src/app.tsx:402-432`, add early return at start of autostart effect:
   ```typescript
   if (shouldShowWizard()) {
     return  // Don't autostart apps during wizard
   }
   ```
 
-- [ ] **0.3.2** In `src/app.tsx:419-431`, add same guard to session restoration block
+- [x] **0.3.2** In `src/app.tsx:419-431`, add same guard to session restoration block
+  - Note: Both autostart and session restoration are in the same `createEffect`, so the single guard at the start covers both
 
 ---
 
