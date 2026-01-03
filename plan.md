@@ -652,7 +652,7 @@ These tasks address critical issues identified during plan review and must be co
 
 - [x] **7.5.3** Verify wizard completes and main UI shows after confirmation
 
-- [ ] **7.5.4** Verify skip creates config and shows main UI
+- [x] **7.5.4** Verify skip creates config and shows main UI
 
 - [ ] **7.5.5** Verify apps added in wizard appear in main UI tab list
 
