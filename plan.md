@@ -87,12 +87,12 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 1.2 Define Wizard Types
 
-- [ ] **1.2.1** Create `src/components/onboarding/types.ts` with wizard step type:
+- [x] **1.2.1** Create `src/components/onboarding/types.ts` with wizard step type:
   ```typescript
   export type WizardStep = "welcome" | "presets" | "custom" | "confirm"
   ```
 
-- [ ] **1.2.2** Add `WizardState` interface to types file:
+- [x] **1.2.2** Add `WizardState` interface to types file:
   ```typescript
   export interface WizardState {
     currentStep: WizardStep
@@ -101,7 +101,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.2.3** Add `OnboardingWizardProps` interface:
+- [x] **1.2.3** Add `OnboardingWizardProps` interface:
   ```typescript
   export interface OnboardingWizardProps {
     theme: ThemeConfig
@@ -110,7 +110,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.2.4** Export all types from `src/components/onboarding/index.ts`
+- [x] **1.2.4** Export all types from `src/components/onboarding/index.ts`
 
 ### 1.3 Define App Presets
 
