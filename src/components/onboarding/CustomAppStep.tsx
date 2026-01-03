@@ -29,8 +29,9 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
 
   const focusIndex = () => fields.findIndex((field) => field.key === focusedField())
   const setFocusByIndex = (index: number) => {
-    const clamped = Math.max(0, Math.min(fields.length - 1, index))
-    setFocusedField(fields[clamped].key)
+    // Use modulo for proper wrap-around cycling
+    const wrapped = ((index % fields.length) + fields.length) % fields.length
+    setFocusedField(fields[wrapped].key)
   }
 
   const clearForm = () => {
