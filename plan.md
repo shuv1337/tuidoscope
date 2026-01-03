@@ -730,8 +730,9 @@ These tasks address critical issues identified during plan review and must be co
   - Expected: 3 apps in main UI, config file created
   - Verified: Code review confirmed the flow works - `handleConfirm` in OnboardingWizard.tsx builds apps from selected presets + custom apps, `handleWizardComplete` in app.tsx adds to store and persists via `saveConfig`. Wizard displays correctly when no config exists.
 
-- [ ] **9.1.6** Test scenario: Skip wizard immediately
+- [x] **9.1.6** Test scenario: Skip wizard immediately
   - Expected: Empty config created, main UI shows, wizard won't show on restart
+  - Verified: Code review confirms the flow - WelcomeStep handles Esc/Backspace → OnboardingWizard.handleSkip → App.handleWizardSkip → persistAppsConfig() saves empty config to XDG path → setWizardCompleted(true) → main UI shows. On restart, loadConfig() finds config file → configFileFound=true → isFirstRun()=false → wizard skipped.
 
 - [ ] **9.1.7** Test scenario: Navigate back through all wizard steps
   - Expected: State preserved when going back
