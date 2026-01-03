@@ -774,9 +774,18 @@ These tasks address critical issues identified during plan review and must be co
   - Verified: No debug console.log/debug/info statements found in src/
   - Only legitimate console.warn/error for production error handling exist
 
-- [ ] **9.3.3** Add comments for complex logic
+- [x] **9.3.3** Add comments for complex logic
+  - Added JSDoc comments to `handleConfirm` in OnboardingWizard.tsx explaining preset-to-config conversion
+  - Added comments for `isDuplicateName` validation function in CustomAppStep.tsx with @param/@returns documentation
+  - Documented the double-modulo wrap-around pattern in `setFocusByIndex` for field cycling
+  - Explained vim-style "gg" key sequence state machine in PresetSelectionStep.tsx
+  - Added comments for step indicator helpers (stepNumber, stepName, stepIndicator)
 
-- [ ] **9.3.4** Ensure imports are organized and unused imports removed
+- [x] **9.3.4** Ensure imports are organized and unused imports removed
+  - Verified: All imports are used in all onboarding files
+  - Fixed: Removed unused `Show` import from OnboardingWizard.tsx
+  - All imports are properly organized (solid-js first, then @opentui, then local imports)
+  - TypeScript build passes
 
 ---
 

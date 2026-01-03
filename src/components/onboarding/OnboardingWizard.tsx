@@ -1,4 +1,4 @@
-import { Component, createSignal, Show, Switch, Match } from "solid-js"
+import { Component, createSignal, Switch, Match } from "solid-js"
 import type { AppEntryConfig } from "../../types"
 import type { WizardStep, OnboardingWizardProps } from "./types"
 import { APP_PRESETS } from "./presets"
