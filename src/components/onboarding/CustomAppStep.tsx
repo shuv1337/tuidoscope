@@ -199,9 +199,9 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
         <For each={fields}>
           {(field) => {
             const isFocused = () => focusedField() === field.key
-            const isRequired = field.key === "name" || field.key === "command"
             return (
               // role="group" aria-labelledby for the field label
+              // aria-required="true" for name and command fields (field.key === "name" || field.key === "command")
               <box height={1} flexDirection="row">
                 {/* Focus indicator - visible focus for accessibility */}
                 <text fg={isFocused() ? props.theme.accent : props.theme.muted}>
@@ -211,7 +211,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
                 <box width={12}>
                   <text fg={isFocused() ? props.theme.accent : props.theme.muted}>{field.label}:</text>
                 </box>
-                {/* role="textbox" aria-required={isRequired} aria-label="{field.label} input" */}
+                {/* role="textbox" aria-label="{field.label} input" */}
                 <text
                   fg={isFocused() ? props.theme.foreground : props.theme.muted}
                   bg={isFocused() ? props.theme.primary : undefined}
