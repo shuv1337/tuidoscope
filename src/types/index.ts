@@ -35,7 +35,7 @@ export interface AppEntryConfig {
 
 export interface SessionConfig {
   persist: boolean
-  file: string
+  file?: string  // Optional, uses XDG_STATE_HOME/tuidoscope/session.yaml by default
 }
 
 export interface Config {

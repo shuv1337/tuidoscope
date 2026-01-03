@@ -3,25 +3,34 @@ import { readFile, writeFile, mkdir } from "fs/promises"
 import { existsSync } from "fs"
 import { dirname } from "path"
 import { expandPath } from "./config"
+import { paths } from "./xdg"
 import type { SessionData, Config } from "../types"
 
-let sessionPath: string | null = null
+let sessionPath: string = paths.session
 
 /**
  * Initialize session path from config
+ * Uses config.session.file if specified, otherwise XDG default
  */
 export function initSessionPath(config: Config): void {
-  sessionPath = expandPath(config.session.file)
+  if (config.session.file) {
+    sessionPath = expandPath(config.session.file)
+  } else {
+    sessionPath = paths.session
+  }
+}
+
+/**
+ * Get the current session file path
+ */
+export function getSessionPath(): string {
+  return sessionPath
 }
 
 /**
  * Save current session state
  */
 export async function saveSession(data: SessionData): Promise<void> {
-  if (!sessionPath) {
-    throw new Error("Session path not initialized")
-  }
-
   await mkdir(dirname(sessionPath), { recursive: true })
 
   const yamlContent = stringify(data, {
@@ -36,7 +45,7 @@ export async function saveSession(data: SessionData): Promise<void> {
  * Restore session from file
  */
 export async function restoreSession(): Promise<SessionData | null> {
-  if (!sessionPath || !existsSync(sessionPath)) {
+  if (!existsSync(sessionPath)) {
     return null
   }
 
@@ -64,7 +73,7 @@ export async function restoreSession(): Promise<SessionData | null> {
  * Clear the session file
  */
 export async function clearSession(): Promise<void> {
-  if (sessionPath && existsSync(sessionPath)) {
+  if (existsSync(sessionPath)) {
     await writeFile(sessionPath, "", "utf-8")
   }
 }

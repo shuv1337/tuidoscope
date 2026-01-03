@@ -3,12 +3,12 @@ import { z } from "zod"
 import { readFile, writeFile, mkdir } from "fs/promises"
 import { existsSync } from "fs"
 import { homedir } from "os"
-import { dirname, join, resolve } from "path"
+import { dirname, resolve } from "path"
+import { getConfigDir as getXdgConfigDir, paths, getStateDir } from "./xdg"
+import { debugLog } from "./debug"
 import type { Config } from "../types"
 
-// Default configuration path
-const CONFIG_DIR = join(homedir(), ".config", "tuidoscope")
-const CONFIG_PATH = join(CONFIG_DIR, "config.yaml")
+// Local project config (takes precedence)
 const LOCAL_CONFIG_PATH = "./tuidoscope.yaml"
 
 // Zod schema for validation
@@ -48,9 +48,10 @@ const AppEntrySchema = z.object({
   env: z.record(z.string()).optional(),
 })
 
+// Session schema now uses XDG state dir by default
 const SessionSchema = z.object({
   persist: z.boolean().default(true),
-  file: z.string().default("~/.local/state/tuidoscope/session.yaml"),
+  file: z.string().optional(), // Will use XDG default if not specified
 })
 
 const ConfigSchema = z.object({
@@ -62,8 +63,9 @@ const ConfigSchema = z.object({
   session: SessionSchema.default({}),
 })
 
-let configPath: string = CONFIG_PATH
-let configDir: string = CONFIG_DIR
+// Current active config location (may be local or XDG)
+let configPath: string = paths.config
+let configDir: string = getXdgConfigDir()
 
 /**
  * Expand path tokens like ~ and <CONFIG_DIR>
@@ -81,22 +83,40 @@ export function expandPath(path: string): string {
     expanded = expanded.replace("<CONFIG_DIR>", configDir)
   }
 
+  // Expand <STATE_DIR>
+  if (expanded.includes("<STATE_DIR>")) {
+    expanded = expanded.replace("<STATE_DIR>", getStateDir())
+  }
+
   return resolve(expanded)
 }
 
 /**
  * Load configuration from file, with fallback to defaults
+ * 
+ * Search order:
+ * 1. ./tuidoscope.yaml (local project config)
+ * 2. $XDG_CONFIG_HOME/tuidoscope/tuidoscope.yaml
+ * 3. Default values
  */
 export async function loadConfig(): Promise<Config> {
+  debugLog(`[config] Checking local config: ${LOCAL_CONFIG_PATH}`)
+  debugLog(`[config] Checking XDG config: ${paths.config}`)
+  
   // Check for local config first
   if (existsSync(LOCAL_CONFIG_PATH)) {
     configPath = resolve(LOCAL_CONFIG_PATH)
     configDir = dirname(configPath)
-  } else if (existsSync(CONFIG_PATH)) {
-    configPath = CONFIG_PATH
-    configDir = CONFIG_DIR
+    debugLog(`[config] Using local config: ${configPath}`)
+  } else if (existsSync(paths.config)) {
+    configPath = paths.config
+    configDir = getXdgConfigDir()
+    debugLog(`[config] Using XDG config: ${configPath}`)
   } else {
-    // No config exists, use defaults
+    // No config exists, use defaults with XDG paths
+    configPath = paths.config
+    configDir = getXdgConfigDir()
+    debugLog(`[config] No config found, using defaults`)
     return ConfigSchema.parse({}) as Config
   }
 
@@ -104,8 +124,10 @@ export async function loadConfig(): Promise<Config> {
     const content = await readFile(configPath, "utf-8")
     const parsed = parse(content)
     const validated = ConfigSchema.parse(parsed)
+    debugLog(`[config] Loaded ${validated.apps.length} apps from config`)
     return validated as Config
   } catch (error) {
+    debugLog(`[config] Error loading config: ${error}`)
     console.error(`Error loading config from ${configPath}:`, error)
     return ConfigSchema.parse({}) as Config
   }
