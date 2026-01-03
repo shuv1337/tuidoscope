@@ -8,6 +8,14 @@ import { getConfigDir as getXdgConfigDir, paths, getStateDir } from "./xdg"
 import { debugLog } from "./debug"
 import type { Config } from "../types"
 
+/**
+ * Result from loadConfig() including metadata about config file discovery
+ */
+export interface LoadConfigResult {
+  config: Config
+  configFileFound: boolean
+}
+
 // Local project config (takes precedence)
 const LOCAL_CONFIG_PATH = "./tuidoscope.yaml"
 
