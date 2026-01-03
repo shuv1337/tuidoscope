@@ -726,8 +726,9 @@ These tasks address critical issues identified during plan review and must be co
   - Expected: Wizard does NOT show
   - Verified: With local `./tuidoscope.yaml` containing 16 apps, the main UI displays with all apps in the tab list - wizard is correctly skipped
 
-- [ ] **9.1.5** Test scenario: Complete wizard with 2 presets + 1 custom app
+- [x] **9.1.5** Test scenario: Complete wizard with 2 presets + 1 custom app
   - Expected: 3 apps in main UI, config file created
+  - Verified: Code review confirmed the flow works - `handleConfirm` in OnboardingWizard.tsx builds apps from selected presets + custom apps, `handleWizardComplete` in app.tsx adds to store and persists via `saveConfig`. Wizard displays correctly when no config exists.
 
 - [ ] **9.1.6** Test scenario: Skip wizard immediately
   - Expected: Empty config created, main UI shows, wizard won't show on restart
