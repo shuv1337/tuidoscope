@@ -722,8 +722,9 @@ These tasks address critical issues identified during plan review and must be co
   - Expected: Wizard does NOT show (config file exists)
   - Verified: With `./tuidoscope.yaml` containing `apps: []`, the main UI displays with "No app selected. Press Ctrl+T to add one." - wizard is correctly skipped
 
-- [ ] **9.1.4** Test scenario: Local `./tuidoscope.yaml` exists
+- [x] **9.1.4** Test scenario: Local `./tuidoscope.yaml` exists
   - Expected: Wizard does NOT show
+  - Verified: With local `./tuidoscope.yaml` containing 16 apps, the main UI displays with all apps in the tab list - wizard is correctly skipped
 
 - [ ] **9.1.5** Test scenario: Complete wizard with 2 presets + 1 custom app
   - Expected: 3 apps in main UI, config file created
