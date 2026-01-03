@@ -34,12 +34,12 @@ These tasks address critical issues identified during plan review and must be co
   const { config, configFileFound } = await loadConfig()
   ```
 
-- [ ] **0.1.6** In `src/index.tsx:43`, pass `configFileFound` as prop to App:
+- [x] **0.1.6** In `src/index.tsx:43`, pass `configFileFound` as prop to App:
   ```typescript
   <App config={config} session={session} configFileFound={configFileFound} />
   ```
 
-- [ ] **0.1.7** In `src/app.tsx:19-22`, update `AppProps` interface to include `configFileFound: boolean`
+- [x] **0.1.7** In `src/app.tsx:19-22`, update `AppProps` interface to include `configFileFound: boolean`
 
 - [ ] **0.1.8** Verify the app still starts correctly with `bun dev`
 
