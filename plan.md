@@ -278,9 +278,9 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 3.1 Create Preset Selection Step Structure
 
-- [ ] **3.1.1** Create `src/components/onboarding/PresetSelectionStep.tsx`
+- [x] **3.1.1** Create `src/components/onboarding/PresetSelectionStep.tsx`
 
-- [ ] **3.1.2** Define component props interface:
+- [x] **3.1.2** Define component props interface:
   ```typescript
   interface PresetSelectionStepProps {
     theme: ThemeConfig
@@ -291,55 +291,55 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **3.1.3** Create component skeleton, import `APP_PRESETS` from presets.ts
+- [x] **3.1.3** Create component skeleton, import `APP_PRESETS` from presets.ts
 
-- [ ] **3.1.4** Import `createSignal` for tracking focused index
+- [x] **3.1.4** Import `createSignal` for tracking focused index
 
 ### 3.2 Implement Preset List UI
 
-- [ ] **3.2.1** Add `createSignal` for `focusedIndex` initialized to 0
+- [x] **3.2.1** Add `createSignal` for `focusedIndex` initialized to 0
 
-- [ ] **3.2.2** Add outer container `<box>` with column layout
+- [x] **3.2.2** Add outer container `<box>` with column layout
 
-- [ ] **3.2.3** Add title: "Select Apps to Add" with theme accent color
+- [x] **3.2.3** Add title: "Select Apps to Add" with theme accent color
 
-- [ ] **3.2.4** Add instruction text: "Space to select, Enter to continue"
+- [x] **3.2.4** Add instruction text: "Space to select, Enter to continue"
 
-- [ ] **3.2.5** Create preset list container `<box>` with column layout
+- [x] **3.2.5** Create preset list container `<box>` with column layout
 
-- [ ] **3.2.6** Map over `APP_PRESETS` to render each preset row
+- [x] **3.2.6** Map over `APP_PRESETS` to render each preset row
 
-- [ ] **3.2.7** For each preset row, show:
+- [x] **3.2.7** For each preset row, show:
   - Checkbox indicator: `[x]` if selected, `[ ]` if not
   - Icon from preset
   - Name from preset
   - Description in muted color
 
-- [ ] **3.2.8** Highlight focused row with theme primary background color
+- [x] **3.2.8** Highlight focused row with theme primary background color
 
-- [ ] **3.2.9** Show selected count in footer: "X apps selected"
+- [x] **3.2.9** Show selected count in footer: "X apps selected"
 
 ### 3.3 Implement Preset Selection Keyboard Handling
 
-- [ ] **3.3.1** Add `useKeyboard` hook
+- [x] **3.3.1** Add `useKeyboard` hook
 
-- [ ] **3.3.2** Handle `j` / `down` to increment focusedIndex (clamped to list length)
+- [x] **3.3.2** Handle `j` / `down` to increment focusedIndex (clamped to list length)
 
-- [ ] **3.3.3** Handle `k` / `up` to decrement focusedIndex (clamped to 0)
+- [x] **3.3.3** Handle `k` / `up` to decrement focusedIndex (clamped to 0)
 
-- [ ] **3.3.4** Handle `space` to toggle selection of focused preset via `props.onTogglePreset()`
+- [x] **3.3.4** Handle `space` to toggle selection of focused preset via `props.onTogglePreset()`
 
-- [ ] **3.3.5** Handle `enter` / `return` to call `props.onNext()`
+- [x] **3.3.5** Handle `enter` / `return` to call `props.onNext()`
 
-- [ ] **3.3.6** Handle `escape` / `backspace` to call `props.onBack()`
+- [x] **3.3.6** Handle `escape` / `backspace` to call `props.onBack()`
 
-- [ ] **3.3.7** Add footer keybind hints: "j/k: Navigate | Space: Toggle | Enter: Next | Esc: Back"
+- [x] **3.3.7** Add footer keybind hints: "j/k: Navigate | Space: Toggle | Enter: Next | Esc: Back"
 
 ### 3.4 Export Preset Selection Step
 
-- [ ] **3.4.1** Export `PresetSelectionStep` from component file
+- [x] **3.4.1** Export `PresetSelectionStep` from component file
 
-- [ ] **3.4.2** Add export to `src/components/onboarding/index.ts`
+- [x] **3.4.2** Add export to `src/components/onboarding/index.ts`
 
 ---
 
