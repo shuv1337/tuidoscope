@@ -662,7 +662,7 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 8.1 Keyboard Navigation Polish
 
-- [ ] **8.1.1** In `WelcomeStep`, ensure Enter and Escape work reliably
+- [x] **8.1.1** In `WelcomeStep`, ensure Enter and Escape work reliably (added backspace as alternative skip key for consistency)
 
 - [x] **8.1.2** In `PresetSelectionStep`, add vim-style navigation (gg for top, G for bottom)
 

@@ -16,7 +16,7 @@ export const WelcomeStep: Component<WelcomeStepProps> = (props) => {
       return
     }
 
-    if (event.name === "escape") {
+    if (event.name === "escape" || event.name === "backspace") {
       props.onSkip()
       event.preventDefault()
       return
@@ -70,7 +70,7 @@ export const WelcomeStep: Component<WelcomeStepProps> = (props) => {
       {/* Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
-          Enter: Get Started | Esc: Skip
+          Enter: Get Started | Esc/Backspace: Skip
         </text>
       </box>
     </box>
