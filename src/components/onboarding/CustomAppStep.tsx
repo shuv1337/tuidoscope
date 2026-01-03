@@ -179,6 +179,9 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
             const isFocused = () => focusedField() === field.key
             return (
               <box height={1} flexDirection="row">
+                <text fg={isFocused() ? props.theme.accent : props.theme.muted}>
+                  {isFocused() ? "> " : "  "}
+                </text>
                 <box width={12}>
                   <text fg={isFocused() ? props.theme.accent : props.theme.muted}>{field.label}:</text>
                 </box>

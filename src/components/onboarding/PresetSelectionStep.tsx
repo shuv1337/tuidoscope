@@ -114,6 +114,11 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
             return (
               <box height={1}>
                 <text
+                  fg={isFocused() ? props.theme.accent : props.theme.muted}
+                >
+                  {isFocused() ? "> " : "  "}
+                </text>
+                <text
                   fg={isFocused() ? props.theme.background : props.theme.foreground}
                   bg={isFocused() ? props.theme.primary : undefined}
                 >

@@ -700,7 +700,7 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 8.4 Accessibility
 
-- [ ] **8.4.1** Ensure all interactive elements have visible focus indicators
+- [x] **8.4.1** Ensure all interactive elements have visible focus indicators (added `>` arrow indicators before focused items in PresetSelectionStep and CustomAppStep)
 
 - [ ] **8.4.2** Add aria-like labels in comments for future screen reader support
 
