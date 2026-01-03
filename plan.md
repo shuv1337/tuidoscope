@@ -434,9 +434,9 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 5.1 Create Confirmation Step Structure
 
-- [ ] **5.1.1** Create `src/components/onboarding/ConfirmationStep.tsx`
+- [x] **5.1.1** Create `src/components/onboarding/ConfirmationStep.tsx`
 
-- [ ] **5.1.2** Define component props interface:
+- [x] **5.1.2** Define component props interface:
   ```typescript
   interface ConfirmationStepProps {
     theme: ThemeConfig
@@ -447,45 +447,45 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **5.1.3** Create component skeleton, import `APP_PRESETS` from presets.ts
+- [x] **5.1.3** Create component skeleton, import `APP_PRESETS` from presets.ts
 
 ### 5.2 Implement Confirmation Summary UI
 
-- [ ] **5.2.1** Add outer container with column layout
+- [x] **5.2.1** Add outer container with column layout
 
-- [ ] **5.2.2** Add title: "Review Your Setup"
+- [x] **5.2.2** Add title: "Review Your Setup"
 
-- [ ] **5.2.3** Calculate total apps count: `selectedPresets.size + customApps.length`
+- [x] **5.2.3** Calculate total apps count: `selectedPresets.size + customApps.length`
 
-- [ ] **5.2.4** Show summary line: "You're adding X app(s):"
+- [x] **5.2.4** Show summary line: "You're adding X app(s):"
 
-- [ ] **5.2.5** Add section for preset apps if any selected:
+- [x] **5.2.5** Add section for preset apps if any selected:
   - Header: "From presets:"
   - List each selected preset name and command
 
-- [ ] **5.2.6** Add section for custom apps if any:
+- [x] **5.2.6** Add section for custom apps if any:
   - Header: "Custom apps:"
   - List each custom app name and command
 
-- [ ] **5.2.7** If no apps selected, show message: "No apps selected. You can add apps later with Ctrl+T"
+- [x] **5.2.7** If no apps selected, show message: "No apps selected. You can add apps later with Ctrl+T"
 
-- [ ] **5.2.8** Add config file location note: "Config will be saved to: ~/.config/tuidoscope/tuidoscope.yaml"
+- [x] **5.2.8** Add config file location note: "Config will be saved to: ~/.config/tuidoscope/tuidoscope.yaml"
 
 ### 5.3 Implement Confirmation Keyboard Handling
 
-- [ ] **5.3.1** Add `useKeyboard` hook
+- [x] **5.3.1** Add `useKeyboard` hook
 
-- [ ] **5.3.2** Handle `enter` / `return` to call `props.onConfirm()`
+- [x] **5.3.2** Handle `enter` / `return` to call `props.onConfirm()`
 
-- [ ] **5.3.3** Handle `escape` / `backspace` to call `props.onBack()`
+- [x] **5.3.3** Handle `escape` / `backspace` to call `props.onBack()`
 
-- [ ] **5.3.4** Add footer: "Enter: Confirm & Save | Esc: Back"
+- [x] **5.3.4** Add footer: "Enter: Confirm & Save | Esc: Back"
 
 ### 5.4 Export Confirmation Step
 
-- [ ] **5.4.1** Export `ConfirmationStep` from component file
+- [x] **5.4.1** Export `ConfirmationStep` from component file
 
-- [ ] **5.4.2** Add export to `src/components/onboarding/index.ts`
+- [x] **5.4.2** Add export to `src/components/onboarding/index.ts`
 
 ---
 
