@@ -30,6 +30,11 @@ export const App: Component<AppProps> = (props) => {
   const tabsStore = createTabsStore()
   const uiStore = createUIStore()
 
+  // First-run detection for onboarding wizard
+  const isFirstRun = () => !props.configFileFound && appsStore.store.entries.length === 0
+  const [wizardCompleted, setWizardCompleted] = createSignal(false)
+  const shouldShowWizard = () => isFirstRun() && !wizardCompleted()
+
   // Get terminal dimensions from opentui
   const terminalDims = useTerminalDimensions()
 

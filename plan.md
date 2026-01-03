@@ -45,17 +45,17 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 0.2 Add First-Run Detection Helper
 
-- [ ] **0.2.1** In `src/app.tsx`, after the store initializations (around line 30), add first-run detection:
+- [x] **0.2.1** In `src/app.tsx`, after the store initializations (around line 30), add first-run detection:
   ```typescript
   const isFirstRun = () => !props.configFileFound && appsStore.store.entries.length === 0
   ```
 
-- [ ] **0.2.2** Add `createSignal` for tracking wizard completion state:
+- [x] **0.2.2** Add `createSignal` for tracking wizard completion state:
   ```typescript
   const [wizardCompleted, setWizardCompleted] = createSignal(false)
   ```
 
-- [ ] **0.2.3** Create helper to determine if wizard should show:
+- [x] **0.2.3** Create helper to determine if wizard should show:
   ```typescript
   const shouldShowWizard = () => isFirstRun() && !wizardCompleted()
   ```
