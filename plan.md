@@ -648,7 +648,7 @@ These tasks address critical issues identified during plan review and must be co
 
 - [x] **7.5.1** Run `bun dev` and verify wizard shows on first run (with no config file)
 
-- [ ] **7.5.2** Verify wizard does NOT show when config file exists with apps
+- [x] **7.5.2** Verify wizard does NOT show when config file exists with apps
 
 - [ ] **7.5.3** Verify wizard completes and main UI shows after confirmation
 
