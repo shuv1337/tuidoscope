@@ -347,9 +347,9 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 4.1 Create Custom App Step Structure
 
-- [ ] **4.1.1** Create `src/components/onboarding/CustomAppStep.tsx`
+- [x] **4.1.1** Create `src/components/onboarding/CustomAppStep.tsx`
 
-- [ ] **4.1.2** Define component props interface:
+- [x] **4.1.2** Define component props interface:
   ```typescript
   interface CustomAppStepProps {
     theme: ThemeConfig
@@ -361,72 +361,72 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **4.1.3** Create component skeleton
+- [x] **4.1.3** Create component skeleton
 
 ### 4.2 Implement Custom App Form (Reference AddTabModal.tsx:20-80)
 
-- [ ] **4.2.1** Add signals for form fields: `name`, `command`, `args`, `cwd`
+- [x] **4.2.1** Add signals for form fields: `name`, `command`, `args`, `cwd`
 
-- [ ] **4.2.2** Initialize `cwd` signal to `"~"`
+- [x] **4.2.2** Initialize `cwd` signal to `"~"`
 
-- [ ] **4.2.3** Add `focusedField` signal with type `"name" | "command" | "args" | "cwd"`
+- [x] **4.2.3** Add `focusedField` signal with type `"name" | "command" | "args" | "cwd"`
 
-- [ ] **4.2.4** Create `fields` array matching pattern from `AddTabModal.tsx:20-25`
+- [x] **4.2.4** Create `fields` array matching pattern from `AddTabModal.tsx:20-25`
 
-- [ ] **4.2.5** Add `focusIndex` and `setFocusByIndex` helpers (copy from AddTabModal.tsx:27-31)
+- [x] **4.2.5** Add `focusIndex` and `setFocusByIndex` helpers (copy from AddTabModal.tsx:27-31)
 
 ### 4.3 Implement Custom App Form UI
 
-- [ ] **4.3.1** Add outer container with column layout
+- [x] **4.3.1** Add outer container with column layout
 
-- [ ] **4.3.2** Add title: "Add Custom App (Optional)"
+- [x] **4.3.2** Add title: "Add Custom App (Optional)"
 
-- [ ] **4.3.3** Add form fields layout (copy structure from AddTabModal.tsx:101-117)
+- [x] **4.3.3** Add form fields layout (copy structure from AddTabModal.tsx:101-117)
 
-- [ ] **4.3.4** For each field, show label and input with cursor indicator
+- [x] **4.3.4** For each field, show label and input with cursor indicator
 
-- [ ] **4.3.5** Highlight focused field with theme primary background
+- [x] **4.3.5** Highlight focused field with theme primary background
 
-- [ ] **4.3.6** Add "Add" button hint when name and command are filled
+- [x] **4.3.6** Add "Add" button hint when name and command are filled
 
 ### 4.4 Implement Added Apps List
 
-- [ ] **4.4.1** Below form, add section showing already-added custom apps
+- [x] **4.4.1** Below form, add section showing already-added custom apps
 
-- [ ] **4.4.2** If `props.customApps.length > 0`, show list header: "Custom apps to add:"
+- [x] **4.4.2** If `props.customApps.length > 0`, show list header: "Custom apps to add:"
 
-- [ ] **4.4.3** Map over `props.customApps` showing name and command for each
+- [x] **4.4.3** Map over `props.customApps` showing name and command for each
 
-- [ ] **4.4.4** Show removal hint: "(number key to remove)"
+- [x] **4.4.4** Show removal hint: "(number key to remove)"
 
 ### 4.5 Implement Custom App Keyboard Handling
 
-- [ ] **4.5.1** Add `useKeyboard` hook
+- [x] **4.5.1** Add `useKeyboard` hook
 
-- [ ] **4.5.2** Handle `tab` to cycle through form fields (copy from AddTabModal.tsx:52-57)
+- [x] **4.5.2** Handle `tab` to cycle through form fields (copy from AddTabModal.tsx:52-57)
 
-- [ ] **4.5.3** Handle `backspace` to delete last character from focused field
+- [x] **4.5.3** Handle `backspace` to delete last character from focused field
 
-- [ ] **4.5.4** Handle printable characters to append to focused field (copy from AddTabModal.tsx:76-79)
+- [x] **4.5.4** Handle printable characters to append to focused field (copy from AddTabModal.tsx:76-79)
 
-- [ ] **4.5.5** Handle `ctrl+a` or dedicated key to add current form as app:
+- [x] **4.5.5** Handle `ctrl+a` or dedicated key to add current form as app:
   - Validate name and command are non-empty
   - Call `props.onAddApp()` with form values
   - Clear form fields
 
-- [ ] **4.5.6** Handle number keys `1-9` to remove corresponding custom app via `props.onRemoveApp()`
+- [x] **4.5.6** Handle number keys `1-9` to remove corresponding custom app via `props.onRemoveApp()`
 
-- [ ] **4.5.7** Handle `enter` / `return` to call `props.onNext()`
+- [x] **4.5.7** Handle `enter` / `return` to call `props.onNext()`
 
-- [ ] **4.5.8** Handle `escape` to call `props.onBack()`
+- [x] **4.5.8** Handle `escape` to call `props.onBack()`
 
-- [ ] **4.5.9** Add footer: "Tab: Fields | Ctrl+A: Add | Enter: Next | Esc: Back"
+- [x] **4.5.9** Add footer: "Tab: Fields | Ctrl+A: Add | Enter: Next | Esc: Back"
 
 ### 4.6 Export Custom App Step
 
-- [ ] **4.6.1** Export `CustomAppStep` from component file
+- [x] **4.6.1** Export `CustomAppStep` from component file
 
-- [ ] **4.6.2** Add export to `src/components/onboarding/index.ts`
+- [x] **4.6.2** Add export to `src/components/onboarding/index.ts`
 
 ---
 
