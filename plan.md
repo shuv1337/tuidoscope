@@ -41,7 +41,7 @@ These tasks address critical issues identified during plan review and must be co
 
 - [x] **0.1.7** In `src/app.tsx:19-22`, update `AppProps` interface to include `configFileFound: boolean`
 
-- [ ] **0.1.8** Verify the app still starts correctly with `bun dev`
+- [x] **0.1.8** Verify the app still starts correctly with `bun dev`
 
 ### 0.2 Add First-Run Detection Helper
 
