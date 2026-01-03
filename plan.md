@@ -608,7 +608,7 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 7.3 Implement Wizard Skip Handler
 
-- [ ] **7.3.1** Create `handleWizardSkip` function:
+- [x] **7.3.1** Create `handleWizardSkip` function:
   ```typescript
   const handleWizardSkip = async () => {
     // Save empty config to prevent wizard showing again

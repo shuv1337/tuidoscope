@@ -252,6 +252,18 @@ export const App: Component<AppProps> = (props) => {
     uiStore.showTemporaryMessage(`Added ${apps.length} app(s)`)
   }
 
+  // Handle wizard skip
+  const handleWizardSkip = async () => {
+    // Save empty config to prevent wizard showing again
+    await persistAppsConfig()
+
+    // Mark wizard as completed
+    setWizardCompleted(true)
+
+    // Show hint message
+    uiStore.showTemporaryMessage("Add apps with Ctrl+T")
+  }
+
   // Add a new app
   const openEditModal = (id: string) => {
     setEditingEntryId(id)
