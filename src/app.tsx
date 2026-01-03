@@ -19,6 +19,7 @@ import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp } from "
 export interface AppProps {
   config: Config
   session: SessionData | null
+  configFileFound: boolean
 }
 
 export const App: Component<AppProps> = (props) => {

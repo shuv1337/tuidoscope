@@ -40,7 +40,7 @@ async function main() {
     // Render the app using opentui/solid
     debugLog("[init] Calling render()...")
     try {
-      await render(() => <App config={config} session={session} />)
+      await render(() => <App config={config} session={session} configFileFound={configFileFound} />)
       debugLog("[init] render() completed")
     } catch (renderError) {
       debugLog(`[init] ERROR in render(): ${renderError}`)
