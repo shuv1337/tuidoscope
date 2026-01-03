@@ -672,26 +672,26 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 8.2 Visual Polish
 
-- [ ] **8.2.1** Add double-line border to wizard container (match existing modal style)
+- [x] **8.2.1** Add double-line border to wizard container (match existing modal style)
 
-- [ ] **8.2.2** Center wizard content vertically and horizontally
+- [x] **8.2.2** Center wizard content vertically and horizontally
 
-- [ ] **8.2.3** Ensure consistent spacing between elements
+- [x] **8.2.3** Ensure consistent spacing between elements
 
-- [ ] **8.2.4** Use theme colors consistently across all steps
+- [x] **8.2.4** Use theme colors consistently across all steps
 
 ### 8.3 Edge Case Handling
 
-- [ ] **8.3.1** Handle case where user selects no presets and adds no custom apps:
+- [x] **8.3.1** Handle case where user selects no presets and adds no custom apps:
   - Still save empty config
   - Show appropriate message in confirmation step
 
-- [ ] **8.3.2** Handle config save failure:
+- [x] **8.3.2** Handle config save failure:
   - Catch error in `handleWizardComplete`
   - Show error message via `uiStore.showTemporaryMessage`
   - Don't mark wizard as completed (allow retry)
 
-- [ ] **8.3.3** Validate custom app form:
+- [x] **8.3.3** Validate custom app form:
   - Require non-empty name
   - Require non-empty command
   - Show validation feedback

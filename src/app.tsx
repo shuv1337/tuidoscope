@@ -213,7 +213,7 @@ export const App: Component<AppProps> = (props) => {
     }
   }
 
-  const persistAppsConfig = async () => {
+  const persistAppsConfig = async (): Promise<boolean> => {
     const nextApps: AppEntryConfig[] = appsStore.store.entries.map((entry) => ({
       name: entry.name,
       command: entry.command,
@@ -229,9 +229,10 @@ export const App: Component<AppProps> = (props) => {
 
     try {
       await saveConfig(nextConfig)
+      return true
     } catch (error) {
       console.error("Failed to save config:", error)
-      uiStore.showTemporaryMessage("Failed to save config")
+      return false
     }
   }
 
@@ -243,25 +244,38 @@ export const App: Component<AppProps> = (props) => {
     }
 
     // Persist to config file
-    await persistAppsConfig()
-
-    // Mark wizard as completed
-    setWizardCompleted(true)
-
-    // Show success message
-    uiStore.showTemporaryMessage(`Added ${apps.length} app(s)`)
+    const success = await persistAppsConfig()
+    if (success) {
+      // Mark wizard as completed only on success
+      setWizardCompleted(true)
+      // Show success message
+      uiStore.showTemporaryMessage(`Added ${apps.length} app(s)`)
+    } else {
+      // Remove the apps we just added since save failed
+      for (const appConfig of apps) {
+        const entry = appsStore.store.entries.find((e) => e.name === appConfig.name)
+        if (entry) {
+          appsStore.removeEntry(entry.id)
+        }
+      }
+      // Show error and allow retry (don't mark wizard as completed)
+      uiStore.showTemporaryMessage("Failed to save config - please try again")
+    }
   }
 
   // Handle wizard skip
   const handleWizardSkip = async () => {
     // Save empty config to prevent wizard showing again
-    await persistAppsConfig()
-
-    // Mark wizard as completed
-    setWizardCompleted(true)
-
-    // Show hint message
-    uiStore.showTemporaryMessage("Add apps with Ctrl+T")
+    const success = await persistAppsConfig()
+    if (success) {
+      // Mark wizard as completed only on success
+      setWizardCompleted(true)
+      // Show hint message
+      uiStore.showTemporaryMessage("Add apps with Ctrl+T")
+    } else {
+      // Show error and allow retry (don't mark wizard as completed)
+      uiStore.showTemporaryMessage("Failed to save config - please try again")
+    }
   }
 
   // Add a new app
