@@ -520,97 +520,108 @@ export const App: Component<AppProps> = (props) => {
   })
 
   return (
-    <box flexDirection="column" width="100%" height="100%">
-      {/* Main content area */}
-      <box flexDirection="row" flexGrow={1}>
-        {/* Tab list sidebar */}
-        <TabList
-          entries={appsStore.store.entries}
-          activeTabId={tabsStore.store.activeTabId}
-          selectedIndex={selectedIndex()}
-          getStatus={getAppStatus}
-          isFocused={tabsStore.store.focusMode === "tabs"}
-          width={props.config.tab_width}
-          height={terminalDims().height - 1}
-          scrollOffset={tabsStore.store.scrollOffset}
+    <Show
+      when={!shouldShowWizard()}
+      fallback={
+        <OnboardingWizard
           theme={props.config.theme}
-          onSelect={handleSelectApp}
-          onAddClick={() => uiStore.openModal("add-tab")}
+          onComplete={handleWizardComplete}
+          onSkip={handleWizardSkip}
+        />
+      }
+    >
+      <box flexDirection="column" width="100%" height="100%">
+        {/* Main content area */}
+        <box flexDirection="row" flexGrow={1}>
+          {/* Tab list sidebar */}
+          <TabList
+            entries={appsStore.store.entries}
+            activeTabId={tabsStore.store.activeTabId}
+            selectedIndex={selectedIndex()}
+            getStatus={getAppStatus}
+            isFocused={tabsStore.store.focusMode === "tabs"}
+            width={props.config.tab_width}
+            height={terminalDims().height - 1}
+            scrollOffset={tabsStore.store.scrollOffset}
+            theme={props.config.theme}
+            onSelect={handleSelectApp}
+            onAddClick={() => uiStore.openModal("add-tab")}
+          />
+
+          {/* Terminal pane */}
+          <TerminalPane
+            runningApp={activeRunningApp()}
+            isFocused={tabsStore.store.focusMode === "terminal"}
+            width={terminalDims().width - props.config.tab_width}
+            height={terminalDims().height - 1}
+            theme={props.config.theme}
+            onInput={handleTerminalInput}
+          />
+        </box>
+
+        {/* Status bar */}
+        <StatusBar
+          appName={activeRunningApp()?.entry.name ?? null}
+          appStatus={activeRunningApp()?.status ?? null}
+          focusMode={tabsStore.store.focusMode}
+          message={uiStore.store.statusMessage}
+          theme={props.config.theme}
+          keybinds={{
+            toggle_focus: props.config.keybinds.toggle_focus,
+            command_palette: props.config.keybinds.command_palette,
+            edit_app: props.config.keybinds.edit_app,
+            stop_app: props.config.keybinds.stop_app,
+            kill_all: props.config.keybinds.kill_all,
+            quit: props.config.keybinds.quit,
+          }}
         />
 
-        {/* Terminal pane */}
-        <TerminalPane
-          runningApp={activeRunningApp()}
-          isFocused={tabsStore.store.focusMode === "terminal"}
-          width={terminalDims().width - props.config.tab_width}
-          height={terminalDims().height - 1}
-          theme={props.config.theme}
-          onInput={handleTerminalInput}
-        />
-      </box>
-
-      {/* Status bar */}
-      <StatusBar
-        appName={activeRunningApp()?.entry.name ?? null}
-        appStatus={activeRunningApp()?.status ?? null}
-        focusMode={tabsStore.store.focusMode}
-        message={uiStore.store.statusMessage}
-        theme={props.config.theme}
-        keybinds={{
-          toggle_focus: props.config.keybinds.toggle_focus,
-          command_palette: props.config.keybinds.command_palette,
-          edit_app: props.config.keybinds.edit_app,
-          stop_app: props.config.keybinds.stop_app,
-          kill_all: props.config.keybinds.kill_all,
-          quit: props.config.keybinds.quit,
-        }}
-      />
-
-      {/* Modals */}
-      <Show when={uiStore.store.activeModal === "command-palette"}>
-        <CommandPalette
-          entries={appsStore.store.entries}
-          theme={props.config.theme}
-          onSelect={(entry, action) => {
-            if (action === "edit") {
-              openEditModal(entry.id)
-              return
-            }
-
-            uiStore.closeModal()
-            if (action === "switch") {
-              handleSelectApp(entry.id)
-            } else if (action === "stop") {
-              if (tabsStore.store.runningApps.has(entry.id)) {
-                stopApp(entry.id)
-              } else {
-                uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
+        {/* Modals */}
+        <Show when={uiStore.store.activeModal === "command-palette"}>
+          <CommandPalette
+            entries={appsStore.store.entries}
+            theme={props.config.theme}
+            onSelect={(entry, action) => {
+              if (action === "edit") {
+                openEditModal(entry.id)
+                return
               }
-            }
-          }}
-          onClose={() => uiStore.closeModal()}
-        />
-      </Show>
 
-      <Show when={uiStore.store.activeModal === "add-tab"}>
-        <AddTabModal
-          theme={props.config.theme}
-          onAdd={handleAddApp}
-          onClose={() => uiStore.closeModal()}
-        />
-      </Show>
+              uiStore.closeModal()
+              if (action === "switch") {
+                handleSelectApp(entry.id)
+              } else if (action === "stop") {
+                if (tabsStore.store.runningApps.has(entry.id)) {
+                  stopApp(entry.id)
+                } else {
+                  uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
+                }
+              }
+            }}
+            onClose={() => uiStore.closeModal()}
+          />
+        </Show>
 
-      <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()}>
-        <EditAppModal
-          theme={props.config.theme}
-          entry={editingEntry()!}
-          onSave={(updates) => handleEditApp(editingEntry()!.id, updates)}
-          onClose={() => {
-            uiStore.closeModal()
-            setEditingEntryId(null)
-          }}
-        />
-      </Show>
-    </box>
+        <Show when={uiStore.store.activeModal === "add-tab"}>
+          <AddTabModal
+            theme={props.config.theme}
+            onAdd={handleAddApp}
+            onClose={() => uiStore.closeModal()}
+          />
+        </Show>
+
+        <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()}>
+          <EditAppModal
+            theme={props.config.theme}
+            entry={editingEntry()!}
+            onSave={(updates) => handleEditApp(editingEntry()!.id, updates)}
+            onClose={() => {
+              uiStore.closeModal()
+              setEditingEntryId(null)
+            }}
+          />
+        </Show>
+      </box>
+    </Show>
   )
 }
