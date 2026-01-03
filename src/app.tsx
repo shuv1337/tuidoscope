@@ -235,6 +235,23 @@ export const App: Component<AppProps> = (props) => {
     }
   }
 
+  // Handle wizard completion
+  const handleWizardComplete = async (apps: AppEntryConfig[]) => {
+    // Add each app to the store
+    for (const appConfig of apps) {
+      appsStore.addEntry(appConfig)
+    }
+
+    // Persist to config file
+    await persistAppsConfig()
+
+    // Mark wizard as completed
+    setWizardCompleted(true)
+
+    // Show success message
+    uiStore.showTemporaryMessage(`Added ${apps.length} app(s)`)
+  }
+
   // Add a new app
   const openEditModal = (id: string) => {
     setEditingEntryId(id)
