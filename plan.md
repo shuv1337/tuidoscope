@@ -114,9 +114,9 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 1.3 Define App Presets
 
-- [ ] **1.3.1** Create `src/components/onboarding/presets.ts`
+- [x] **1.3.1** Create `src/components/onboarding/presets.ts`
 
-- [ ] **1.3.2** Define `AppPreset` interface:
+- [x] **1.3.2** Define `AppPreset` interface:
   ```typescript
   export interface AppPreset {
     id: string
@@ -127,7 +127,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.3** Add Shell preset (uses `$SHELL` env var with bash fallback):
+- [x] **1.3.3** Add Shell preset (uses `$SHELL` env var with bash fallback):
   ```typescript
   {
     id: "shell",
@@ -138,7 +138,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.4** Add htop preset:
+- [x] **1.3.4** Add htop preset:
   ```typescript
   {
     id: "htop",
@@ -149,7 +149,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.5** Add btop preset:
+- [x] **1.3.5** Add btop preset:
   ```typescript
   {
     id: "btop",
@@ -160,7 +160,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.6** Add lazygit preset:
+- [x] **1.3.6** Add lazygit preset:
   ```typescript
   {
     id: "lazygit",
@@ -171,7 +171,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.7** Add yazi preset:
+- [x] **1.3.7** Add yazi preset:
   ```typescript
   {
     id: "yazi",
@@ -182,7 +182,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.8** Add neovim preset:
+- [x] **1.3.8** Add neovim preset:
   ```typescript
   {
     id: "nvim",
@@ -193,7 +193,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.9** Add ranger preset:
+- [x] **1.3.9** Add ranger preset:
   ```typescript
   {
     id: "ranger",
@@ -204,7 +204,7 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.10** Add ncdu preset:
+- [x] **1.3.10** Add ncdu preset:
   ```typescript
   {
     id: "ncdu",
@@ -215,9 +215,9 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **1.3.11** Export `APP_PRESETS` array from presets.ts
+- [x] **1.3.11** Export `APP_PRESETS` array from presets.ts
 
-- [ ] **1.3.12** Export presets from `src/components/onboarding/index.ts`
+- [x] **1.3.12** Export presets from `src/components/onboarding/index.ts`
 
 ---
 
@@ -225,9 +225,9 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 2.1 Create Welcome Step Structure
 
-- [ ] **2.1.1** Create `src/components/onboarding/WelcomeStep.tsx`
+- [x] **2.1.1** Create `src/components/onboarding/WelcomeStep.tsx`
 
-- [ ] **2.1.2** Define component props interface:
+- [x] **2.1.2** Define component props interface:
   ```typescript
   interface WelcomeStepProps {
     theme: ThemeConfig
@@ -236,41 +236,41 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **2.1.3** Create basic component skeleton with SolidJS `Component` type
+- [x] **2.1.3** Create basic component skeleton with SolidJS `Component` type
 
-- [ ] **2.1.4** Import `useKeyboard` from `@opentui/solid`
+- [x] **2.1.4** Import `useKeyboard` from `@opentui/solid`
 
 ### 2.2 Implement Welcome Step Layout
 
-- [ ] **2.2.1** Add outer `<box>` container with centered layout, full width/height
+- [x] **2.2.1** Add outer `<box>` container with centered layout, full width/height
 
-- [ ] **2.2.2** Add title text: "Welcome to tuidoscope" using theme accent color
+- [x] **2.2.2** Add title text: "Welcome to tuidoscope" using theme accent color
 
-- [ ] **2.2.3** Add subtitle text: "A terminal multiplexer for TUI applications" using theme foreground
+- [x] **2.2.3** Add subtitle text: "A terminal multiplexer for TUI applications" using theme foreground
 
-- [ ] **2.2.4** Add feature list with 3-4 bullet points:
+- [x] **2.2.4** Add feature list with 3-4 bullet points:
   - "Run multiple TUI apps side-by-side"
   - "Quick-switch between applications"  
   - "Persistent sessions across restarts"
   - "Fully configurable via YAML"
 
-- [ ] **2.2.5** Add footer with keybind hints: "Enter: Get Started | Esc: Skip"
+- [x] **2.2.5** Add footer with keybind hints: "Enter: Get Started | Esc: Skip"
 
 ### 2.3 Implement Welcome Step Keyboard Handling
 
-- [ ] **2.3.1** Add `useKeyboard` hook to component
+- [x] **2.3.1** Add `useKeyboard` hook to component
 
-- [ ] **2.3.2** Handle `enter` / `return` key to call `props.onNext()`
+- [x] **2.3.2** Handle `enter` / `return` key to call `props.onNext()`
 
-- [ ] **2.3.3** Handle `escape` key to call `props.onSkip()`
+- [x] **2.3.3** Handle `escape` key to call `props.onSkip()`
 
-- [ ] **2.3.4** Call `event.preventDefault()` after handling each key
+- [x] **2.3.4** Call `event.preventDefault()` after handling each key
 
 ### 2.4 Export Welcome Step
 
-- [ ] **2.4.1** Export `WelcomeStep` from component file
+- [x] **2.4.1** Export `WelcomeStep` from component file
 
-- [ ] **2.4.2** Add export to `src/components/onboarding/index.ts`
+- [x] **2.4.2** Add export to `src/components/onboarding/index.ts`
 
 ---
 
