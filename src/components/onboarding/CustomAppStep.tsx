@@ -3,6 +3,27 @@ import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntryConfig } from "../../types"
 import { APP_PRESETS } from "./presets"
 
+/**
+ * CustomAppStep - Custom application entry step of the onboarding wizard
+ *
+ * Accessibility annotations for future screen reader support:
+ * - role="region" aria-label="Add custom application"
+ * - The title should be aria-level="1" role="heading"
+ * - Form should be role="form" aria-label="Custom application form"
+ * - Each form field should be:
+ *   - role="textbox" with aria-label for the field name
+ *   - aria-required="true" for name and command fields
+ *   - aria-describedby pointing to validation messages
+ * - Tab navigation: aria-label="Press Tab to move between form fields"
+ * - Add button hint should be role="status" aria-live="polite"
+ * - Duplicate error should be role="alert" aria-live="assertive"
+ * - Custom apps list should be role="list" aria-label="Added custom applications"
+ * - Each custom app item should be role="listitem" with:
+ *   - aria-label="[app name] - press [number] to remove"
+ * - Removal hint should be role="note"
+ * - Keybind hints should be role="note" aria-label="Keyboard shortcuts"
+ */
+
 export interface CustomAppStepProps {
   theme: ThemeConfig
   customApps: AppEntryConfig[]
@@ -155,6 +176,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
   })
 
   return (
+    // aria-label="Add custom application" role="region"
     <box
       width="100%"
       height="100%"
@@ -162,7 +184,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
       justifyContent="center"
       alignItems="center"
     >
-      {/* Title */}
+      {/* aria-level="1" role="heading" - Title */}
       <box height={1}>
         <text fg={props.theme.accent}>
           <b>Add Custom App (Optional)</b>
@@ -172,19 +194,24 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
       {/* Spacer */}
       <box height={1} />
 
-      {/* Form fields */}
+      {/* role="form" aria-label="Custom application form" - Form fields */}
       <box flexDirection="column" alignItems="flex-start">
         <For each={fields}>
           {(field) => {
             const isFocused = () => focusedField() === field.key
+            const isRequired = field.key === "name" || field.key === "command"
             return (
+              // role="group" aria-labelledby for the field label
               <box height={1} flexDirection="row">
+                {/* Focus indicator - visible focus for accessibility */}
                 <text fg={isFocused() ? props.theme.accent : props.theme.muted}>
                   {isFocused() ? "> " : "  "}
                 </text>
+                {/* aria-label={field.label} - field label */}
                 <box width={12}>
                   <text fg={isFocused() ? props.theme.accent : props.theme.muted}>{field.label}:</text>
                 </box>
+                {/* role="textbox" aria-required={isRequired} aria-label="{field.label} input" */}
                 <text
                   fg={isFocused() ? props.theme.foreground : props.theme.muted}
                   bg={isFocused() ? props.theme.primary : undefined}
@@ -197,7 +224,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
         </For>
       </box>
 
-      {/* Add button hint */}
+      {/* role="status" aria-live="polite" - Add button hint */}
       <box height={1}>
         <Show
           when={name().trim() && command().trim()}
@@ -213,7 +240,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
         </Show>
       </box>
 
-      {/* Duplicate error message */}
+      {/* role="alert" aria-live="assertive" - Duplicate error message */}
       <Show when={duplicateError()}>
         <box height={1}>
           <text fg="#ff6b6b">
@@ -227,14 +254,17 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
 
       {/* Already-added custom apps section */}
       <Show when={props.customApps.length > 0}>
+        {/* role="heading" aria-level="2" */}
         <box height={1}>
           <text fg={props.theme.foreground}>
             <b>Custom apps to add:</b>
           </text>
         </box>
+        {/* role="list" aria-label="Added custom applications" */}
         <box flexDirection="column" alignItems="flex-start">
           <For each={props.customApps}>
             {(app, index) => (
+              // role="listitem" aria-label="{app.name} - press {index+1} to remove"
               <box height={1}>
                 <text fg={props.theme.foreground}>
                   {index() + 1}. {app.name}
@@ -246,6 +276,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
             )}
           </For>
         </box>
+        {/* role="note" - removal hint */}
         <box height={1}>
           <text fg={props.theme.muted}>
             (press 1-9 to remove)
@@ -256,7 +287,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
       {/* Spacer */}
       <box height={1} />
 
-      {/* Footer keybind hints */}
+      {/* role="note" aria-label="Keyboard shortcuts" - Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
           Tab: Fields | Ctrl+A: Add | Enter: Next | Esc: Back

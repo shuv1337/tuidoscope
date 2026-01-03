@@ -3,6 +3,25 @@ import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig } from "../../types"
 import { APP_PRESETS } from "./presets"
 
+/**
+ * PresetSelectionStep - App preset selection step of the onboarding wizard
+ *
+ * Accessibility annotations for future screen reader support:
+ * - role="region" aria-label="Select preset applications"
+ * - The title should be aria-level="1" role="heading"
+ * - Preset list should be role="listbox" aria-multiselectable="true"
+ * - Each preset should be role="option" with:
+ *   - aria-selected="true/false" based on selection state
+ *   - aria-label="[preset name] - [description]"
+ *   - aria-posinset and aria-setsize for position info
+ * - Focused item should have aria-activedescendant pointing to current option
+ * - Selection count should be role="status" aria-live="polite" aria-atomic="true"
+ * - Keybind hints should be role="note" for screen reader description
+ * - Space key action: aria-label="Toggle selection"
+ * - j/k navigation: aria-label="Move to next/previous option"
+ * - gg/G navigation: aria-label="Jump to first/last option"
+ */
+
 export interface PresetSelectionStepProps {
   theme: ThemeConfig
   selectedPresets: Set<string>
@@ -80,6 +99,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
   })
 
   return (
+    // aria-label="Select preset applications" role="region"
     <box
       width="100%"
       height="100%"
@@ -87,14 +107,14 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       justifyContent="center"
       alignItems="center"
     >
-      {/* Title */}
+      {/* aria-level="1" role="heading" - Title */}
       <box height={1}>
         <text fg={props.theme.accent}>
           <b>Select Apps to Add</b>
         </text>
       </box>
 
-      {/* Instruction */}
+      {/* role="note" - Instruction */}
       <box height={1}>
         <text fg={props.theme.muted}>
           Space to select, Enter to continue
@@ -104,7 +124,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* Spacer */}
       <box height={1} />
 
-      {/* Preset list */}
+      {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
       <box flexDirection="column" alignItems="flex-start">
         <For each={APP_PRESETS}>
           {(preset, index) => {
@@ -112,12 +132,16 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
             const isSelected = () => props.selectedPresets.has(preset.id)
 
             return (
+              // role="option" aria-selected={isSelected} aria-label="{preset.name} - {preset.description}"
+              // aria-posinset={index+1} aria-setsize={APP_PRESETS.length}
               <box height={1}>
+                {/* Focus indicator - visible focus for accessibility */}
                 <text
                   fg={isFocused() ? props.theme.accent : props.theme.muted}
                 >
                   {isFocused() ? "> " : "  "}
                 </text>
+                {/* aria-checked={isSelected} - checkbox state */}
                 <text
                   fg={isFocused() ? props.theme.background : props.theme.foreground}
                   bg={isFocused() ? props.theme.primary : undefined}
@@ -139,7 +163,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* Spacer */}
       <box height={1} />
 
-      {/* Selected count */}
+      {/* role="status" aria-live="polite" aria-atomic="true" - Selected count */}
       <box height={1}>
         <text fg={props.theme.foreground}>
           {props.selectedPresets.size} app{props.selectedPresets.size !== 1 ? "s" : ""} selected
@@ -149,7 +173,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* Spacer */}
       <box height={1} />
 
-      {/* Footer keybind hints */}
+      {/* role="note" aria-label="Keyboard shortcuts" - Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
           j/k: Navigate | gg/G: Top/Bottom | Space: Toggle | Enter: Next | Esc/Backspace: Back

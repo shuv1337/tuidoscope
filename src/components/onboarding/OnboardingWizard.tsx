@@ -7,6 +7,21 @@ import { PresetSelectionStep } from "./PresetSelectionStep"
 import { CustomAppStep } from "./CustomAppStep"
 import { ConfirmationStep } from "./ConfirmationStep"
 
+/**
+ * OnboardingWizard - Main container for the first-run onboarding wizard
+ *
+ * Accessibility annotations for future screen reader support:
+ * - role="dialog" aria-modal="true" aria-label="First-run setup wizard"
+ * - Step indicator should be:
+ *   - role="navigation" aria-label="Wizard progress"
+ *   - Current step text: role="status" aria-live="polite" aria-atomic="true"
+ *   - Progress dots: role="progressbar" aria-valuemin="1" aria-valuemax="4"
+ *     aria-valuenow={stepNumber} aria-valuetext="Step X of 4: StepName"
+ * - Content area should be role="main" with aria-live="polite" for step changes
+ * - Each step transition should announce the new step to screen readers
+ * - The outer border provides visual containment (aria-hidden for the border itself)
+ */
+
 export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
   // Wizard state using signals (createStore doesn't work well with Set)
   const [currentStep, setCurrentStep] = createSignal<WizardStep>("welcome")
@@ -121,6 +136,7 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
   }
 
   return (
+    // role="dialog" aria-modal="true" aria-label="First-run setup wizard"
     <box
       width="100%"
       height="100%"
@@ -128,19 +144,22 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
       borderStyle="double"
       borderColor={props.theme.accent}
     >
-      {/* Step indicator */}
+      {/* role="navigation" aria-label="Wizard progress" - Step indicator */}
+      {/* role="status" aria-live="polite" aria-atomic="true" - current step announcement */}
       <box height={1} justifyContent="center">
         <text fg={props.theme.muted}>
           Step {stepNumber()} of 4: {stepName()}
         </text>
       </box>
+      {/* role="progressbar" aria-valuemin="1" aria-valuemax="4" aria-valuenow={stepNumber} */}
+      {/* aria-valuetext="Step X of 4: StepName" */}
       <box height={1} justifyContent="center">
         <text fg={props.theme.accent}>
           {stepIndicator()}
         </text>
       </box>
 
-      {/* Content area */}
+      {/* role="main" aria-live="polite" - Content area */}
       <box flexGrow={1}>
         <Switch>
           <Match when={currentStep() === "welcome"}>

@@ -3,6 +3,28 @@ import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntryConfig } from "../../types"
 import { APP_PRESETS } from "./presets"
 
+/**
+ * ConfirmationStep - Final review step of the onboarding wizard
+ *
+ * Accessibility annotations for future screen reader support:
+ * - role="region" aria-label="Review setup configuration"
+ * - The title should be aria-level="1" role="heading"
+ * - Summary line should be role="status" aria-live="polite" aria-atomic="true"
+ * - Preset apps section:
+ *   - Section header should be aria-level="2" role="heading"
+ *   - List should be role="list" aria-label="Selected preset applications"
+ *   - Each item should be role="listitem" aria-label="[app name] ([command])"
+ * - Custom apps section:
+ *   - Section header should be aria-level="2" role="heading"
+ *   - List should be role="list" aria-label="Custom applications"
+ *   - Each item should be role="listitem" aria-label="[app name] ([command])"
+ * - No apps message should be role="status" aria-live="polite"
+ * - Config location note should be role="note"
+ * - Keybind hints should be role="note" aria-label="Keyboard shortcuts"
+ * - Enter key action: aria-label="Confirm and save configuration"
+ * - Escape key action: aria-label="Go back to previous step"
+ */
+
 export interface ConfirmationStepProps {
   theme: ThemeConfig
   selectedPresets: Set<string>
@@ -34,6 +56,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
     APP_PRESETS.filter((preset) => props.selectedPresets.has(preset.id))
 
   return (
+    // aria-label="Review setup configuration" role="region"
     <box
       width="100%"
       height="100%"
@@ -41,7 +64,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
       justifyContent="center"
       alignItems="center"
     >
-      {/* Title */}
+      {/* aria-level="1" role="heading" - Title */}
       <box height={1}>
         <text fg={props.theme.accent}>
           <b>Review Your Setup</b>
@@ -51,7 +74,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
       {/* Spacer */}
       <box height={1} />
 
-      {/* Summary line */}
+      {/* role="status" aria-live="polite" aria-atomic="true" - Summary line */}
       <box height={1}>
         <text fg={props.theme.foreground}>
           You're adding {totalApps()} app{totalApps() !== 1 ? "s" : ""}:
@@ -64,11 +87,14 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
       {/* Preset apps section */}
       <Show when={props.selectedPresets.size > 0}>
         <box flexDirection="column" alignItems="flex-start">
+          {/* aria-level="2" role="heading" */}
           <box height={1}>
             <text fg={props.theme.muted}>From presets:</text>
           </box>
+          {/* role="list" aria-label="Selected preset applications" */}
           <For each={selectedPresetApps()}>
             {(preset) => (
+              // role="listitem" aria-label="{preset.name} ({preset.command})"
               <box height={1}>
                 <text fg={props.theme.foreground}>
                   {"  "}{preset.icon} {preset.name}
@@ -84,11 +110,14 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
       {/* Custom apps section */}
       <Show when={props.customApps.length > 0}>
         <box flexDirection="column" alignItems="flex-start">
+          {/* aria-level="2" role="heading" */}
           <box height={1}>
             <text fg={props.theme.muted}>Custom apps:</text>
           </box>
+          {/* role="list" aria-label="Custom applications" */}
           <For each={props.customApps}>
             {(app) => (
+              // role="listitem" aria-label="{app.name} ({app.command})"
               <box height={1}>
                 <text fg={props.theme.foreground}>
                   {"  "}{app.name}
@@ -101,7 +130,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
         <box height={1} />
       </Show>
 
-      {/* No apps message */}
+      {/* role="status" aria-live="polite" - No apps message */}
       <Show when={totalApps() === 0}>
         <box height={1}>
           <text fg={props.theme.muted}>
@@ -111,7 +140,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
         <box height={1} />
       </Show>
 
-      {/* Config location note */}
+      {/* role="note" - Config location note */}
       <box height={1}>
         <text fg={props.theme.muted}>
           Config will be saved to: ~/.config/tuidoscope/tuidoscope.yaml
@@ -121,7 +150,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
       {/* Spacer */}
       <box height={2} />
 
-      {/* Footer keybind hints */}
+      {/* role="note" aria-label="Keyboard shortcuts" - Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
           Enter: Confirm & Save | Esc/Backspace: Back
