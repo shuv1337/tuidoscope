@@ -666,7 +666,7 @@ These tasks address critical issues identified during plan review and must be co
 
 - [x] **8.1.2** In `PresetSelectionStep`, add vim-style navigation (gg for top, G for bottom)
 
-- [ ] **8.1.3** In `CustomAppStep`, ensure Tab cycles correctly through all fields
+- [x] **8.1.3** In `CustomAppStep`, ensure Tab cycles correctly through all fields (fixed with modulo wrap-around)
 
 - [ ] **8.1.4** Add consistent keybind footer to all steps
 
