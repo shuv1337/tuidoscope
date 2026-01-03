@@ -650,7 +650,7 @@ These tasks address critical issues identified during plan review and must be co
 
 - [x] **7.5.2** Verify wizard does NOT show when config file exists with apps
 
-- [ ] **7.5.3** Verify wizard completes and main UI shows after confirmation
+- [x] **7.5.3** Verify wizard completes and main UI shows after confirmation
 
 - [ ] **7.5.4** Verify skip creates config and shows main UI
 
