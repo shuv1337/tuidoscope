@@ -124,7 +124,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
       {/* Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
-          Enter: Confirm & Save | Esc: Back
+          Enter: Confirm & Save | Esc/Backspace: Back
         </text>
       </box>
     </box>

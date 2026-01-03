@@ -147,7 +147,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
-          j/k: Navigate | gg/G: Top/Bottom | Space: Toggle | Enter: Next | Esc: Back
+          j/k: Navigate | gg/G: Top/Bottom | Space: Toggle | Enter: Next | Esc/Backspace: Back
         </text>
       </box>
     </box>
