@@ -163,6 +163,7 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
             <CustomAppStep
               theme={props.theme}
               customApps={customApps()}
+              selectedPresets={selectedPresets()}
               onAddApp={addCustomApp}
               onRemoveApp={removeCustomApp}
               onNext={handleNext}

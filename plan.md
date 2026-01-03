@@ -696,7 +696,7 @@ These tasks address critical issues identified during plan review and must be co
   - Require non-empty command
   - Show validation feedback
 
-- [ ] **8.3.4** Prevent duplicate custom app entries (same name)
+- [x] **8.3.4** Prevent duplicate custom app entries (same name)
 
 ### 8.4 Accessibility
 

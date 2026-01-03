@@ -1,10 +1,12 @@
 import { Component, createSignal, For, Show } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntryConfig } from "../../types"
+import { APP_PRESETS } from "./presets"
 
 export interface CustomAppStepProps {
   theme: ThemeConfig
   customApps: AppEntryConfig[]
+  selectedPresets: Set<string>
   onAddApp: (app: AppEntryConfig) => void
   onRemoveApp: (index: number) => void
   onNext: () => void
@@ -19,6 +21,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
   const [args, setArgs] = createSignal("")
   const [cwd, setCwd] = createSignal("~")
   const [focusedField, setFocusedField] = createSignal<Field>("name")
+  const [duplicateError, setDuplicateError] = createSignal<string | null>(null)
 
   const fields: { key: Field; label: string; value: () => string; setValue: (v: string) => void }[] = [
     { key: "name", label: "Name", value: name, setValue: setName },
@@ -42,8 +45,37 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
     setFocusedField("name")
   }
 
+  const isDuplicateName = (appName: string): string | null => {
+    const normalizedName = appName.toLowerCase()
+
+    // Check against existing custom apps
+    const existingCustom = props.customApps.find(
+      (app) => app.name.toLowerCase() === normalizedName
+    )
+    if (existingCustom) {
+      return `"${appName}" already added as custom app`
+    }
+
+    // Check against selected presets
+    for (const presetId of props.selectedPresets) {
+      const preset = APP_PRESETS.find((p) => p.id === presetId)
+      if (preset && preset.name.toLowerCase() === normalizedName) {
+        return `"${appName}" already selected as preset`
+      }
+    }
+
+    return null
+  }
+
   const handleAddApp = () => {
     if (name().trim() && command().trim()) {
+      const duplicateMsg = isDuplicateName(name().trim())
+      if (duplicateMsg) {
+        setDuplicateError(duplicateMsg)
+        return
+      }
+
+      setDuplicateError(null)
       props.onAddApp({
         name: name().trim(),
         command: command().trim(),
@@ -103,6 +135,10 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
 
     if (event.name === "backspace") {
       focused.setValue(focused.value().slice(0, -1))
+      // Clear duplicate error when name field is modified
+      if (focused.key === "name") {
+        setDuplicateError(null)
+      }
       event.preventDefault()
       return
     }
@@ -110,6 +146,10 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
     // Printable characters
     if (!event.ctrl && !event.meta && !event.option && event.sequence && event.sequence.length === 1) {
       focused.setValue(focused.value() + event.sequence)
+      // Clear duplicate error when name field is modified
+      if (focused.key === "name") {
+        setDuplicateError(null)
+      }
       event.preventDefault()
     }
   })
@@ -169,6 +209,15 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
           </text>
         </Show>
       </box>
+
+      {/* Duplicate error message */}
+      <Show when={duplicateError()}>
+        <box height={1}>
+          <text fg="#ff6b6b">
+            {duplicateError()}
+          </text>
+        </box>
+      </Show>
 
       {/* Spacer */}
       <box height={1} />
