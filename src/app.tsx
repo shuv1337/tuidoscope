@@ -406,6 +406,11 @@ export const App: Component<AppProps> = (props) => {
 
   // Auto-start apps and restore session once dimensions are valid
   createEffect(() => {
+    // Don't autostart apps during wizard
+    if (shouldShowWizard()) {
+      return
+    }
+
     const { cols, rows } = getPtyDimensions()
 
     // Wait for valid dimensions
