@@ -624,7 +624,7 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 7.4 Add Conditional Wizard Rendering
 
-- [ ] **7.4.1** In the return statement of `App` component (around line 481), wrap existing content in `<Show>`:
+- [x] **7.4.1** In the return statement of `App` component (around line 481), wrap existing content in `<Show>`:
   ```typescript
   return (
     <Show 
@@ -642,7 +642,7 @@ These tasks address critical issues identified during plan review and must be co
   )
   ```
 
-- [ ] **7.4.2** Ensure `<Show>` import is present from solid-js (already should be at line 1)
+- [x] **7.4.2** Ensure `<Show>` import is present from solid-js (already should be at line 1)
 
 ### 7.5 Verify Integration
 
