@@ -27,8 +27,8 @@ async function main() {
     debugLog("[init] extend() completed")
     
     // Load configuration
-    const config = await loadConfig()
-    debugLog("[init] Config loaded")
+    const { config, configFileFound } = await loadConfig()
+    debugLog(`[init] Config loaded (configFileFound: ${configFileFound})`)
 
     // Initialize session path
     initSessionPath(config)

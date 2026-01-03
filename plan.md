@@ -20,16 +20,16 @@ These tasks address critical issues identified during plan review and must be co
   }
   ```
 
-- [ ] **0.1.2** In `src/lib/config.ts`, update `loadConfig()` return type from `Promise<Config>` to `Promise<LoadConfigResult>`
+- [x] **0.1.2** In `src/lib/config.ts`, update `loadConfig()` return type from `Promise<Config>` to `Promise<LoadConfigResult>`
 
-- [ ] **0.1.3** In `src/lib/config.ts:107-121`, track whether a config file was found:
+- [x] **0.1.3** In `src/lib/config.ts:107-121`, track whether a config file was found:
   - Set `configFileFound = true` when `existsSync(LOCAL_CONFIG_PATH)` succeeds
   - Set `configFileFound = true` when `existsSync(paths.config)` succeeds  
   - Set `configFileFound = false` in the else branch (no config exists)
 
-- [ ] **0.1.4** In `src/lib/config.ts`, update return statements to return `{ config, configFileFound }` object
+- [x] **0.1.4** In `src/lib/config.ts`, update return statements to return `{ config, configFileFound }` object
 
-- [ ] **0.1.5** In `src/index.tsx:30`, destructure the new return value:
+- [x] **0.1.5** In `src/index.tsx:30`, destructure the new return value:
   ```typescript
   const { config, configFileFound } = await loadConfig()
   ```

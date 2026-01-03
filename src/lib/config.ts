@@ -107,25 +107,30 @@ export function expandPath(path: string): string {
  * 2. $XDG_CONFIG_HOME/tuidoscope/tuidoscope.yaml
  * 3. Default values
  */
-export async function loadConfig(): Promise<Config> {
+export async function loadConfig(): Promise<LoadConfigResult> {
   debugLog(`[config] Checking local config: ${LOCAL_CONFIG_PATH}`)
   debugLog(`[config] Checking XDG config: ${paths.config}`)
+  
+  let configFileFound = false
   
   // Check for local config first
   if (existsSync(LOCAL_CONFIG_PATH)) {
     configPath = resolve(LOCAL_CONFIG_PATH)
     configDir = dirname(configPath)
+    configFileFound = true
     debugLog(`[config] Using local config: ${configPath}`)
   } else if (existsSync(paths.config)) {
     configPath = paths.config
     configDir = getXdgConfigDir()
+    configFileFound = true
     debugLog(`[config] Using XDG config: ${configPath}`)
   } else {
     // No config exists, use defaults with XDG paths
     configPath = paths.config
     configDir = getXdgConfigDir()
+    configFileFound = false
     debugLog(`[config] No config found, using defaults`)
-    return ConfigSchema.parse({}) as Config
+    return { config: ConfigSchema.parse({}) as Config, configFileFound }
   }
 
   try {
@@ -133,11 +138,11 @@ export async function loadConfig(): Promise<Config> {
     const parsed = parse(content)
     const validated = ConfigSchema.parse(parsed)
     debugLog(`[config] Loaded ${validated.apps.length} apps from config`)
-    return validated as Config
+    return { config: validated as Config, configFileFound }
   } catch (error) {
     debugLog(`[config] Error loading config: ${error}`)
     console.error(`Error loading config from ${configPath}:`, error)
-    return ConfigSchema.parse({}) as Config
+    return { config: ConfigSchema.parse({}) as Config, configFileFound }
   }
 }
 
