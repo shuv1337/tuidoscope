@@ -752,7 +752,14 @@ These tasks address critical issues identified during plan review and must be co
   - All signals have explicit type annotations where needed
   - Type checking passes with `bun run typecheck`
 
-- [ ] **9.2.3** Ensure all props interfaces are complete
+- [x] **9.2.3** Ensure all props interfaces are complete
+  - Verified: All props interfaces are exported and defined correctly
+  - OnboardingWizardProps in types.ts with: theme, onComplete, onSkip
+  - WelcomeStepProps with: theme, onNext, onSkip
+  - PresetSelectionStepProps with: theme, selectedPresets, onTogglePreset, onNext, onBack
+  - CustomAppStepProps with: theme, customApps, selectedPresets, onAddApp, onRemoveApp, onNext, onBack
+  - ConfirmationStepProps with: theme, selectedPresets, customApps, onConfirm, onBack
+  - All interfaces are exported from their component files and re-exported via index.ts barrel export
 
 ### 9.3 Code Quality
 
