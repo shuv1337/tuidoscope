@@ -12,7 +12,7 @@ These tasks address critical issues identified during plan review and must be co
 
 ### 0.1 Expose Config File Detection from loadConfig()
 
-- [ ] **0.1.1** In `src/lib/config.ts`, create new interface `LoadConfigResult`:
+- [x] **0.1.1** In `src/lib/config.ts`, create new interface `LoadConfigResult`:
   ```typescript
   export interface LoadConfigResult {
     config: Config
