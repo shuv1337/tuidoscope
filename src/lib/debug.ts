@@ -1,6 +1,11 @@
-import { appendFileSync } from "fs"
+import { appendFileSync, mkdirSync } from "fs"
+import { dirname } from "path"
+import { paths } from "./xdg"
 
-const DEBUG_LOG_PATH = process.env.TUIDOSCOPE_DEBUG_LOG || "tuidoscope-debug.log"
+// Use XDG state dir for debug log, allow override via env
+const DEBUG_LOG_PATH = process.env.TUIDOSCOPE_DEBUG_LOG || paths.debugLog
+
+let dirCreated = false
 
 export function debugLog(message: string) {
   if (!process.env.TUIDOSCOPE_DEBUG) {
@@ -8,9 +13,23 @@ export function debugLog(message: string) {
   }
 
   try {
-    const line = message.endsWith("\n") ? message : `${message}\n`
+    // Ensure state directory exists (only check once)
+    if (!dirCreated) {
+      mkdirSync(dirname(DEBUG_LOG_PATH), { recursive: true })
+      dirCreated = true
+    }
+
+    const timestamp = new Date().toISOString()
+    const line = `[${timestamp}] ${message}\n`
     appendFileSync(DEBUG_LOG_PATH, line)
   } catch {
     // Avoid crashing the UI for logging failures.
   }
+}
+
+/**
+ * Get the debug log path
+ */
+export function getDebugLogPath(): string {
+  return DEBUG_LOG_PATH
 }
