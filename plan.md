@@ -793,13 +793,22 @@ These tasks address critical issues identified during plan review and must be co
 
 After all phases complete, verify these acceptance criteria from the original issue:
 
-- [ ] Detect first-run state (no config file exists, no apps configured)
-- [ ] Display a welcome screen explaining what tuidoscope is
-- [ ] Guide user through adding their first TUI app with a step-by-step wizard
-- [ ] Offer common app presets (shell, htop, btop, etc.) for quick setup
-- [ ] Create and save the config file after wizard completion
-- [ ] Wizard should be skippable (user can dismiss and configure manually)
-- [ ] Use opentui native components (`<box>`, `<text>`, `useKeyboard`) - no external dependencies
+- [x] Detect first-run state (no config file exists, no apps configured)
+  - Implemented in `src/lib/config.ts` (LoadConfigResult with configFileFound flag)
+  - `isFirstRun()` helper in `src/app.tsx` checks `!configFileFound && apps.length === 0`
+- [x] Display a welcome screen explaining what tuidoscope is
+  - Implemented in `WelcomeStep.tsx` with title, subtitle, and feature list
+- [x] Guide user through adding their first TUI app with a step-by-step wizard
+  - 4-step wizard: Welcome -> Presets -> Custom -> Confirm
+  - Full keyboard navigation and state management
+- [x] Offer common app presets (shell, htop, btop, etc.) for quick setup
+  - 8 presets defined in `presets.ts`: shell, htop, btop, lazygit, yazi, nvim, ranger, ncdu
+- [x] Create and save the config file after wizard completion
+  - `handleWizardComplete` calls `persistAppsConfig()` to save to XDG config path
+- [x] Wizard should be skippable (user can dismiss and configure manually)
+  - Esc/Backspace on WelcomeStep skips wizard, saves empty config
+- [x] Use opentui native components (`<box>`, `<text>`, `useKeyboard`) - no external dependencies
+  - All components use only `@opentui/solid` and `solid-js` - no external UI libraries
 
 ---
 
