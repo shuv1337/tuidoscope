@@ -51,9 +51,13 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
     { key: "cwd", label: "Directory", value: cwd, setValue: setCwd },
   ]
 
+  // Find the current index of the focused field in the fields array
   const focusIndex = () => fields.findIndex((field) => field.key === focusedField())
+  
+  // Navigate to a field by index with wrap-around support.
+  // Uses the double-modulo pattern ((n % len + len) % len) to handle negative indices:
+  // e.g., index=-1 with 4 fields -> ((-1 % 4) + 4) % 4 = 3 (wraps to last field)
   const setFocusByIndex = (index: number) => {
-    // Use modulo for proper wrap-around cycling
     const wrapped = ((index % fields.length) + fields.length) % fields.length
     setFocusedField(fields[wrapped].key)
   }
@@ -66,10 +70,18 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
     setFocusedField("name")
   }
 
+  /**
+   * Validates that an app name is not already in use.
+   * Checks against both already-added custom apps and selected presets
+   * to prevent duplicate app names in the final configuration.
+   * 
+   * @param appName - The name to validate
+   * @returns Error message string if duplicate found, null if name is valid
+   */
   const isDuplicateName = (appName: string): string | null => {
     const normalizedName = appName.toLowerCase()
 
-    // Check against existing custom apps
+    // Check against existing custom apps added in this wizard session
     const existingCustom = props.customApps.find(
       (app) => app.name.toLowerCase() === normalizedName
     )
@@ -77,7 +89,7 @@ export const CustomAppStep: Component<CustomAppStepProps> = (props) => {
       return `"${appName}" already added as custom app`
     }
 
-    // Check against selected presets
+    // Check against presets selected in the previous step
     for (const presetId of props.selectedPresets) {
       const preset = APP_PRESETS.find((p) => p.id === presetId)
       if (preset && preset.name.toLowerCase() === normalizedName) {

@@ -32,10 +32,14 @@ export interface PresetSelectionStepProps {
 
 export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) => {
   const [focusedIndex, setFocusedIndex] = createSignal(0)
+  
+  // State for vim-style "gg" (go to top) key sequence detection.
+  // When user presses 'g', we set pendingG=true and wait for the next key.
+  // If next key is also 'g', we jump to top. Otherwise, reset and process normally.
   const [pendingG, setPendingG] = createSignal(false)
 
   useKeyboard((event) => {
-    // Handle gg sequence for jump to top
+    // Complete the "gg" sequence: if we're waiting for second 'g' and got it, jump to top
     if (pendingG()) {
       setPendingG(false)
       if (event.sequence === "g") {
@@ -43,16 +47,17 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
         event.preventDefault()
         return
       }
+      // Not a 'g', fall through to process this key normally
     }
 
-    // First g in gg sequence
+    // Start "gg" sequence: first 'g' pressed, wait for potential second 'g'
     if (event.sequence === "g") {
       setPendingG(true)
       event.preventDefault()
       return
     }
 
-    // G (shift+g) for jump to bottom
+    // G (shift+g) for vim-style jump to bottom (last item)
     if (event.sequence === "G") {
       setFocusedIndex(APP_PRESETS.length - 1)
       event.preventDefault()

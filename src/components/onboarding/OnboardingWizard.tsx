@@ -81,11 +81,17 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
     setCustomApps((prev) => prev.filter((_, i) => i !== index))
   }
 
-  // Confirmation handler - builds final app list from presets and custom apps
+  /**
+   * Builds the final app configuration list and triggers wizard completion.
+   * Converts selected preset IDs to AppEntryConfig objects and merges with custom apps.
+   * The resulting array is passed to the parent component to save to config.
+   */
   const handleConfirm = () => {
     const apps: AppEntryConfig[] = []
 
-    // Add selected presets as apps
+    // Convert each selected preset ID to an AppEntryConfig object.
+    // Presets only store minimal info (id, name, command), so we add
+    // default values for cwd and autostart to create a complete config entry.
     for (const presetId of selectedPresets()) {
       const preset = APP_PRESETS.find((p) => p.id === presetId)
       if (preset) {
@@ -98,7 +104,7 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
       }
     }
 
-    // Append custom apps
+    // Custom apps are already in AppEntryConfig format, just append them
     apps.push(...customApps())
 
     props.onComplete(apps)
@@ -109,12 +115,16 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
     props.onSkip()
   }
 
-  // Step indicator helpers
+  // Step indicator helpers for the progress display at the top of the wizard.
+  // These render a visual indicator like: [*]---[*]---[ ]---[ ] for step 2 of 4.
+  
+  // Returns 1-based step number (1-4) for display
   const stepNumber = () => {
     const steps: WizardStep[] = ["welcome", "presets", "custom", "confirm"]
     return steps.indexOf(currentStep()) + 1
   }
 
+  // Returns human-readable step name for the header
   const stepName = () => {
     switch (currentStep()) {
       case "welcome":
@@ -128,6 +138,8 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
     }
   }
 
+  // Renders visual progress indicator: filled [*] for completed/current steps,
+  // empty [ ] for future steps, connected with dashes
   const stepIndicator = () => {
     const steps: WizardStep[] = ["welcome", "presets", "custom", "confirm"]
     return steps
