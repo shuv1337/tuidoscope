@@ -1,7 +1,13 @@
-import { Component, createSignal, For } from "solid-js"
+import { Component, createSignal, createMemo, For, onMount } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig } from "../../types"
-import { APP_PRESETS } from "./presets"
+import { APP_PRESETS, CATEGORY_LABELS } from "./presets"
+import { commandExists } from "../../lib/command"
+
+/** A row in the preset list - either a category header or a preset item */
+type ListRow = 
+  | { type: "header"; category: string; label: string }
+  | { type: "preset"; preset: typeof APP_PRESETS[number]; originalIndex: number }
 
 /**
  * PresetSelectionStep - App preset selection step of the onboarding wizard
@@ -37,8 +43,53 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
   // When user presses 'g', we set pendingG=true and wait for the next key.
   // If next key is also 'g', we jump to top. Otherwise, reset and process normally.
   const [pendingG, setPendingG] = createSignal(false)
+  
+  // Track which preset commands are available on the system
+  const [availability, setAvailability] = createSignal<Record<string, boolean>>({})
+  
+  // Build a flat list of rows (headers + presets) for rendering with category grouping
+  const listRows = createMemo<ListRow[]>(() => {
+    const rows: ListRow[] = []
+    let currentCategory: string | undefined
+    
+    APP_PRESETS.forEach((preset, originalIndex) => {
+      // Insert category header when category changes
+      if (preset.category && preset.category !== currentCategory) {
+        currentCategory = preset.category
+        const label = CATEGORY_LABELS[preset.category] || preset.category
+        rows.push({ type: "header", category: preset.category, label })
+      }
+      rows.push({ type: "preset", preset, originalIndex })
+    })
+    
+    return rows
+  })
+  
+  // Get only the preset rows for navigation (skip headers)
+  const presetIndices = createMemo(() => 
+    listRows()
+      .map((row, idx) => row.type === "preset" ? idx : -1)
+      .filter(idx => idx !== -1)
+  )
+  
+  // Check availability of all preset commands on mount
+  onMount(async () => {
+    const results: Record<string, boolean> = {}
+    await Promise.all(
+      APP_PRESETS.map(async (preset) => {
+        results[preset.id] = await commandExists(preset.command)
+      })
+    )
+    setAvailability(results)
+  })
+  
+  // Helper to check if a preset command is available (defaults to true before check completes)
+  const isAvailable = (id: string) => availability()[id] ?? true
 
   useKeyboard((event) => {
+    const indices = presetIndices()
+    const maxNavIndex = indices.length - 1
+    
     // Complete the "gg" sequence: if we're waiting for second 'g' and got it, jump to top
     if (pendingG()) {
       setPendingG(false)
@@ -59,14 +110,14 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
 
     // G (shift+g) for vim-style jump to bottom (last item)
     if (event.sequence === "G") {
-      setFocusedIndex(APP_PRESETS.length - 1)
+      setFocusedIndex(maxNavIndex)
       event.preventDefault()
       return
     }
 
     // Navigate down
     if (event.name === "j" || event.name === "down") {
-      setFocusedIndex((prev) => Math.min(prev + 1, APP_PRESETS.length - 1))
+      setFocusedIndex((prev) => Math.min(prev + 1, maxNavIndex))
       event.preventDefault()
       return
     }
@@ -80,9 +131,10 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
 
     // Toggle selection
     if (event.name === "space") {
-      const preset = APP_PRESETS[focusedIndex()]
-      if (preset) {
-        props.onTogglePreset(preset.id)
+      const rowIndex = indices[focusedIndex()]
+      const row = listRows()[rowIndex]
+      if (row?.type === "preset") {
+        props.onTogglePreset(row.preset.id)
       }
       event.preventDefault()
       return
@@ -131,10 +183,26 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
 
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
       <box flexDirection="column" alignItems="flex-start">
-        <For each={APP_PRESETS}>
-          {(preset, index) => {
-            const isFocused = () => focusedIndex() === index()
+        <For each={listRows()}>
+          {(row, rowIndex) => {
+            // Category header row
+            if (row.type === "header") {
+              return (
+                <box height={1}>
+                  <text fg={props.theme.accent}>
+                    <b>── {row.label} ──</b>
+                  </text>
+                </box>
+              )
+            }
+            
+            // Preset item row
+            const preset = row.preset
+            // Find this preset's position in the navigation order
+            const navIndex = () => presetIndices().indexOf(rowIndex())
+            const isFocused = () => focusedIndex() === navIndex()
             const isSelected = () => props.selectedPresets.has(preset.id)
+            const available = () => isAvailable(preset.id)
 
             return (
               // role="option" aria-selected={isSelected} aria-label="{preset.name} - {preset.description}"
@@ -143,21 +211,36 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
                 {/* Focus indicator - visible focus for accessibility */}
                 <text
                   fg={isFocused() ? props.theme.accent : props.theme.muted}
+                  bg={isFocused() ? props.theme.primary : props.theme.background}
                 >
                   {isFocused() ? "> " : "  "}
                 </text>
-                {/* aria-checked={isSelected} - checkbox state */}
+                {/* aria-checked={isSelected} - checkbox state with unicode indicators */}
                 <text
-                  fg={isFocused() ? props.theme.background : props.theme.foreground}
-                  bg={isFocused() ? props.theme.primary : undefined}
+                  fg={isFocused() 
+                    ? props.theme.background 
+                    : isSelected() 
+                      ? "#22c55e"
+                      : props.theme.muted}
+                  bg={isFocused() ? props.theme.primary : props.theme.background}
                 >
-                  {isSelected() ? "[x]" : "[ ]"} {preset.icon} {preset.name}
+                  {isSelected() ? "[✓]" : "[ ]"}
+                </text>
+                <text
+                  fg={isFocused() 
+                    ? props.theme.background 
+                    : available() 
+                      ? props.theme.foreground 
+                      : props.theme.muted}
+                  bg={isFocused() ? props.theme.primary : props.theme.background}
+                >
+                  {" "}{preset.icon} {preset.name}
                 </text>
                 <text
                   fg={isFocused() ? props.theme.background : props.theme.muted}
-                  bg={isFocused() ? props.theme.primary : undefined}
+                  bg={isFocused() ? props.theme.primary : props.theme.background}
                 >
-                  {" "}- {preset.description}
+                  {" "}- {preset.description}{!available() ? " (not installed)" : ""}
                 </text>
               </box>
             )
