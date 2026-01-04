@@ -283,8 +283,8 @@ This backlog covers bug fixes, feature enhancements, and documentation for tuido
 - [x] **5.2.3** Write first run section: what happens on first launch
 - [x] **5.2.4** Document onboarding wizard flow: welcome → presets → custom app → confirm
 - [ ] **5.2.5** Add screenshots or ASCII diagrams of each onboarding step
-- [ ] **5.2.6** Document config file location: `~/.config/tuidoscope/tuidoscope.yaml`
-- [ ] **5.2.7** Add quick start example: launch with default shell
+- [x] **5.2.6** Document config file location: `~/.config/tuidoscope/tuidoscope.yaml`
+- [x] **5.2.7** Add quick start example: launch with default shell
 
 ### 5.3 Write Configuration Guide
 

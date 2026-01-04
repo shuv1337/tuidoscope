@@ -62,3 +62,43 @@ The wizard consists of four main steps:
 You can also choose to **Skip** the wizard at any point. This will create a basic configuration with no pre-configured apps, allowing you to add them manually later using `Ctrl+T` (New Tab) or by editing the configuration file directly.
 
 Once the wizard is complete, tuidoscope will save your settings to `~/.config/tuidoscope/tuidoscope.yaml` (or your system's equivalent XDG config directory) and launch into the main interface.
+
+## Quick Start Example
+
+If you want to get started immediately with a simple shell, you can skip the onboarding wizard and create a minimal configuration file:
+
+```yaml
+# ~/.config/tuidoscope/tuidoscope.yaml
+version: 1
+
+apps:
+  - name: "Shell"
+    command: "$SHELL"
+    cwd: "~"
+    autostart: true
+```
+
+This creates a single shell tab using your default shell (bash, zsh, fish, etc.). You can add more apps later using `Ctrl+T` to open the "Add Tab" modal.
+
+For a more feature-rich setup, you might include common TUI tools:
+
+```yaml
+version: 1
+
+apps:
+  - name: "Shell"
+    command: "$SHELL"
+    cwd: "~"
+    autostart: true
+
+  - name: "System Monitor"
+    command: "btop"
+    autostart: true
+    restart_on_exit: true
+
+  - name: "Files"
+    command: "yazi"
+    autostart: false
+```
+
+See the [Configuration Guide](configuration.md) for complete documentation of all available options.
