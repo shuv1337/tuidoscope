@@ -13,7 +13,8 @@ import { createUIStore } from "./stores/ui"
 import { spawnPty, killPty, resizePty } from "./lib/pty"
 import { initSessionPath, saveSession } from "./lib/session"
 import { saveConfig } from "./lib/config"
-import { createKeybindHandler } from "./lib/keybinds"
+import { matchesLeaderKey, matchesSingleKey, createLeaderBindingHandler, leaderKeyToSequence } from "./lib/keybinds"
+import type { KeybindAction } from "./lib/keybinds"
 import { debugLog } from "./lib/debug"
 import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp } from "./types"
 
@@ -308,8 +309,12 @@ export const App: Component<AppProps> = (props) => {
     void persistAppsConfig()
   }
 
-  // Create keybind handler
-  const handleKeybind = createKeybindHandler(props.config.keybinds, {
+  // Leader key config
+  const leaderConfig = props.config.keybinds.leader
+  const leaderBindings = props.config.keybinds.bindings
+
+  // Action handlers for leader bindings
+  const actionHandlers: Partial<Record<KeybindAction, () => void>> = {
     next_tab: () => handleTabNavigation("down"),
     prev_tab: () => handleTabNavigation("up"),
     toggle_focus: () => tabsStore.toggleFocus(),
@@ -381,14 +386,21 @@ export const App: Component<AppProps> = (props) => {
       renderer.destroy()
       setTimeout(() => process.exit(0), 50)
     },
-  })
+  }
+
+  // Create the leader binding handler
+  const handleLeaderBinding = createLeaderBindingHandler(leaderBindings, actionHandlers)
 
   // Hook up keyboard events from opentui
   useKeyboard((event) => {
-    debugLog(`[App] key: ${event.name} modal: ${uiStore.store.activeModal} prevented: ${event.defaultPrevented}`)
+    debugLog(`[App] key: ${event.name} modal: ${uiStore.store.activeModal} leader: ${uiStore.store.leaderActive} prevented: ${event.defaultPrevented}`)
 
-    // If a modal is open, let it handle its own keys (except Escape which closes modals)
+    // If a modal is open, clear leader state and let modal handle keys (except Escape)
     if (uiStore.store.activeModal) {
+      // Clear leader state when modal is open
+      if (uiStore.store.leaderActive) {
+        uiStore.setLeaderActive(false)
+      }
       if (event.name === "escape") {
         if (uiStore.store.activeModal === "edit-app") {
           setEditingEntryId(null)
@@ -400,27 +412,69 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
-    // In terminal focus mode, pass most keys to the terminal
-    if (tabsStore.store.focusMode === "terminal") {
-      // Get active app early for Ctrl+C handling
-      const activeApp = tabsStore.store.activeTabId
-        ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
-        : undefined
+    // Get active app for PTY operations
+    const activeApp = tabsStore.store.activeTabId
+      ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
+      : undefined
 
-      // Ctrl+C passthrough to PTY (before global keybinds to prevent app exit)
-      if (activeApp && (event.sequence === "\x03" || (event.ctrl && event.name === "c"))) {
+    // Ctrl+C passthrough to PTY in terminal mode (BEFORE leader handling)
+    if (tabsStore.store.focusMode === "terminal" && activeApp) {
+      if (event.sequence === "\x03" || (event.ctrl && event.name === "c")) {
         activeApp.pty.write("\x03")
         event.preventDefault()
         return
       }
+    }
 
-      // Check for global keybinds
-      if (handleKeybind(event)) {
+    // === LEADER STATE MACHINE ===
+    if (uiStore.store.leaderActive) {
+      // Cancel leader on Escape
+      if (event.name === "escape") {
+        uiStore.setLeaderActive(false)
         event.preventDefault()
         return
       }
 
-      // Pass raw input to terminal
+      // Double-tap leader key: send leader key sequence to PTY (terminal focus only)
+      if (matchesLeaderKey(event, leaderConfig.key)) {
+        if (tabsStore.store.focusMode === "terminal" && activeApp) {
+          const sequence = leaderKeyToSequence(leaderConfig.key)
+          if (sequence) {
+            activeApp.pty.write(sequence)
+          }
+        }
+        uiStore.setLeaderActive(false)
+        event.preventDefault()
+        return
+      }
+
+      // Check if event matches a leader binding
+      const action = handleLeaderBinding(event)
+      if (action !== null) {
+        uiStore.setLeaderActive(false)
+        event.preventDefault()
+        return
+      }
+
+      // Unknown key while leader active: cancel leader, do nothing else
+      uiStore.setLeaderActive(false)
+      event.preventDefault()
+      return
+    }
+
+    // Leader key pressed: activate leader state and start timeout
+    if (matchesLeaderKey(event, leaderConfig.key)) {
+      uiStore.setLeaderActive(true)
+      uiStore.startLeaderTimeout(() => {
+        uiStore.setLeaderActive(false)
+      }, leaderConfig.timeout)
+      event.preventDefault()
+      return
+    }
+
+    // === TERMINAL FOCUS MODE ===
+    if (tabsStore.store.focusMode === "terminal") {
+      // Pass raw input to terminal (leader key already handled above)
       if (activeApp && event.sequence) {
         activeApp.pty.write(event.sequence)
         event.preventDefault()
@@ -428,20 +482,15 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
-    // Check for global keybinds first (before navigation keys)
-    if (handleKeybind(event)) {
-      event.preventDefault()
-      return
-    }
-
+    // === TABS FOCUS MODE ===
     // Ctrl+C in tabs mode shows quit hint instead of exiting
     if (event.sequence === "\x03" || (event.ctrl && event.name === "c")) {
-      uiStore.showTemporaryMessage("Press Ctrl+Q to quit")
+      uiStore.showTemporaryMessage("Press Leader+q to quit")
       event.preventDefault()
       return
     }
 
-    // In tabs focus mode, handle navigation
+    // Direct navigation keys (vim-style, no leader required)
     if (event.name === "g" && !event.ctrl && !event.option && !event.shift) {
       const now = Date.now()
       if (now - lastGTime() < 500) {

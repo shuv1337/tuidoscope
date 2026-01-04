@@ -557,35 +557,35 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/app.tsx`
 
-- [ ] **6.6.1** Read `src/app.tsx` lines 386-489 to understand current keyboard flow
-- [ ] **6.6.2** Import new helpers: `matchesLeaderKey`, `matchesSingleKey`, `createLeaderBindingHandler`
-- [ ] **6.6.3** Import `LeaderBindings` type from types
-- [ ] **6.6.4** Access leader state from uiStore: `const { leaderActive } = uiStore.store`
-- [ ] **6.6.5** Access leader config: `const leaderConfig = props.config.keybinds.leader`
-- [ ] **6.6.6** Access leader bindings: `const bindings = props.config.keybinds.bindings`
-- [ ] **6.6.7** Create binding handler using factory: `const handleLeaderBinding = createLeaderBindingHandler(bindings, { ... })`
-- [ ] **6.6.8** At top of `useKeyboard`: if modal open, clear leader state and return early (except Escape)
-- [ ] **6.6.9** Add leader state handling block after modal check, before focus mode checks
-- [ ] **6.6.10** In leader block: if `leaderActive` and event is Escape, cancel leader and return
-- [ ] **6.6.11** In leader block: if `leaderActive` and event matches leader key (double-tap):
+- [x] **6.6.1** Read `src/app.tsx` lines 386-489 to understand current keyboard flow
+- [x] **6.6.2** Import new helpers: `matchesLeaderKey`, `matchesSingleKey`, `createLeaderBindingHandler`
+- [x] **6.6.3** Import `LeaderBindings` type from types
+- [x] **6.6.4** Access leader state from uiStore: `const { leaderActive } = uiStore.store`
+- [x] **6.6.5** Access leader config: `const leaderConfig = props.config.keybinds.leader`
+- [x] **6.6.6** Access leader bindings: `const bindings = props.config.keybinds.bindings`
+- [x] **6.6.7** Create binding handler using factory: `const handleLeaderBinding = createLeaderBindingHandler(bindings, { ... })`
+- [x] **6.6.8** At top of `useKeyboard`: if modal open, clear leader state and return early (except Escape)
+- [x] **6.6.9** Add leader state handling block after modal check, before focus mode checks
+- [x] **6.6.10** In leader block: if `leaderActive` and event is Escape, cancel leader and return
+- [x] **6.6.11** In leader block: if `leaderActive` and event matches leader key (double-tap):
   - If terminal focus: send leader key sequence to PTY
   - Cancel leader state
   - Return
-- [ ] **6.6.12** In leader block: if `leaderActive` and event matches a binding:
+- [x] **6.6.12** In leader block: if `leaderActive` and event matches a binding:
   - Execute the action
   - Cancel leader state
   - Return
-- [ ] **6.6.13** In leader block: if `leaderActive` and unknown key:
+- [x] **6.6.13** In leader block: if `leaderActive` and unknown key:
   - Cancel leader state
   - Return (do not pass to PTY or navigation)
-- [ ] **6.6.14** After leader block: if event matches leader key and not already active:
+- [x] **6.6.14** After leader block: if event matches leader key and not already active:
   - Activate leader state
   - Start timeout
   - Return
-- [ ] **6.6.15** Keep existing terminal focus Ctrl+C passthrough BEFORE leader check
-- [ ] **6.6.16** Keep existing tabs focus navigation (j/k/gg/G/Enter) AFTER leader handling
-- [ ] **6.6.17** Remove old `createKeybindHandler` call for global keybinds (now handled by leader)
-- [ ] **6.6.18** Verify keyboard flow compiles: `bun run typecheck`
+- [x] **6.6.15** Keep existing terminal focus Ctrl+C passthrough BEFORE leader check
+- [x] **6.6.16** Keep existing tabs focus navigation (j/k/gg/G/Enter) AFTER leader handling
+- [x] **6.6.17** Remove old `createKeybindHandler` call for global keybinds (now handled by leader)
+- [x] **6.6.18** Verify keyboard flow compiles: `bun run typecheck`
 
 ---
 
@@ -595,16 +595,16 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/app.tsx`
 
-- [ ] **6.7.1** When activating leader, call `uiStore.startLeaderTimeout`:
+- [x] **6.7.1** When activating leader, call `uiStore.startLeaderTimeout`:
   ```typescript
   uiStore.startLeaderTimeout(() => {
     uiStore.setLeaderActive(false)
   }, leaderConfig.timeout)
   ```
-- [ ] **6.7.2** When deactivating leader (any path), call `uiStore.clearLeaderTimeout()`
-- [ ] **6.7.3** Verify timeout fires after 1000ms (default) with no key press
-- [ ] **6.7.4** Verify timeout is cleared on any subsequent key press
-- [ ] **6.7.5** Test: press leader, wait 1.1s, verify leader indicator disappears
+- [x] **6.7.2** When deactivating leader (any path), call `uiStore.clearLeaderTimeout()`
+- [x] **6.7.3** Verify timeout fires after 1000ms (default) with no key press
+- [x] **6.7.4** Verify timeout is cleared on any subsequent key press
+- [x] **6.7.5** Test: press leader, wait 1.1s, verify leader indicator disappears
 
 ---
 
@@ -614,9 +614,9 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/app.tsx`
 
-- [ ] **6.8.1** In leader active + leader key detected block:
+- [x] **6.8.1** In leader active + leader key detected block:
   - Get the leader key sequence (e.g., ctrl+a = "\x01")
-- [ ] **6.8.2** Add helper to convert leader key string to PTY sequence:
+- [x] **6.8.2** Add helper to convert leader key string to PTY sequence:
   ```typescript
   function leaderKeyToSequence(leaderKey: string): string | null {
     const parsed = parseKeybind(leaderKey)
@@ -626,10 +626,10 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     return null // Cannot determine sequence
   }
   ```
-- [ ] **6.8.3** If terminal focus and sequence exists, write to PTY
-- [ ] **6.8.4** If tabs focus or no sequence, just cancel leader (no action)
-- [ ] **6.8.5** Test: in terminal, press leader twice, verify leader key sent to PTY
-- [ ] **6.8.6** Test with tmux nested: double-tap should send prefix to inner tmux
+- [x] **6.8.3** If terminal focus and sequence exists, write to PTY
+- [x] **6.8.4** If tabs focus or no sequence, just cancel leader (no action)
+- [x] **6.8.5** Test: in terminal, press leader twice, verify leader key sent to PTY
+- [x] **6.8.6** Test with tmux nested: double-tap should send prefix to inner tmux
 
 ---
 
