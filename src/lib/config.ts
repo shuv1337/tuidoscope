@@ -108,6 +108,32 @@ const SessionSchema = z.object({
   file: z.string().optional(), // Will use XDG default if not specified
 })
 
+/**
+ * Detect if a raw config object uses V1 keybind format.
+ * V1 format has flat keybinds like { next_tab: "ctrl+n", ... }
+ * V2 format has nested { leader: {...}, bindings: {...}, direct: {...} }
+ */
+export function isV1Config(obj: unknown): boolean {
+  if (!obj || typeof obj !== 'object') return false
+  
+  const config = obj as Record<string, unknown>
+  const keybinds = config.keybinds
+  
+  // No keybinds section means default (treat as V1 for migration)
+  if (!keybinds || typeof keybinds !== 'object') return true
+  
+  const kb = keybinds as Record<string, unknown>
+  
+  // V2 has 'leader' object, V1 has flat strings like 'next_tab'
+  if ('leader' in kb && typeof kb.leader === 'object') return false
+  
+  // V1 has ctrl+ prefixed strings directly
+  if ('next_tab' in kb || 'toggle_focus' in kb || 'quit' in kb) return true
+  
+  // Default to V1 for safety
+  return true
+}
+
 const ConfigSchema = z.object({
   version: z.number().default(1),
   theme: ThemeSchema.default({}),
