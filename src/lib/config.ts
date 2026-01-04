@@ -30,6 +30,15 @@ const ThemeSchema = z.object({
   muted: z.string().default("#637777"),       // Gray-blue for inactive elements
 })
 
+// Leader key configuration for V2 keybind schema
+// Implements tmux-style leader key system
+const LeaderSchema = z.object({
+  key: z.string().default("ctrl+a"),           // Leader key
+  timeout: z.number().default(1000),           // ms before auto-cancel
+  show_hints: z.boolean().default(true),       // Show hint popup after delay
+  hint_delay: z.number().default(300),         // ms before showing hints
+})
+
 const KeybindSchema = z.object({
   next_tab: z.string().default("ctrl+n"),
   prev_tab: z.string().default("ctrl+p"),
