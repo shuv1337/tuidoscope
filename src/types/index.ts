@@ -9,7 +9,8 @@ export interface ThemeConfig {
   muted: string
 }
 
-export interface KeybindConfig {
+// V1 keybind config (legacy, for migration)
+export interface KeybindConfigV1 {
   next_tab: string
   prev_tab: string
   close_tab: string
@@ -21,6 +22,50 @@ export interface KeybindConfig {
   stop_app: string
   kill_all: string
   quit: string
+}
+
+// V2 keybind config with leader key support
+export interface LeaderConfig {
+  key: string
+  timeout: number
+  show_hints: boolean
+  hint_delay: number
+}
+
+export interface LeaderBindings {
+  next_tab: string
+  prev_tab: string
+  close_tab: string
+  new_tab: string
+  toggle_focus: string
+  edit_app: string
+  restart_app: string
+  command_palette: string
+  stop_app: string
+  kill_all: string
+  quit: string
+}
+
+export interface DirectBindings {
+  navigate_up: string
+  navigate_down: string
+  select: string
+  go_top: string
+  go_bottom: string
+}
+
+export interface KeybindConfigV2 {
+  leader: LeaderConfig
+  bindings: LeaderBindings
+  direct: DirectBindings
+}
+
+// Union type for keybind config (supports both V1 and V2)
+export type KeybindConfig = KeybindConfigV1 | KeybindConfigV2
+
+// Type guard to check if config is V2 format
+export function isV2KeybindConfig(config: KeybindConfig): config is KeybindConfigV2 {
+  return 'leader' in config && 'bindings' in config && 'direct' in config
 }
 
 export interface AppEntryConfig {

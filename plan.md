@@ -409,17 +409,17 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/stores/ui.ts`
 
-- [ ] **6.1.1** Read `src/stores/ui.ts` to understand current store structure
-- [ ] **6.1.2** Add `leaderActive: boolean` to `UIStore` interface (default: `false`)
-- [ ] **6.1.3** Add `leaderTimeout: ReturnType<typeof setTimeout> | null` to `UIStore` interface (default: `null`)
-- [ ] **6.1.4** Add `leaderActivatedAt: number | null` to `UIStore` interface for timing (default: `null`)
-- [ ] **6.1.5** Implement `setLeaderActive(active: boolean)` method
-- [ ] **6.1.6** Implement `startLeaderTimeout(callback: () => void, ms: number)` method that stores timeout ID
-- [ ] **6.1.7** Implement `clearLeaderTimeout()` method that clears timeout if exists
-- [ ] **6.1.8** Update `setLeaderActive(true)` to set `leaderActivatedAt` to `Date.now()`
-- [ ] **6.1.9** Update `setLeaderActive(false)` to call `clearLeaderTimeout()` and reset `leaderActivatedAt`
-- [ ] **6.1.10** Export new methods from the store
-- [ ] **6.1.11** Verify store compiles without errors: `bun run typecheck`
+- [x] **6.1.1** Read `src/stores/ui.ts` to understand current store structure
+- [x] **6.1.2** Add `leaderActive: boolean` to `UIStore` interface (default: `false`)
+- [x] **6.1.3** Add `leaderTimeout: ReturnType<typeof setTimeout> | null` to `UIStore` interface (default: `null`)
+- [x] **6.1.4** Add `leaderActivatedAt: number | null` to `UIStore` interface for timing (default: `null`)
+- [x] **6.1.5** Implement `setLeaderActive(active: boolean)` method
+- [x] **6.1.6** Implement `startLeaderTimeout(callback: () => void, ms: number)` method that stores timeout ID
+- [x] **6.1.7** Implement `clearLeaderTimeout()` method that clears timeout if exists
+- [x] **6.1.8** Update `setLeaderActive(true)` to set `leaderActivatedAt` to `Date.now()`
+- [x] **6.1.9** Update `setLeaderActive(false)` to call `clearLeaderTimeout()` and reset `leaderActivatedAt`
+- [x] **6.1.10** Export new methods from the store
+- [x] **6.1.11** Verify store compiles without errors: `bun run typecheck`
 
 ---
 
@@ -429,8 +429,8 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/types/index.ts`
 
-- [ ] **6.2.1** Read `src/types/index.ts` to understand current type structure
-- [ ] **6.2.2** Add `LeaderConfig` interface:
+- [x] **6.2.1** Read `src/types/index.ts` to understand current type structure
+- [x] **6.2.2** Add `LeaderConfig` interface:
   ```typescript
   export interface LeaderConfig {
     key: string
@@ -439,13 +439,13 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     hint_delay: number
   }
   ```
-- [ ] **6.2.3** Add `LeaderBindings` interface with all action keys (next_tab, prev_tab, etc.)
-- [ ] **6.2.4** Add `DirectBindings` interface with navigation keys (navigate_up, navigate_down, select, go_top, go_bottom)
-- [ ] **6.2.5** Create new `KeybindConfigV2` interface with `leader`, `bindings`, and `direct` properties
-- [ ] **6.2.6** Keep existing `KeybindConfig` as `KeybindConfigV1` for migration compatibility
-- [ ] **6.2.7** Add union type: `type KeybindConfig = KeybindConfigV1 | KeybindConfigV2`
-- [ ] **6.2.8** Add type guard: `function isV2KeybindConfig(config: KeybindConfig): config is KeybindConfigV2`
-- [ ] **6.2.9** Verify types compile without errors: `bun run typecheck`
+- [x] **6.2.3** Add `LeaderBindings` interface with all action keys (next_tab, prev_tab, etc.)
+- [x] **6.2.4** Add `DirectBindings` interface with navigation keys (navigate_up, navigate_down, select, go_top, go_bottom)
+- [x] **6.2.5** Create new `KeybindConfigV2` interface with `leader`, `bindings`, and `direct` properties
+- [x] **6.2.6** Keep existing `KeybindConfig` as `KeybindConfigV1` for migration compatibility
+- [x] **6.2.7** Add union type: `type KeybindConfig = KeybindConfigV1 | KeybindConfigV2`
+- [x] **6.2.8** Add type guard: `function isV2KeybindConfig(config: KeybindConfig): config is KeybindConfigV2`
+- [x] **6.2.9** Verify types compile without errors: `bun run typecheck` (NOTE: type errors exist in dependent files that use V1 format - will be fixed in phases 6.5/6.6)
 
 ---
 
