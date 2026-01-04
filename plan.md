@@ -470,17 +470,17 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 - [x] **6.3.5** Create `KeybindSchemaV2` combining leader, bindings, and direct
 - [x] **6.3.6** Keep existing `KeybindSchema` renamed to `KeybindSchemaV1`
 - [x] **6.3.7** Implement `isV1Config(obj: unknown): boolean` helper to detect V1 format
-- [ ] **6.3.8** Implement `migrateV1ToV2(config: Record<string, unknown>): Record<string, unknown>` function
-- [ ] **6.3.9** In `migrateV1ToV2`: extract leader key from `toggle_focus` (default `ctrl+a`)
-- [ ] **6.3.10** In `migrateV1ToV2`: strip `ctrl+` prefix from all bindings to get single keys
-- [ ] **6.3.11** In `migrateV1ToV2`: set `command_palette` to `space` to resolve ctrl+p conflict
-- [ ] **6.3.12** In `migrateV1ToV2`: preserve any user-customized values
-- [ ] **6.3.13** In `migrateV1ToV2`: add direct bindings with hardcoded defaults
-- [ ] **6.3.14** In `migrateV1ToV2`: set `version: 2` in output
-- [ ] **6.3.15** Implement `migrateConfig(raw: unknown): unknown` wrapper that detects version and migrates
-- [ ] **6.3.16** Update `loadConfig()` to call `migrateConfig(parsed)` before validation
-- [ ] **6.3.17** Update `ConfigSchema` to use `KeybindSchemaV2` for `keybinds` field
-- [ ] **6.3.18** Add debug log for migration: `debugLog("[config] Migrated v1 config to v2")`
+- [x] **6.3.8** Implement `migrateV1ToV2(config: Record<string, unknown>): Record<string, unknown>` function
+- [x] **6.3.9** In `migrateV1ToV2`: extract leader key from `toggle_focus` (default `ctrl+a`)
+- [x] **6.3.10** In `migrateV1ToV2`: strip `ctrl+` prefix from all bindings to get single keys
+- [x] **6.3.11** In `migrateV1ToV2`: set `command_palette` to `space` to resolve ctrl+p conflict
+- [x] **6.3.12** In `migrateV1ToV2`: preserve any user-customized values
+- [x] **6.3.13** In `migrateV1ToV2`: add direct bindings with hardcoded defaults
+- [x] **6.3.14** In `migrateV1ToV2`: set `version: 2` in output
+- [x] **6.3.15** Implement `migrateConfig(raw: unknown): unknown` wrapper that detects version and migrates
+- [x] **6.3.16** Update `loadConfig()` to call `migrateConfig(parsed)` before validation
+- [x] **6.3.17** Update `ConfigSchema` to use `KeybindSchemaV2` for `keybinds` field
+- [x] **6.3.18** Add debug log for migration: `debugLog("[config] Migrated v1 config to v2")`
 - [ ] **6.3.19** Verify config loads with new schema: `bun run dev`
 - [ ] **6.3.20** Test migration: create a V1 config, load it, verify V2 structure
 

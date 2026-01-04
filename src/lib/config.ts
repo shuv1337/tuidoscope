@@ -134,10 +134,102 @@ export function isV1Config(obj: unknown): boolean {
   return true
 }
 
+/**
+ * Strip ctrl+/ctrl+shift+ prefix from a keybind string to get the base key.
+ * Used for migrating V1 keybinds to V2 leader bindings.
+ */
+function stripModifierPrefix(keybind: string): string {
+  // Handle ctrl+shift+ first (e.g., "ctrl+shift+r" -> "r")
+  if (keybind.startsWith('ctrl+shift+')) {
+    const key = keybind.slice('ctrl+shift+'.length)
+    // For shift bindings, uppercase the letter (e.g., "r" -> "R")
+    return key.length === 1 ? key.toUpperCase() : key
+  }
+  // Handle ctrl+ (e.g., "ctrl+n" -> "n")
+  if (keybind.startsWith('ctrl+')) {
+    return keybind.slice('ctrl+'.length)
+  }
+  // Return as-is if no known prefix
+  return keybind
+}
+
+/**
+ * Migrate V1 keybind config to V2 format.
+ * - Extracts leader key from toggle_focus (default ctrl+a)
+ * - Converts flat keybinds to leader bindings (strips ctrl+ prefix)
+ * - Resolves command_palette conflict (was ctrl+p, now space)
+ * - Adds direct bindings with vim-style defaults
+ */
+export function migrateV1ToV2(config: Record<string, unknown>): Record<string, unknown> {
+  const v1Keybinds = (config.keybinds as Record<string, string>) || {}
+  
+  // Extract leader key from toggle_focus (usually ctrl+a)
+  const leaderKey = v1Keybinds.toggle_focus || 'ctrl+a'
+  
+  // Build V2 bindings from V1, stripping ctrl+ prefix
+  const bindings: Record<string, string> = {
+    next_tab: stripModifierPrefix(v1Keybinds.next_tab || 'ctrl+n'),
+    prev_tab: stripModifierPrefix(v1Keybinds.prev_tab || 'ctrl+p'),
+    close_tab: stripModifierPrefix(v1Keybinds.close_tab || 'ctrl+w'),
+    new_tab: stripModifierPrefix(v1Keybinds.new_tab || 'ctrl+t'),
+    toggle_focus: 'a', // Leader + a to toggle focus
+    edit_app: stripModifierPrefix(v1Keybinds.edit_app || 'ctrl+e'),
+    restart_app: stripModifierPrefix(v1Keybinds.restart_app || 'ctrl+shift+r'),
+    // Resolve conflict: command_palette was ctrl+p (same as prev_tab), now use space
+    command_palette: 'space',
+    stop_app: stripModifierPrefix(v1Keybinds.stop_app || 'ctrl+x'),
+    kill_all: stripModifierPrefix(v1Keybinds.kill_all || 'ctrl+shift+k'),
+    quit: stripModifierPrefix(v1Keybinds.quit || 'ctrl+q'),
+  }
+  
+  // Direct bindings are vim-style navigation (no leader required, tabs mode only)
+  const direct: Record<string, string> = {
+    navigate_up: 'k',
+    navigate_down: 'j',
+    select: 'enter',
+    go_top: 'g',
+    go_bottom: 'G',
+  }
+  
+  debugLog('[config] Migrated v1 config to v2')
+  
+  return {
+    ...config,
+    version: 2,
+    keybinds: {
+      leader: {
+        key: leaderKey,
+        timeout: 1000,
+        show_hints: true,
+        hint_delay: 300,
+      },
+      bindings,
+      direct,
+    },
+  }
+}
+
+/**
+ * Migrate config from any version to latest.
+ * Detects version and applies appropriate migrations.
+ */
+export function migrateConfig(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object') return raw
+  
+  const obj = raw as Record<string, unknown>
+  
+  // If V1 format detected, migrate to V2
+  if (isV1Config(obj)) {
+    return migrateV1ToV2(obj)
+  }
+  
+  return raw
+}
+
 const ConfigSchema = z.object({
-  version: z.number().default(1),
+  version: z.number().default(2),
   theme: ThemeSchema.default({}),
-  keybinds: KeybindSchemaV1.default({}),
+  keybinds: KeybindSchemaV2.default({}),
   tab_width: z.number().default(20),
   apps: z.array(AppEntrySchema).default([]),
   session: SessionSchema.default({}),
@@ -208,7 +300,8 @@ export async function loadConfig(): Promise<LoadConfigResult> {
   try {
     const content = await readFile(configPath, "utf-8")
     const parsed = parse(content)
-    const validated = ConfigSchema.parse(parsed)
+    const migrated = migrateConfig(parsed)
+    const validated = ConfigSchema.parse(migrated)
     debugLog(`[config] Loaded ${validated.apps.length} apps from config`)
     return { config: validated as Config, configFileFound }
   } catch (error) {
