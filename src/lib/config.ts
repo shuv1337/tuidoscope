@@ -20,12 +20,14 @@ export interface LoadConfigResult {
 const LOCAL_CONFIG_PATH = "./tuidoscope.yaml"
 
 // Zod schema for validation
+// Default theme: Night Owl (https://github.com/sdras/night-owl-vscode-theme)
+// Ghostty port: https://github.com/m1yon/ghostty-night-owl
 const ThemeSchema = z.object({
-  primary: z.string().default("#7aa2f7"),
-  background: z.string().default("#1a1b26"),
-  foreground: z.string().default("#c0caf5"),
-  accent: z.string().default("#bb9af7"),
-  muted: z.string().default("#565f89"),
+  primary: z.string().default("#82aaff"),     // Blue - selections, highlights
+  background: z.string().default("#011627"),  // Deep dark blue
+  foreground: z.string().default("#d6deeb"),  // Light gray-blue text
+  accent: z.string().default("#7fdbca"),      // Cyan/teal - active indicators
+  muted: z.string().default("#637777"),       // Gray-blue for inactive elements
 })
 
 const KeybindSchema = z.object({
