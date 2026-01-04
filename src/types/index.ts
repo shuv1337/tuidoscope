@@ -86,7 +86,7 @@ export interface SessionConfig {
 export interface Config {
   version: number
   theme: ThemeConfig
-  keybinds: KeybindConfig
+  keybinds: KeybindConfigV2  // Always V2 after migration
   tab_width: number
   apps: AppEntryConfig[]
   session: SessionConfig

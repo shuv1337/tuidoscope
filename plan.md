@@ -481,8 +481,8 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 - [x] **6.3.16** Update `loadConfig()` to call `migrateConfig(parsed)` before validation
 - [x] **6.3.17** Update `ConfigSchema` to use `KeybindSchemaV2` for `keybinds` field
 - [x] **6.3.18** Add debug log for migration: `debugLog("[config] Migrated v1 config to v2")`
-- [ ] **6.3.19** Verify config loads with new schema: `bun run dev`
-- [ ] **6.3.20** Test migration: create a V1 config, load it, verify V2 structure
+- [x] **6.3.19** Verify config loads with new schema: `bun run dev`
+- [x] **6.3.20** Test migration: create a V1 config, load it, verify V2 structure
 
 ---
 
@@ -533,21 +533,21 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/lib/keybinds.ts`
 
-- [ ] **6.5.1** Read `src/lib/keybinds.ts` to understand current parsing logic
-- [ ] **6.5.2** Add `matchesLeaderKey(event: KeyEvent, leaderKey: string): boolean` function
-- [ ] **6.5.3** In `matchesLeaderKey`: reuse `matchesKeybind` logic for consistency
-- [ ] **6.5.4** Add `matchesSingleKey(event: KeyEvent, key: string): boolean` for leader bindings (no modifiers)
-- [ ] **6.5.5** Handle special case: `space` key matching (event.name === "space" or sequence === " ")
-- [ ] **6.5.6** Handle special case: `enter` key matching (event.name === "return" or "enter")
-- [ ] **6.5.7** Handle special case: shift+letter for uppercase (e.g., "K" requires shift+k)
-- [ ] **6.5.8** Add `formatLeaderKeybind(leaderKey: string, binding: string): string` for display
-- [ ] **6.5.9** In `formatLeaderKeybind`: convert "ctrl+a" to "^A" prefix style
-- [ ] **6.5.10** In `formatLeaderKeybind`: append "+" and binding (e.g., "^A+n")
-- [ ] **6.5.11** Add `createLeaderBindingHandler(bindings: LeaderBindings, handlers: Record<string, () => void>)` factory
-- [ ] **6.5.12** In `createLeaderBindingHandler`: iterate bindings and return matching action
-- [ ] **6.5.13** Update `KeybindAction` type to include all new actions
-- [ ] **6.5.14** Export all new functions
-- [ ] **6.5.15** Verify module compiles: `bun run typecheck`
+- [x] **6.5.1** Read `src/lib/keybinds.ts` to understand current parsing logic
+- [x] **6.5.2** Add `matchesLeaderKey(event: KeyEvent, leaderKey: string): boolean` function
+- [x] **6.5.3** In `matchesLeaderKey`: reuse `matchesKeybind` logic for consistency
+- [x] **6.5.4** Add `matchesSingleKey(event: KeyEvent, key: string): boolean` for leader bindings (no modifiers)
+- [x] **6.5.5** Handle special case: `space` key matching (event.name === "space" or sequence === " ")
+- [x] **6.5.6** Handle special case: `enter` key matching (event.name === "return" or "enter")
+- [x] **6.5.7** Handle special case: shift+letter for uppercase (e.g., "K" requires shift+k)
+- [x] **6.5.8** Add `formatLeaderKeybind(leaderKey: string, binding: string): string` for display
+- [x] **6.5.9** In `formatLeaderKeybind`: convert "ctrl+a" to "^A" prefix style
+- [x] **6.5.10** In `formatLeaderKeybind`: append "+" and binding (e.g., "^A+n")
+- [x] **6.5.11** Add `createLeaderBindingHandler(bindings: LeaderBindings, handlers: Record<string, () => void>)` factory
+- [x] **6.5.12** In `createLeaderBindingHandler`: iterate bindings and return matching action
+- [x] **6.5.13** Update `KeybindAction` type to include all new actions
+- [x] **6.5.14** Export all new functions
+- [x] **6.5.15** Verify module compiles: `bun run typecheck`
 
 ---
 

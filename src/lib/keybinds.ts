@@ -1,5 +1,5 @@
 import type { KeyEvent } from "@opentui/core"
-import type { KeybindConfig } from "../types"
+import type { KeybindConfigV2, LeaderBindings } from "../types"
 
 export type KeybindAction =
   | "next_tab"
@@ -39,7 +39,7 @@ export function parseKeybind(keybind: string): ParsedKeybind {
 }
 
 /**
- * Check if an opentui KeyEvent matches a keybind string
+ * Check if an opentui KeyEvent matches a keybind string (with modifiers like "ctrl+a")
  */
 export function matchesKeybind(event: KeyEvent, keybind: string): boolean {
   const parsed = parseKeybind(keybind)
@@ -68,24 +68,131 @@ export function matchesKeybind(event: KeyEvent, keybind: string): boolean {
 }
 
 /**
- * Create a keybind handler that maps events to actions
+ * Check if an event matches the leader key (e.g., "ctrl+a")
+ */
+export function matchesLeaderKey(event: KeyEvent, leaderKey: string): boolean {
+  return matchesKeybind(event, leaderKey)
+}
+
+/**
+ * Check if an event matches a single key (no modifiers required).
+ * Used for leader bindings where the modifier context is already established.
+ * 
+ * Handles special cases:
+ * - "space" matches space key
+ * - "enter" matches enter/return key
+ * - "K" (uppercase) matches shift+k
+ */
+export function matchesSingleKey(event: KeyEvent, key: string): boolean {
+  const eventName = event.name.toLowerCase()
+  const keyLower = key.toLowerCase()
+  
+  // Handle special keys
+  if (keyLower === "space") {
+    return eventName === "space" || eventName === " " || event.sequence === " "
+  }
+  
+  if (keyLower === "enter") {
+    return eventName === "return" || eventName === "enter"
+  }
+  
+  // Handle uppercase letters (shift+letter)
+  if (key.length === 1 && key === key.toUpperCase() && key !== key.toLowerCase()) {
+    // Uppercase letter like "K" requires shift+k
+    return eventName === keyLower && event.shift === true
+  }
+  
+  // Regular single key match (no modifiers)
+  return eventName === keyLower && !event.ctrl && !event.shift && !event.meta && !(event.option ?? false)
+}
+
+/**
+ * Format a leader keybind for display (e.g., "ctrl+a" + "n" -> "^A+n")
+ */
+export function formatLeaderKeybind(leaderKey: string, binding: string): string {
+  const leaderFormatted = formatLeaderKey(leaderKey)
+  return `${leaderFormatted}+${binding}`
+}
+
+/**
+ * Format a leader key for display (e.g., "ctrl+a" -> "^A")
+ */
+export function formatLeaderKey(leaderKey: string): string {
+  const parsed = parseKeybind(leaderKey)
+  
+  if (parsed.ctrl && parsed.key.length === 1) {
+    return `^${parsed.key.toUpperCase()}`
+  }
+  
+  // Fallback for non-ctrl leader keys
+  const parts: string[] = []
+  if (parsed.ctrl) parts.push("^")
+  if (parsed.alt) parts.push("Alt+")
+  if (parsed.meta) parts.push("Cmd+")
+  if (parsed.shift) parts.push("Shift+")
+  parts.push(parsed.key.toUpperCase())
+  
+  return parts.join("")
+}
+
+/**
+ * Create a leader binding handler that maps single keys to actions.
+ * Returns the action name if matched, null otherwise.
+ */
+export function createLeaderBindingHandler(
+  bindings: LeaderBindings,
+  handlers: Partial<Record<KeybindAction, () => void>>
+): (event: KeyEvent) => KeybindAction | null {
+  const bindingMap: Record<string, KeybindAction> = {
+    [bindings.next_tab]: "next_tab",
+    [bindings.prev_tab]: "prev_tab",
+    [bindings.close_tab]: "close_tab",
+    [bindings.new_tab]: "new_tab",
+    [bindings.toggle_focus]: "toggle_focus",
+    [bindings.edit_app]: "edit_app",
+    [bindings.restart_app]: "restart_app",
+    [bindings.command_palette]: "command_palette",
+    [bindings.stop_app]: "stop_app",
+    [bindings.kill_all]: "kill_all",
+    [bindings.quit]: "quit",
+  }
+
+  return (event: KeyEvent): KeybindAction | null => {
+    for (const [binding, action] of Object.entries(bindingMap)) {
+      if (matchesSingleKey(event, binding)) {
+        const handler = handlers[action]
+        if (handler) {
+          handler()
+        }
+        return action
+      }
+    }
+    return null
+  }
+}
+
+/**
+ * Create a keybind handler for V2 config that maps leader+key to actions.
+ * This is a compatibility wrapper that works with the full keybind string.
  */
 export function createKeybindHandler(
-  config: KeybindConfig,
+  config: KeybindConfigV2,
   handlers: Partial<Record<KeybindAction, () => void>>
 ) {
+  // Build full keybind strings for V2 (leader.key + "+" + binding)
+  // This is used for status bar display and direct matching
   const keybindMap: Record<string, KeybindAction> = {
-    [config.next_tab]: "next_tab",
-    [config.prev_tab]: "prev_tab",
-    [config.close_tab]: "close_tab",
-    [config.new_tab]: "new_tab",
-    [config.toggle_focus]: "toggle_focus",
-    [config.edit_app]: "edit_app",
-    [config.restart_app]: "restart_app",
-    [config.command_palette]: "command_palette",
-    [config.stop_app]: "stop_app",
-    [config.kill_all]: "kill_all",
-    [config.quit]: "quit",
+    [`${config.leader.key}+${config.bindings.next_tab}`]: "next_tab",
+    [`${config.leader.key}+${config.bindings.prev_tab}`]: "prev_tab",
+    [`${config.leader.key}+${config.bindings.close_tab}`]: "close_tab",
+    [`${config.leader.key}+${config.bindings.new_tab}`]: "new_tab",
+    [`${config.leader.key}+${config.bindings.toggle_focus}`]: "toggle_focus",
+    [`${config.leader.key}+${config.bindings.edit_app}`]: "edit_app",
+    [`${config.leader.key}+${config.bindings.restart_app}`]: "restart_app",
+    [`${config.leader.key}+${config.bindings.command_palette}`]: "command_palette",
+    [`${config.leader.key}+${config.bindings.stop_app}`]: "stop_app",
+    [`${config.leader.key}+${config.bindings.kill_all}`]: "kill_all",
+    [`${config.leader.key}+${config.bindings.quit}`]: "quit",
   }
 
   return (event: KeyEvent): boolean => {
@@ -110,4 +217,21 @@ export function formatKeybind(keybind: string): string {
     .split("+")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join("+")
+}
+
+/**
+ * Convert a leader key string to its PTY sequence for double-tap passthrough.
+ * For example, "ctrl+a" returns "\x01" (ASCII 1, Ctrl+A).
+ * Returns null if the leader key cannot be converted to a sequence.
+ */
+export function leaderKeyToSequence(leaderKey: string): string | null {
+  const parsed = parseKeybind(leaderKey)
+  
+  // ctrl+letter produces ASCII code = letter - 96 (a=1, b=2, etc.)
+  if (parsed.ctrl && parsed.key.length === 1 && parsed.key >= "a" && parsed.key <= "z") {
+    return String.fromCharCode(parsed.key.charCodeAt(0) - 96)
+  }
+  
+  // Cannot determine sequence for non-ctrl keys
+  return null
 }

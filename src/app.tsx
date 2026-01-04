@@ -620,14 +620,9 @@ export const App: Component<AppProps> = (props) => {
           focusMode={tabsStore.store.focusMode}
           message={uiStore.store.statusMessage}
           theme={props.config.theme}
-          keybinds={{
-            toggle_focus: props.config.keybinds.toggle_focus,
-            command_palette: props.config.keybinds.command_palette,
-            edit_app: props.config.keybinds.edit_app,
-            stop_app: props.config.keybinds.stop_app,
-            kill_all: props.config.keybinds.kill_all,
-            quit: props.config.keybinds.quit,
-          }}
+          leader={props.config.keybinds.leader}
+          bindings={props.config.keybinds.bindings}
+          leaderActive={uiStore.store.leaderActive}
         />
 
         {/* Modals */}
