@@ -65,6 +65,14 @@ const DirectBindingsSchema = z.object({
   go_bottom: z.string().default("G"),          // Go to last tab (shift+g)
 })
 
+// V2 keybind schema - combines leader, bindings, and direct
+// This is the new tmux-style leader key system
+const KeybindSchemaV2 = z.object({
+  leader: LeaderSchema.default({}),
+  bindings: LeaderBindingsSchema.default({}),
+  direct: DirectBindingsSchema.default({}),
+})
+
 // V1 keybind schema (legacy, kept for migration compatibility)
 const KeybindSchema = z.object({
   next_tab: z.string().default("ctrl+n"),
