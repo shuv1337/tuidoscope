@@ -1,6 +1,6 @@
 # tuidoscope
 
-A centralized TUI management application for running multiple TUI applications in embedded terminal windows. Built with [OpenTUI](https://github.com/opentui/opentui) and SolidJS.
+A centralized TUI management application for running multiple TUI applications in embedded terminal windows. Built with [OpenTUI](https://github.com/anomalyco/opentui) and SolidJS.
 
 ## Screenshots
 
@@ -30,7 +30,7 @@ A centralized TUI management application for running multiple TUI applications i
 
 - **Runtime**: [Bun](https://bun.sh/)
 - **Framework**: [SolidJS](https://www.solidjs.com/)
-- **TUI Engine**: [OpenTUI](https://github.com/opentui/opentui)
+- **TUI Engine**: [OpenTUI](https://github.com/anomalyco/opentui)
 - **Terminal Emulator**: [ghostty-opentui](https://github.com/remorses/ghostty-opentui)
 - **PTY**: `node-pty` (via `spawn-pty`)
 
@@ -134,6 +134,15 @@ theme:
 - Session persistence (running apps & active tab).
 - Runtime application configuration (Add/Edit).
 - Path expansion for working directories.
+
+## Acknowledgments
+
+This project is built directly on top of:
+
+- **[OpenTUI](https://github.com/anomalyco/opentui)** - Provides the declarative component model and rendering engine for the entire interface.
+- **[ghostty-opentui](https://github.com/remorses/ghostty-opentui)** - Enables high-performance, embedded terminal sessions within the application.
+
+Huge thanks to both for making this possible.
 
 ## License
 
