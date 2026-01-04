@@ -55,6 +55,16 @@ const LeaderBindingsSchema = z.object({
   quit: z.string().default("q"),               // Leader + q
 })
 
+// V2 direct bindings - navigation keys that work without leader in tabs mode
+// These are vim-style navigation keys for tab selection
+const DirectBindingsSchema = z.object({
+  navigate_up: z.string().default("k"),        // Previous tab (vim up)
+  navigate_down: z.string().default("j"),      // Next tab (vim down)
+  select: z.string().default("enter"),         // Select/focus current tab
+  go_top: z.string().default("g"),             // Go to first tab (gg)
+  go_bottom: z.string().default("G"),          // Go to last tab (shift+g)
+})
+
 // V1 keybind schema (legacy, kept for migration compatibility)
 const KeybindSchema = z.object({
   next_tab: z.string().default("ctrl+n"),
