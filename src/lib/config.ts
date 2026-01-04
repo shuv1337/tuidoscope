@@ -39,6 +39,23 @@ const LeaderSchema = z.object({
   hint_delay: z.number().default(300),         // ms before showing hints
 })
 
+// V2 leader bindings - actions triggered by Leader + key
+// Single keys (no modifiers) since leader already provides the modifier context
+const LeaderBindingsSchema = z.object({
+  next_tab: z.string().default("n"),           // Leader + n
+  prev_tab: z.string().default("p"),           // Leader + p
+  close_tab: z.string().default("w"),          // Leader + w
+  new_tab: z.string().default("t"),            // Leader + t
+  toggle_focus: z.string().default("a"),       // Leader + a
+  edit_app: z.string().default("e"),           // Leader + e
+  restart_app: z.string().default("r"),        // Leader + r
+  command_palette: z.string().default("space"), // Leader + space
+  stop_app: z.string().default("x"),           // Leader + x
+  kill_all: z.string().default("K"),           // Leader + K (shift+k)
+  quit: z.string().default("q"),               // Leader + q
+})
+
+// V1 keybind schema (legacy, kept for migration compatibility)
 const KeybindSchema = z.object({
   next_tab: z.string().default("ctrl+n"),
   prev_tab: z.string().default("ctrl+p"),

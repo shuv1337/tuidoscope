@@ -455,8 +455,8 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/lib/config.ts`
 
-- [ ] **6.3.1** Read `src/lib/config.ts` lines 33-74 to understand current schema
-- [ ] **6.3.2** Create `LeaderSchema` with Zod:
+- [x] **6.3.1** Read `src/lib/config.ts` lines 33-74 to understand current schema
+- [x] **6.3.2** Create `LeaderSchema` with Zod:
   ```typescript
   const LeaderSchema = z.object({
     key: z.string().default("ctrl+a"),
@@ -465,7 +465,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     hint_delay: z.number().default(300),
   })
   ```
-- [ ] **6.3.3** Create `LeaderBindingsSchema` with all action defaults (n, p, w, t, a, e, r, space, x, K, q)
+- [x] **6.3.3** Create `LeaderBindingsSchema` with all action defaults (n, p, w, t, a, e, r, space, x, K, q)
 - [ ] **6.3.4** Create `DirectBindingsSchema` with navigation defaults (k, j, enter, g, G)
 - [ ] **6.3.5** Create `KeybindSchemaV2` combining leader, bindings, and direct
 - [ ] **6.3.6** Keep existing `KeybindSchema` renamed to `KeybindSchemaV1`
