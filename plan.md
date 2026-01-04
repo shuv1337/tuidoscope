@@ -492,9 +492,9 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `config/default.yaml`
 
-- [ ] **6.4.1** Read current `config/default.yaml`
-- [ ] **6.4.2** Change `version: 1` to `version: 2`
-- [ ] **6.4.3** Replace flat `keybinds` section with nested structure:
+- [x] **6.4.1** Read current `config/default.yaml`
+- [x] **6.4.2** Change `version: 1` to `version: 2`
+- [x] **6.4.3** Replace flat `keybinds` section with nested structure:
   ```yaml
   keybinds:
     leader:
@@ -521,9 +521,9 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
       go_top: "g"
       go_bottom: "G"
   ```
-- [ ] **6.4.4** Remove the duplicate `command_palette: "ctrl+p"` that conflicts with `prev_tab`
-- [ ] **6.4.5** Add comment explaining leader key concept
-- [ ] **6.4.6** Verify YAML is valid: parse with online validator or `bun` script
+- [x] **6.4.4** Remove the duplicate `command_palette: "ctrl+p"` that conflicts with `prev_tab`
+- [x] **6.4.5** Add comment explaining leader key concept
+- [x] **6.4.6** Verify YAML is valid: parse with online validator or `bun` script
 
 ---
 
