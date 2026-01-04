@@ -468,7 +468,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 - [x] **6.3.3** Create `LeaderBindingsSchema` with all action defaults (n, p, w, t, a, e, r, space, x, K, q)
 - [x] **6.3.4** Create `DirectBindingsSchema` with navigation defaults (k, j, enter, g, G)
 - [x] **6.3.5** Create `KeybindSchemaV2` combining leader, bindings, and direct
-- [ ] **6.3.6** Keep existing `KeybindSchema` renamed to `KeybindSchemaV1`
+- [x] **6.3.6** Keep existing `KeybindSchema` renamed to `KeybindSchemaV1`
 - [ ] **6.3.7** Implement `isV1Config(obj: unknown): boolean` helper to detect V1 format
 - [ ] **6.3.8** Implement `migrateV1ToV2(config: Record<string, unknown>): Record<string, unknown>` function
 - [ ] **6.3.9** In `migrateV1ToV2`: extract leader key from `toggle_focus` (default `ctrl+a`)

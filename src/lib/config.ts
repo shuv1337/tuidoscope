@@ -74,7 +74,7 @@ const KeybindSchemaV2 = z.object({
 })
 
 // V1 keybind schema (legacy, kept for migration compatibility)
-const KeybindSchema = z.object({
+const KeybindSchemaV1 = z.object({
   next_tab: z.string().default("ctrl+n"),
   prev_tab: z.string().default("ctrl+p"),
   close_tab: z.string().default("ctrl+w"),
@@ -111,7 +111,7 @@ const SessionSchema = z.object({
 const ConfigSchema = z.object({
   version: z.number().default(1),
   theme: ThemeSchema.default({}),
-  keybinds: KeybindSchema.default({}),
+  keybinds: KeybindSchemaV1.default({}),
   tab_width: z.number().default(20),
   apps: z.array(AppEntrySchema).default([]),
   session: SessionSchema.default({}),
