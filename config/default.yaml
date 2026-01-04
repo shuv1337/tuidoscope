@@ -28,7 +28,18 @@ keybinds:
 tab_width: 20
 
 # TUI application entries
-apps: []
+apps:
+  - name: "Shell"
+    command: "zsh"
+    cwd: "~"
+    autostart: true
+    env:
+      TERM: "xterm-256color"
+
+  - name: "lazytodo"
+    command: "lazytodo tui"
+    cwd: "~"
+    autostart: false
 
 # Session persistence
 session:

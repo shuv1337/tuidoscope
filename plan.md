@@ -1,8 +1,9 @@
 # Tuidoscope Implementation Backlog
 
 **Created:** 2026-01-03  
+**Updated:** 2026-01-04  
 **Status:** Active  
-**Total Tasks:** 45
+**Total Tasks:** 180+ (Phase 6 adds ~135 new tasks)
 
 ---
 
@@ -394,4 +395,769 @@ cyan:        #7fdbca
 
 ---
 
-**Last Updated:** 2026-01-03
+## Phase 6: Configurable Leader Key System (P1)
+
+**Reference:** `CONTEXT/PLAN-configurable-leader-key-2026-01-04.md`
+
+This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key system, allowing users to choose a leader key that doesn't conflict with their terminal emulator.
+
+---
+
+### 6.1 Core Infrastructure: UI Store Leader State
+
+**Goal:** Add leader state tracking to the UI store.
+
+**File:** `src/stores/ui.ts`
+
+- [ ] **6.1.1** Read `src/stores/ui.ts` to understand current store structure
+- [ ] **6.1.2** Add `leaderActive: boolean` to `UIStore` interface (default: `false`)
+- [ ] **6.1.3** Add `leaderTimeout: ReturnType<typeof setTimeout> | null` to `UIStore` interface (default: `null`)
+- [ ] **6.1.4** Add `leaderActivatedAt: number | null` to `UIStore` interface for timing (default: `null`)
+- [ ] **6.1.5** Implement `setLeaderActive(active: boolean)` method
+- [ ] **6.1.6** Implement `startLeaderTimeout(callback: () => void, ms: number)` method that stores timeout ID
+- [ ] **6.1.7** Implement `clearLeaderTimeout()` method that clears timeout if exists
+- [ ] **6.1.8** Update `setLeaderActive(true)` to set `leaderActivatedAt` to `Date.now()`
+- [ ] **6.1.9** Update `setLeaderActive(false)` to call `clearLeaderTimeout()` and reset `leaderActivatedAt`
+- [ ] **6.1.10** Export new methods from the store
+- [ ] **6.1.11** Verify store compiles without errors: `bun run typecheck`
+
+---
+
+### 6.2 Core Infrastructure: TypeScript Types
+
+**Goal:** Add new types for leader key configuration.
+
+**File:** `src/types/index.ts`
+
+- [ ] **6.2.1** Read `src/types/index.ts` to understand current type structure
+- [ ] **6.2.2** Add `LeaderConfig` interface:
+  ```typescript
+  export interface LeaderConfig {
+    key: string
+    timeout: number
+    show_hints: boolean
+    hint_delay: number
+  }
+  ```
+- [ ] **6.2.3** Add `LeaderBindings` interface with all action keys (next_tab, prev_tab, etc.)
+- [ ] **6.2.4** Add `DirectBindings` interface with navigation keys (navigate_up, navigate_down, select, go_top, go_bottom)
+- [ ] **6.2.5** Create new `KeybindConfigV2` interface with `leader`, `bindings`, and `direct` properties
+- [ ] **6.2.6** Keep existing `KeybindConfig` as `KeybindConfigV1` for migration compatibility
+- [ ] **6.2.7** Add union type: `type KeybindConfig = KeybindConfigV1 | KeybindConfigV2`
+- [ ] **6.2.8** Add type guard: `function isV2KeybindConfig(config: KeybindConfig): config is KeybindConfigV2`
+- [ ] **6.2.9** Verify types compile without errors: `bun run typecheck`
+
+---
+
+### 6.3 Core Infrastructure: Configuration Schema
+
+**Goal:** Update Zod schema to support V2 keybind format with migration.
+
+**File:** `src/lib/config.ts`
+
+- [ ] **6.3.1** Read `src/lib/config.ts` lines 33-74 to understand current schema
+- [ ] **6.3.2** Create `LeaderSchema` with Zod:
+  ```typescript
+  const LeaderSchema = z.object({
+    key: z.string().default("ctrl+a"),
+    timeout: z.number().default(1000),
+    show_hints: z.boolean().default(true),
+    hint_delay: z.number().default(300),
+  })
+  ```
+- [ ] **6.3.3** Create `LeaderBindingsSchema` with all action defaults (n, p, w, t, a, e, r, space, x, K, q)
+- [ ] **6.3.4** Create `DirectBindingsSchema` with navigation defaults (k, j, enter, g, G)
+- [ ] **6.3.5** Create `KeybindSchemaV2` combining leader, bindings, and direct
+- [ ] **6.3.6** Keep existing `KeybindSchema` renamed to `KeybindSchemaV1`
+- [ ] **6.3.7** Implement `isV1Config(obj: unknown): boolean` helper to detect V1 format
+- [ ] **6.3.8** Implement `migrateV1ToV2(config: Record<string, unknown>): Record<string, unknown>` function
+- [ ] **6.3.9** In `migrateV1ToV2`: extract leader key from `toggle_focus` (default `ctrl+a`)
+- [ ] **6.3.10** In `migrateV1ToV2`: strip `ctrl+` prefix from all bindings to get single keys
+- [ ] **6.3.11** In `migrateV1ToV2`: set `command_palette` to `space` to resolve ctrl+p conflict
+- [ ] **6.3.12** In `migrateV1ToV2`: preserve any user-customized values
+- [ ] **6.3.13** In `migrateV1ToV2`: add direct bindings with hardcoded defaults
+- [ ] **6.3.14** In `migrateV1ToV2`: set `version: 2` in output
+- [ ] **6.3.15** Implement `migrateConfig(raw: unknown): unknown` wrapper that detects version and migrates
+- [ ] **6.3.16** Update `loadConfig()` to call `migrateConfig(parsed)` before validation
+- [ ] **6.3.17** Update `ConfigSchema` to use `KeybindSchemaV2` for `keybinds` field
+- [ ] **6.3.18** Add debug log for migration: `debugLog("[config] Migrated v1 config to v2")`
+- [ ] **6.3.19** Verify config loads with new schema: `bun run dev`
+- [ ] **6.3.20** Test migration: create a V1 config, load it, verify V2 structure
+
+---
+
+### 6.4 Core Infrastructure: Update Default Config
+
+**Goal:** Update default.yaml to V2 format.
+
+**File:** `config/default.yaml`
+
+- [ ] **6.4.1** Read current `config/default.yaml`
+- [ ] **6.4.2** Change `version: 1` to `version: 2`
+- [ ] **6.4.3** Replace flat `keybinds` section with nested structure:
+  ```yaml
+  keybinds:
+    leader:
+      key: "ctrl+a"
+      timeout: 1000
+      show_hints: true
+      hint_delay: 300
+    bindings:
+      next_tab: "n"
+      prev_tab: "p"
+      close_tab: "w"
+      new_tab: "t"
+      toggle_focus: "a"
+      edit_app: "e"
+      restart_app: "r"
+      command_palette: "space"
+      stop_app: "x"
+      kill_all: "K"
+      quit: "q"
+    direct:
+      navigate_up: "k"
+      navigate_down: "j"
+      select: "enter"
+      go_top: "g"
+      go_bottom: "G"
+  ```
+- [ ] **6.4.4** Remove the duplicate `command_palette: "ctrl+p"` that conflicts with `prev_tab`
+- [ ] **6.4.5** Add comment explaining leader key concept
+- [ ] **6.4.6** Verify YAML is valid: parse with online validator or `bun` script
+
+---
+
+### 6.5 Core Infrastructure: Keybind Helpers
+
+**Goal:** Add leader key matching and formatting utilities.
+
+**File:** `src/lib/keybinds.ts`
+
+- [ ] **6.5.1** Read `src/lib/keybinds.ts` to understand current parsing logic
+- [ ] **6.5.2** Add `matchesLeaderKey(event: KeyEvent, leaderKey: string): boolean` function
+- [ ] **6.5.3** In `matchesLeaderKey`: reuse `matchesKeybind` logic for consistency
+- [ ] **6.5.4** Add `matchesSingleKey(event: KeyEvent, key: string): boolean` for leader bindings (no modifiers)
+- [ ] **6.5.5** Handle special case: `space` key matching (event.name === "space" or sequence === " ")
+- [ ] **6.5.6** Handle special case: `enter` key matching (event.name === "return" or "enter")
+- [ ] **6.5.7** Handle special case: shift+letter for uppercase (e.g., "K" requires shift+k)
+- [ ] **6.5.8** Add `formatLeaderKeybind(leaderKey: string, binding: string): string` for display
+- [ ] **6.5.9** In `formatLeaderKeybind`: convert "ctrl+a" to "^A" prefix style
+- [ ] **6.5.10** In `formatLeaderKeybind`: append "+" and binding (e.g., "^A+n")
+- [ ] **6.5.11** Add `createLeaderBindingHandler(bindings: LeaderBindings, handlers: Record<string, () => void>)` factory
+- [ ] **6.5.12** In `createLeaderBindingHandler`: iterate bindings and return matching action
+- [ ] **6.5.13** Update `KeybindAction` type to include all new actions
+- [ ] **6.5.14** Export all new functions
+- [ ] **6.5.15** Verify module compiles: `bun run typecheck`
+
+---
+
+### 6.6 Keyboard Handler: Refactor App.tsx
+
+**Goal:** Implement leader state machine in keyboard handler.
+
+**File:** `src/app.tsx`
+
+- [ ] **6.6.1** Read `src/app.tsx` lines 386-489 to understand current keyboard flow
+- [ ] **6.6.2** Import new helpers: `matchesLeaderKey`, `matchesSingleKey`, `createLeaderBindingHandler`
+- [ ] **6.6.3** Import `LeaderBindings` type from types
+- [ ] **6.6.4** Access leader state from uiStore: `const { leaderActive } = uiStore.store`
+- [ ] **6.6.5** Access leader config: `const leaderConfig = props.config.keybinds.leader`
+- [ ] **6.6.6** Access leader bindings: `const bindings = props.config.keybinds.bindings`
+- [ ] **6.6.7** Create binding handler using factory: `const handleLeaderBinding = createLeaderBindingHandler(bindings, { ... })`
+- [ ] **6.6.8** At top of `useKeyboard`: if modal open, clear leader state and return early (except Escape)
+- [ ] **6.6.9** Add leader state handling block after modal check, before focus mode checks
+- [ ] **6.6.10** In leader block: if `leaderActive` and event is Escape, cancel leader and return
+- [ ] **6.6.11** In leader block: if `leaderActive` and event matches leader key (double-tap):
+  - If terminal focus: send leader key sequence to PTY
+  - Cancel leader state
+  - Return
+- [ ] **6.6.12** In leader block: if `leaderActive` and event matches a binding:
+  - Execute the action
+  - Cancel leader state
+  - Return
+- [ ] **6.6.13** In leader block: if `leaderActive` and unknown key:
+  - Cancel leader state
+  - Return (do not pass to PTY or navigation)
+- [ ] **6.6.14** After leader block: if event matches leader key and not already active:
+  - Activate leader state
+  - Start timeout
+  - Return
+- [ ] **6.6.15** Keep existing terminal focus Ctrl+C passthrough BEFORE leader check
+- [ ] **6.6.16** Keep existing tabs focus navigation (j/k/gg/G/Enter) AFTER leader handling
+- [ ] **6.6.17** Remove old `createKeybindHandler` call for global keybinds (now handled by leader)
+- [ ] **6.6.18** Verify keyboard flow compiles: `bun run typecheck`
+
+---
+
+### 6.7 Keyboard Handler: Leader Timeout
+
+**Goal:** Implement automatic leader cancellation after timeout.
+
+**File:** `src/app.tsx`
+
+- [ ] **6.7.1** When activating leader, call `uiStore.startLeaderTimeout`:
+  ```typescript
+  uiStore.startLeaderTimeout(() => {
+    uiStore.setLeaderActive(false)
+  }, leaderConfig.timeout)
+  ```
+- [ ] **6.7.2** When deactivating leader (any path), call `uiStore.clearLeaderTimeout()`
+- [ ] **6.7.3** Verify timeout fires after 1000ms (default) with no key press
+- [ ] **6.7.4** Verify timeout is cleared on any subsequent key press
+- [ ] **6.7.5** Test: press leader, wait 1.1s, verify leader indicator disappears
+
+---
+
+### 6.8 Keyboard Handler: Double-Tap Leader
+
+**Goal:** Send leader key to PTY when double-tapped in terminal focus.
+
+**File:** `src/app.tsx`
+
+- [ ] **6.8.1** In leader active + leader key detected block:
+  - Get the leader key sequence (e.g., ctrl+a = "\x01")
+- [ ] **6.8.2** Add helper to convert leader key string to PTY sequence:
+  ```typescript
+  function leaderKeyToSequence(leaderKey: string): string | null {
+    const parsed = parseKeybind(leaderKey)
+    if (parsed.ctrl && parsed.key.length === 1) {
+      return String.fromCharCode(parsed.key.charCodeAt(0) - 96)
+    }
+    return null // Cannot determine sequence
+  }
+  ```
+- [ ] **6.8.3** If terminal focus and sequence exists, write to PTY
+- [ ] **6.8.4** If tabs focus or no sequence, just cancel leader (no action)
+- [ ] **6.8.5** Test: in terminal, press leader twice, verify leader key sent to PTY
+- [ ] **6.8.6** Test with tmux nested: double-tap should send prefix to inner tmux
+
+---
+
+### 6.9 Visual Feedback: StatusBar Leader Indicator
+
+**Goal:** Show leader state indicator in status bar.
+
+**File:** `src/components/StatusBar.tsx`
+
+- [ ] **6.9.1** Read `src/components/StatusBar.tsx` to understand current structure
+- [ ] **6.9.2** Add `leaderActive: boolean` to `StatusBarProps` interface
+- [ ] **6.9.3** Add `leaderKey: string` to `StatusBarProps` interface
+- [ ] **6.9.4** Update `App.tsx` to pass `leaderActive={uiStore.store.leaderActive}` to StatusBar
+- [ ] **6.9.5** Update `App.tsx` to pass `leaderKey={props.config.keybinds.leader.key}` to StatusBar
+- [ ] **6.9.6** In StatusBar render, add leader indicator before keybind hints:
+  ```tsx
+  <Show when={props.leaderActive}>
+    <text fg={props.theme.accent}>
+      <b>[{formatLeaderKey(props.leaderKey)}...]</b>
+    </text>
+  </Show>
+  ```
+- [ ] **6.9.7** Add helper `formatLeaderKey(key: string): string` to show "^A" style
+- [ ] **6.9.8** Test: press leader, verify indicator appears in status bar
+- [ ] **6.9.9** Test: press second key or timeout, verify indicator disappears
+
+---
+
+### 6.10 Visual Feedback: Update StatusBar Keybind Hints
+
+**Goal:** Update keybind hints to show leader+key format.
+
+**File:** `src/components/StatusBar.tsx`
+
+- [ ] **6.10.1** Import `formatLeaderKeybind` from `../lib/keybinds`
+- [ ] **6.10.2** Update props to receive full keybind config instead of individual strings
+- [ ] **6.10.3** Update `toggle_focus` hint: `{formatLeaderKeybind(leader.key, bindings.toggle_focus)}:Focus`
+- [ ] **6.10.4** Update `command_palette` hint: `{formatLeaderKeybind(leader.key, bindings.command_palette)}:Palette`
+- [ ] **6.10.5** Update `edit_app` hint: `{formatLeaderKeybind(leader.key, bindings.edit_app)}:Edit`
+- [ ] **6.10.6** Update `stop_app` hint: `{formatLeaderKeybind(leader.key, bindings.stop_app)}:Stop`
+- [ ] **6.10.7** Update `kill_all` hint: `{formatLeaderKeybind(leader.key, bindings.kill_all)}:KillAll`
+- [ ] **6.10.8** Update `quit` hint: `{formatLeaderKeybind(leader.key, bindings.quit)}:Quit`
+- [ ] **6.10.9** Update App.tsx to pass new props structure to StatusBar
+- [ ] **6.10.10** Verify hints display correctly: `^A+a:Focus | ^A+Space:Palette | ...`
+
+---
+
+### 6.11 Visual Feedback: LeaderHints Overlay
+
+**Goal:** Create popup showing available bindings after leader activation.
+
+**File:** `src/components/LeaderHints.tsx` (new)
+
+- [ ] **6.11.1** Create new file `src/components/LeaderHints.tsx`
+- [ ] **6.11.2** Define `LeaderHintsProps` interface:
+  ```typescript
+  interface LeaderHintsProps {
+    bindings: LeaderBindings
+    leaderKey: string
+    theme: ThemeConfig
+  }
+  ```
+- [ ] **6.11.3** Create component with absolute positioning (center-bottom of screen)
+- [ ] **6.11.4** Render bindings in 2-column grid format:
+  ```
+  n: Next Tab    p: Prev Tab
+  t: New Tab     w: Close Tab
+  a: Focus       e: Edit
+  ...
+  ```
+- [ ] **6.11.5** Style with `theme.background` background and `theme.primary` border
+- [ ] **6.11.6** Style keys with `theme.accent`, descriptions with `theme.foreground`
+- [ ] **6.11.7** Add "Press any key..." footer in `theme.muted`
+- [ ] **6.11.8** Export component
+
+---
+
+### 6.12 Visual Feedback: Integrate LeaderHints
+
+**Goal:** Show hints popup after delay when leader is active.
+
+**File:** `src/app.tsx`
+
+- [ ] **6.12.1** Import `LeaderHints` component
+- [ ] **6.12.2** Add `showHints: boolean` state to uiStore or local signal
+- [ ] **6.12.3** Add `hintsTimeout: ReturnType<typeof setTimeout> | null` to track hint delay
+- [ ] **6.12.4** When leader activates, start hints timeout:
+  ```typescript
+  if (leaderConfig.show_hints) {
+    hintsTimeout = setTimeout(() => setShowHints(true), leaderConfig.hint_delay)
+  }
+  ```
+- [ ] **6.12.5** When leader deactivates, clear hints timeout and hide hints
+- [ ] **6.12.6** Render LeaderHints conditionally:
+  ```tsx
+  <Show when={uiStore.store.leaderActive && showHints()}>
+    <LeaderHints
+      bindings={props.config.keybinds.bindings}
+      leaderKey={props.config.keybinds.leader.key}
+      theme={props.config.theme}
+    />
+  </Show>
+  ```
+- [ ] **6.12.7** Test: press leader, wait 300ms, verify hints appear
+- [ ] **6.12.8** Test: press leader, immediately press binding, verify hints don't appear
+- [ ] **6.12.9** Test: set `show_hints: false` in config, verify hints never appear
+
+---
+
+### 6.13 Onboarding: Types Update
+
+**Goal:** Add keybinding step types to onboarding wizard.
+
+**File:** `src/components/onboarding/types.ts`
+
+- [ ] **6.13.1** Read `src/components/onboarding/types.ts`
+- [ ] **6.13.2** Add `"keybindings"` to `WizardStep` union type:
+  ```typescript
+  export type WizardStep = "welcome" | "keybindings" | "presets" | "custom" | "confirm"
+  ```
+- [ ] **6.13.3** Add `selectedLeaderKey: string` to `WizardState` interface
+- [ ] **6.13.4** Create `KeybindingStepProps` interface:
+  ```typescript
+  export interface KeybindingStepProps {
+    theme: ThemeConfig
+    selectedLeaderKey: string
+    onSelectLeader: (key: string) => void
+    onNext: () => void
+    onBack: () => void
+  }
+  ```
+- [ ] **6.13.5** Export new interface
+
+---
+
+### 6.14 Onboarding: Leader Key Presets
+
+**Goal:** Define leader key preset options.
+
+**File:** `src/components/onboarding/keybindingPresets.ts` (new)
+
+- [ ] **6.14.1** Create new file `src/components/onboarding/keybindingPresets.ts`
+- [ ] **6.14.2** Define `LeaderPreset` interface:
+  ```typescript
+  export interface LeaderPreset {
+    id: string
+    key: string
+    name: string
+    description: string
+  }
+  ```
+- [ ] **6.14.3** Add tmux-style preset: `{ id: "tmux", key: "ctrl+a", name: "Ctrl+A", description: "tmux-style (recommended)" }`
+- [ ] **6.14.4** Add tmux-alt preset: `{ id: "tmux-alt", key: "ctrl+b", name: "Ctrl+B", description: "tmux alternate" }`
+- [ ] **6.14.5** Add screen-style preset: `{ id: "screen", key: "ctrl+\\", name: "Ctrl+\\", description: "GNU Screen style" }`
+- [ ] **6.14.6** Add desktop-style preset: `{ id: "desktop", key: "alt+space", name: "Alt+Space", description: "Desktop-style" }`
+- [ ] **6.14.7** Add custom option: `{ id: "custom", key: "", name: "Custom...", description: "Choose your own" }`
+- [ ] **6.14.8** Export `LEADER_PRESETS` array
+
+---
+
+### 6.15 Onboarding: KeybindingStep Component
+
+**Goal:** Create the leader key selection wizard step.
+
+**File:** `src/components/onboarding/KeybindingStep.tsx` (new)
+
+- [ ] **6.15.1** Create new file `src/components/onboarding/KeybindingStep.tsx`
+- [ ] **6.15.2** Import dependencies: solid-js, useKeyboard, types, presets
+- [ ] **6.15.3** Create component skeleton with `KeybindingStepProps`
+- [ ] **6.15.4** Add `focusedIndex` signal for keyboard navigation (default: 0)
+- [ ] **6.15.5** Add `isCapturing` signal for custom key capture mode (default: false)
+- [ ] **6.15.6** Add `capturedKey` signal to store custom key (default: "")
+- [ ] **6.15.7** Implement `useKeyboard` handler for navigation:
+  - j/down: increment focusedIndex
+  - k/up: decrement focusedIndex
+  - Enter/Space: select current preset or enter capture mode
+  - Escape/Backspace: go back
+- [ ] **6.15.8** Render title: "Choose your leader key"
+- [ ] **6.15.9** Render explanation text about leader key concept
+- [ ] **6.15.10** Render preset list with selection indicator `[*]` / `[ ]`
+- [ ] **6.15.11** Highlight focused preset with `theme.primary` background
+- [ ] **6.15.12** Mark selected preset with `theme.accent` checkbox
+- [ ] **6.15.13** Render example: "For example: Leader + n = next tab"
+- [ ] **6.15.14** Render tip about terminal conflicts
+- [ ] **6.15.15** Render footer hints: "j/k: Navigate | Enter: Select | Esc: Back"
+- [ ] **6.15.16** Export component
+- [ ] **6.15.17** Add to `src/components/onboarding/index.ts` exports
+
+---
+
+### 6.16 Onboarding: Custom Key Capture
+
+**Goal:** Allow users to press a custom key combination.
+
+**File:** `src/components/onboarding/KeybindingStep.tsx`
+
+- [ ] **6.16.1** When "Custom..." is selected and Enter pressed, set `isCapturing(true)`
+- [ ] **6.16.2** In capture mode, render modal overlay:
+  ```
+  Press the key combination you want to use as your leader key...
+  Detected: [Ctrl+Space]
+  [Cancel]  [Use This]
+  ```
+- [ ] **6.16.3** In capture mode useKeyboard: capture any key with modifiers
+- [ ] **6.16.4** Convert captured event to keybind string: `eventToKeybindString(event)`
+- [ ] **6.16.5** Validate captured key is usable (not Enter, Escape, single letter without modifier)
+- [ ] **6.16.6** Display captured key in real-time
+- [ ] **6.16.7** On Enter in capture mode: confirm captured key, exit capture mode
+- [ ] **6.16.8** On Escape in capture mode: cancel capture, return to preset list
+- [ ] **6.16.9** Update `selectedLeaderKey` with captured key
+
+---
+
+### 6.17 Onboarding: Update Wizard Flow
+
+**Goal:** Insert keybinding step into wizard navigation.
+
+**File:** `src/components/onboarding/OnboardingWizard.tsx`
+
+- [ ] **6.17.1** Read `src/components/onboarding/OnboardingWizard.tsx`
+- [ ] **6.17.2** Import `KeybindingStep` component
+- [ ] **6.17.3** Add `selectedLeaderKey` signal with default `"ctrl+a"`
+- [ ] **6.17.4** Update `handleNext` switch:
+  - `welcome` -> `keybindings`
+  - `keybindings` -> `presets`
+  - `presets` -> `custom`
+  - `custom` -> `confirm`
+- [ ] **6.17.5** Update `handleBack` switch:
+  - `confirm` -> `custom`
+  - `custom` -> `presets`
+  - `presets` -> `keybindings`
+  - `keybindings` -> `welcome`
+- [ ] **6.17.6** Add `handleSelectLeader(key: string)` method to update signal
+- [ ] **6.17.7** Update `stepNumber()` to return 1-5 (was 1-4)
+- [ ] **6.17.8** Update `stepName()` to include "Keybindings" case
+- [ ] **6.17.9** Update `stepIndicator()` to show 5 dots instead of 4
+- [ ] **6.17.10** Add new `Match` case for `keybindings` step:
+  ```tsx
+  <Match when={currentStep() === "keybindings"}>
+    <KeybindingStep
+      theme={props.theme}
+      selectedLeaderKey={selectedLeaderKey()}
+      onSelectLeader={handleSelectLeader}
+      onNext={handleNext}
+      onBack={handleBack}
+    />
+  </Match>
+  ```
+- [ ] **6.17.11** Update step header text: "Step X of 5"
+
+---
+
+### 6.18 Onboarding: Persist Keybind Config
+
+**Goal:** Save selected leader key to config on wizard completion.
+
+**File:** `src/app.tsx`
+
+- [ ] **6.18.1** Update `handleWizardComplete` signature to accept leader key:
+  ```typescript
+  const handleWizardComplete = async (apps: AppEntryConfig[], leaderKey: string) => { ... }
+  ```
+- [ ] **6.18.2** Construct keybinds config with selected leader:
+  ```typescript
+  const keybindsConfig = {
+    leader: {
+      key: leaderKey,
+      timeout: 1000,
+      show_hints: true,
+      hint_delay: 300,
+    },
+    bindings: { /* defaults */ },
+    direct: { /* defaults */ },
+  }
+  ```
+- [ ] **6.18.3** Update `persistAppsConfig` to also save keybinds (rename to `persistConfig`)
+- [ ] **6.18.4** Merge keybinds into `nextConfig` alongside apps
+- [ ] **6.18.5** Update OnboardingWizard `onComplete` prop to pass leader key
+- [ ] **6.18.6** Update OnboardingWizard `handleConfirm` to call `props.onComplete(apps, selectedLeaderKey())`
+- [ ] **6.18.7** Test: complete wizard with custom leader, verify config file has correct leader key
+
+---
+
+### 6.19 UI Text Updates: TerminalPane
+
+**Goal:** Update empty state hint to use leader key.
+
+**File:** `src/components/TerminalPane.tsx`
+
+- [ ] **6.19.1** Read `src/components/TerminalPane.tsx` line 29-31
+- [ ] **6.19.2** Add `leaderKey: string` and `newTabBinding: string` to `TerminalPaneProps`
+- [ ] **6.19.3** Import `formatLeaderKeybind` from `../lib/keybinds`
+- [ ] **6.19.4** Update fallback text:
+  ```tsx
+  No app selected. Press {formatLeaderKeybind(props.leaderKey, props.newTabBinding)} to add one.
+  ```
+- [ ] **6.19.5** Update App.tsx to pass `leaderKey` and `newTabBinding` props
+- [ ] **6.19.6** Verify text displays correctly: "Press ^A+t to add one."
+
+---
+
+### 6.20 UI Text Updates: Onboarding Steps
+
+**Goal:** Update hardcoded key hints in onboarding steps.
+
+**Files:** Multiple onboarding components
+
+- [ ] **6.20.1** Read `src/components/onboarding/CustomAppStep.tsx` line 305
+- [ ] **6.20.2** Update CustomAppStep footer: "Ctrl+A: Add" is fine (this is a local key, not leader)
+- [ ] **6.20.3** Read `src/components/onboarding/ConfirmationStep.tsx` line 137
+- [ ] **6.20.4** ConfirmationStep references "Ctrl+T" - this should mention leader after wizard
+- [ ] **6.20.5** Update ConfirmationStep to show: "Add more apps later with Leader+t"
+- [ ] **6.20.6** Pass `selectedLeaderKey` to ConfirmationStep props
+- [ ] **6.20.7** Import and use `formatLeaderKeybind` in ConfirmationStep
+- [ ] **6.20.8** Verify all onboarding hints are consistent
+
+---
+
+### 6.21 Key Capture Utility
+
+**Goal:** Create reusable key capture utility.
+
+**File:** `src/lib/key-capture.ts` (new)
+
+- [ ] **6.21.1** Create new file `src/lib/key-capture.ts`
+- [ ] **6.21.2** Import `KeyEvent` type from `@opentui/core`
+- [ ] **6.21.3** Implement `eventToKeybindString(event: KeyEvent): string`:
+  ```typescript
+  export function eventToKeybindString(event: KeyEvent): string {
+    const parts: string[] = []
+    if (event.ctrl) parts.push("ctrl")
+    if (event.option) parts.push("alt")
+    if (event.shift) parts.push("shift")
+    if (event.meta) parts.push("meta")
+    parts.push(event.name.toLowerCase())
+    return parts.join("+")
+  }
+  ```
+- [ ] **6.21.4** Implement `isValidLeaderKey(keybind: string): boolean`:
+  - Reject single letters without modifiers
+  - Reject Enter, Escape, Tab
+  - Require at least one modifier (ctrl, alt, meta)
+- [ ] **6.21.5** Implement `leaderKeyToSequence(leaderKey: string): string | null`:
+  - Parse keybind
+  - If ctrl+letter, return control code (charCode - 96)
+  - Otherwise return null
+- [ ] **6.21.6** Export all functions
+
+---
+
+### 6.22 Documentation: Update keybindings.md
+
+**Goal:** Document leader key concept and new keybind system.
+
+**File:** `docs/keybindings.md`
+
+- [ ] **6.22.1** Read current `docs/keybindings.md`
+- [ ] **6.22.2** Add "Leader Key Concept" section at top
+- [ ] **6.22.3** Explain what a leader key is and how it works
+- [ ] **6.22.4** Document default leader key: `Ctrl+A`
+- [ ] **6.22.5** Document leader key timeout behavior
+- [ ] **6.22.6** Document double-tap to send leader to terminal
+- [ ] **6.22.7** Update all keybind references to use `Leader+key` format
+- [ ] **6.22.8** Add "Choosing a Leader Key" section with recommendations
+- [ ] **6.22.9** Document available presets and their trade-offs
+- [ ] **6.22.10** Add "Direct Bindings" section for j/k/gg/G navigation
+- [ ] **6.22.11** Add configuration example showing full V2 keybind config
+- [ ] **6.22.12** Add troubleshooting for leader key conflicts
+
+---
+
+### 6.23 Testing: Unit Tests
+
+**Goal:** Add unit tests for new keybind utilities.
+
+**File:** `src/lib/keybinds.test.ts` (new, if test framework exists)
+
+- [ ] **6.23.1** Create test file if test framework is configured
+- [ ] **6.23.2** Test `matchesLeaderKey` with various key combinations
+- [ ] **6.23.3** Test `matchesSingleKey` with letters, space, enter
+- [ ] **6.23.4** Test `formatLeaderKeybind` output format
+- [ ] **6.23.5** Test `eventToKeybindString` conversion
+- [ ] **6.23.6** Test `isValidLeaderKey` validation rules
+- [ ] **6.23.7** Test `leaderKeyToSequence` control code generation
+
+---
+
+### 6.24 Testing: Config Migration
+
+**Goal:** Verify config migration works correctly.
+
+- [ ] **6.24.1** Create test V1 config file with custom keybinds
+- [ ] **6.24.2** Load config, verify migration runs
+- [ ] **6.24.3** Verify all custom bindings preserved
+- [ ] **6.24.4** Verify leader key extracted from toggle_focus
+- [ ] **6.24.5** Verify version updated to 2
+- [ ] **6.24.6** Verify command_palette changed to "space"
+- [ ] **6.24.7** Create test with default V1 config (no customizations)
+- [ ] **6.24.8** Verify defaults applied correctly
+- [ ] **6.24.9** Create test with already-V2 config
+- [ ] **6.24.10** Verify V2 config loaded unchanged (no migration)
+
+---
+
+### 6.25 Testing: Manual Integration Tests
+
+**Goal:** Verify end-to-end leader key functionality.
+
+- [ ] **6.25.1** Test: fresh install, complete onboarding with default leader
+- [ ] **6.25.2** Test: press leader + n, verify next tab selected
+- [ ] **6.25.3** Test: press leader + p, verify previous tab selected
+- [ ] **6.25.4** Test: press leader + t, verify new tab modal opens
+- [ ] **6.25.5** Test: press leader + q, verify app quits
+- [ ] **6.25.6** Test: press leader, wait 1.1s, verify leader cancelled
+- [ ] **6.25.7** Test: press leader twice in terminal, verify key sent to PTY
+- [ ] **6.25.8** Test: press leader + unknown key, verify leader cancelled
+- [ ] **6.25.9** Test: open modal, press leader, verify nothing happens
+- [ ] **6.25.10** Test: terminal focus, Ctrl+C sent to PTY (not intercepted by leader)
+- [ ] **6.25.11** Test: tabs focus, j/k navigation works without leader
+- [ ] **6.25.12** Test: tabs focus, gg/G navigation works without leader
+- [ ] **6.25.13** Test: custom leader key in onboarding, verify it works
+- [ ] **6.25.14** Test: leader hints appear after 300ms delay
+- [ ] **6.25.15** Test: leader hints hidden when `show_hints: false`
+
+---
+
+### 6.26 Testing: Terminal Compatibility
+
+**Goal:** Verify leader key works across terminals.
+
+- [ ] **6.26.1** Test in Alacritty on Linux
+- [ ] **6.26.2** Test in GNOME Terminal on Linux
+- [ ] **6.26.3** Test in Konsole on Linux
+- [ ] **6.26.4** Test in iTerm2 on macOS
+- [ ] **6.26.5** Test in Terminal.app on macOS
+- [ ] **6.26.6** Test in WezTerm on macOS/Linux
+- [ ] **6.26.7** Test nested inside tmux with different leader (Ctrl+B vs Ctrl+A)
+- [ ] **6.26.8** Test nested inside screen
+- [ ] **6.26.9** Document any terminal-specific issues found
+
+---
+
+### 6.27 Cleanup: Remove Old Keybind Handler
+
+**Goal:** Remove deprecated V1 keybind handling code.
+
+**File:** `src/app.tsx`
+
+- [ ] **6.27.1** Remove old `createKeybindHandler` call if still present
+- [ ] **6.27.2** Remove any V1-specific keybind matching code
+- [ ] **6.27.3** Verify all actions now go through leader system
+- [ ] **6.27.4** Remove unused imports
+- [ ] **6.27.5** Run typecheck to verify no broken references
+
+---
+
+### 6.28 Cleanup: Code Review
+
+**Goal:** Review and polish implementation.
+
+- [ ] **6.28.1** Review all new files for consistent code style
+- [ ] **6.28.2** Add JSDoc comments to all new exported functions
+- [ ] **6.28.3** Remove any debug console.log statements
+- [ ] **6.28.4** Verify no TypeScript `any` types in new code
+- [ ] **6.28.5** Verify all new components have proper prop types
+- [ ] **6.28.6** Run `bun run typecheck` to verify no errors
+- [ ] **6.28.7** Run `bun run dev` to verify app starts correctly
+
+---
+
+## Appendix: Leader Key Implementation Reference
+
+### State Machine Diagram
+
+```
+                    +-----------------+
+  Key Event ------->|  Leader State   |
+                    |    Machine      |
+                    +--------+--------+
+                             |
+            +----------------+----------------+
+            |                |                |
+            v                v                v
+       [Inactive]      [Leader Active]   [Terminal Focus]
+            |                |                |
+            v                v                v
+     Check if leader   Check bindings    Pass-through
+     key pressed       or timeout        to PTY
+```
+
+### Keyboard Flow (Proposed)
+
+```
+useKeyboard(event) {
+  1. If modal open → only handle Escape, clear leader state, return early
+  2. If leader active:
+     a. If Escape → cancel leader, return
+     b. If leader key again (double-tap) → send to PTY if terminal focus, cancel leader
+     c. If known binding → execute action, cancel leader
+     d. If unknown key → cancel leader
+  3. If leader key pressed → activate leader, start timeout, return
+  4. (Rest of current flow unchanged)
+     - Terminal focus: Ctrl+C passthrough, then PTY write
+     - Tabs focus: direct bindings (j/k/gg/G/Enter)
+}
+```
+
+### File Changes Summary
+
+| File | Changes |
+|------|---------|
+| `src/stores/ui.ts` | Add leader state + timeout |
+| `src/types/index.ts` | Add LeaderConfig, update KeybindConfig |
+| `src/lib/config.ts` | Add schema, migration |
+| `src/lib/keybinds.ts` | Add leader matching, formatting |
+| `src/lib/key-capture.ts` | New: key capture utility |
+| `src/app.tsx` | Implement leader state machine |
+| `src/components/StatusBar.tsx` | Add indicator, update hints |
+| `src/components/LeaderHints.tsx` | New: hints overlay |
+| `src/components/TerminalPane.tsx` | Update empty state text |
+| `src/components/onboarding/types.ts` | Add keybinding step type |
+| `src/components/onboarding/keybindingPresets.ts` | New: leader presets |
+| `src/components/onboarding/KeybindingStep.tsx` | New: leader selection step |
+| `src/components/onboarding/OnboardingWizard.tsx` | Add step, update flow |
+| `src/components/onboarding/ConfirmationStep.tsx` | Update hints |
+| `config/default.yaml` | Update to V2 schema |
+| `docs/keybindings.md` | Document leader system |
+
+---
+
+**Last Updated:** 2026-01-04

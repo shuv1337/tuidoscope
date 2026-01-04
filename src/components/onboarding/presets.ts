@@ -13,6 +13,7 @@ export interface AppPreset {
 /** Category display labels */
 export const CATEGORY_LABELS: Record<string, string> = {
   shell: "Shell",
+  productivity: "Productivity",
   monitor: "System Monitors",
   files: "File Managers",
   git: "Git Tools",
@@ -31,6 +32,15 @@ export const APP_PRESETS: AppPreset[] = [
     description: "Your default shell",
     icon: "$",
     category: "shell",
+  },
+  // Productivity
+  {
+    id: "lazytodo",
+    name: "lazytodo",
+    command: "lazytodo tui",
+    description: "Vim-centric todo.txt TUI",
+    icon: "T",
+    category: "productivity",
   },
   // Monitors
   {
