@@ -54,7 +54,8 @@ async function main() {
       process.exit(0)
     }
 
-    process.on("SIGINT", handleShutdown)
+    // SIGINT (Ctrl+C) is handled in the keyboard event handler to allow
+    // passthrough to the active PTY. SIGTERM is kept for external termination.
     process.on("SIGTERM", handleShutdown)
 
   } catch (error) {

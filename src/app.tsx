@@ -49,6 +49,7 @@ export const App: Component<AppProps> = (props) => {
   const [hasAutostarted, setHasAutostarted] = createSignal(false)
   const [isQuitting, setIsQuitting] = createSignal(false)
   const [editingEntryId, setEditingEntryId] = createSignal<string | null>(null)
+  const [lastGTime, setLastGTime] = createSignal(0)
 
   const getPtyDimensions = () => {
     const dims = terminalDims()
@@ -401,17 +402,25 @@ export const App: Component<AppProps> = (props) => {
 
     // In terminal focus mode, pass most keys to the terminal
     if (tabsStore.store.focusMode === "terminal") {
-      // Check for global keybinds first
+      // Get active app early for Ctrl+C handling
+      const activeApp = tabsStore.store.activeTabId
+        ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
+        : undefined
+
+      // Ctrl+C passthrough to PTY (before global keybinds to prevent app exit)
+      if (activeApp && (event.sequence === "\x03" || (event.ctrl && event.name === "c"))) {
+        activeApp.pty.write("\x03")
+        event.preventDefault()
+        return
+      }
+
+      // Check for global keybinds
       if (handleKeybind(event)) {
         event.preventDefault()
         return
       }
 
       // Pass raw input to terminal
-      const activeApp = tabsStore.store.activeTabId
-        ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
-        : undefined
-
       if (activeApp && event.sequence) {
         activeApp.pty.write(event.sequence)
         event.preventDefault()
@@ -425,7 +434,38 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
+    // Ctrl+C in tabs mode shows quit hint instead of exiting
+    if (event.sequence === "\x03" || (event.ctrl && event.name === "c")) {
+      uiStore.showTemporaryMessage("Press Ctrl+Q to quit")
+      event.preventDefault()
+      return
+    }
+
     // In tabs focus mode, handle navigation
+    if (event.name === "g" && !event.ctrl && !event.option && !event.shift) {
+      const now = Date.now()
+      if (now - lastGTime() < 500) {
+        setSelectedIndex(0)
+        setLastGTime(0)
+      } else {
+        setLastGTime(now)
+      }
+      event.preventDefault()
+      return
+    }
+
+    if (event.name === "G" || (event.shift && event.name === "g")) {
+      const entries = appsStore.store.entries
+      if (entries.length > 0) {
+        setSelectedIndex(entries.length - 1)
+      }
+      setLastGTime(0)
+      event.preventDefault()
+      return
+    }
+
+    setLastGTime(0)
+
     if (event.name === "j" || event.name === "down") {
       handleTabNavigation("down")
       event.preventDefault()
