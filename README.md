@@ -26,6 +26,16 @@ A centralized TUI management application for running multiple TUI applications i
 - **Highly Configurable**: Customize themes, keybinds, and application lists via YAML.
 - **Path Expansion**: Supports `~` and `<CONFIG_DIR>` tokens in working directory paths.
 
+## Documentation
+
+For detailed guides, see the [`docs/`](./docs/) directory:
+
+- [Getting Started](./docs/getting-started.md) - Installation and first run
+- [Configuration](./docs/configuration.md) - YAML config reference
+- [Keybindings](./docs/keybindings.md) - Leader key system and shortcuts
+- [Apps](./docs/apps.md) - App configuration examples
+- [Troubleshooting](./docs/troubleshooting.md) - Common issues and solutions
+
 ## Tech Stack
 
 - **Runtime**: [Bun](https://bun.sh/)
