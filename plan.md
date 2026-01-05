@@ -212,5 +212,5 @@
 - [ ] 7.26 QA: On KeybindingStep, press `?`, verify tooltip panel appears
 - [ ] 7.27 QA: With tooltip visible, press j/k, verify tooltip content updates
 - [ ] 7.28 QA: Verify all UI fits in 80x24 terminal without scrolling
-- [ ] 7.29 Run `bun run typecheck` one final time
-- [ ] 7.30 Run `bun test` one final time
+- [x] 7.29 Run `bun run typecheck` one final time
+- [x] 7.30 Run `bun test` one final time
