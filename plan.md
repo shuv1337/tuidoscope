@@ -52,18 +52,18 @@
 ## Phase 3: Filter Helper Module
 
 - [x] 3.1 Create new file `src/components/onboarding/presetFilter.ts`
-- [ ] 3.2 Add imports: `AppPreset` from `./presets`, `ListRow` from `./types`, `CATEGORY_LABELS` from `./presets`
-- [ ] 3.3 Implement `buildFilteredRows` function signature: `(presets: AppPreset[], category: string | "all", query: string) => ListRow[]`
-- [ ] 3.4 In `buildFilteredRows`: normalize query to lowercase and trim whitespace
-- [ ] 3.5 In `buildFilteredRows`: iterate over presets with forEach, tracking originalIndex
-- [ ] 3.6 In `buildFilteredRows`: skip preset if category filter is active and doesn't match
-- [ ] 3.7 In `buildFilteredRows`: build searchable text from name, description, command, category label
-- [ ] 3.8 In `buildFilteredRows`: skip preset if normalized query doesn't match searchable text
-- [ ] 3.9 In `buildFilteredRows`: insert category header row when category changes
-- [ ] 3.10 In `buildFilteredRows`: push preset row with originalIndex for selection tracking
-- [ ] 3.11 Implement `getPresetIndices` function: extract indices of preset rows (skip headers)
-- [ ] 3.12 Export both functions from `presetFilter.ts`
-- [ ] 3.13 Run `bun run typecheck` to verify module compiles
+- [x] 3.2 Add imports: `AppPreset` from `./presets`, `ListRow` from `./types`, `CATEGORY_LABELS` from `./presets`
+- [x] 3.3 Implement `buildFilteredRows` function signature: `(presets: AppPreset[], category: string | "all", query: string) => ListRow[]`
+- [x] 3.4 In `buildFilteredRows`: normalize query to lowercase and trim whitespace
+- [x] 3.5 In `buildFilteredRows`: iterate over presets with forEach, tracking originalIndex
+- [x] 3.6 In `buildFilteredRows`: skip preset if category filter is active and doesn't match
+- [x] 3.7 In `buildFilteredRows`: build searchable text from name, description, command, category label
+- [x] 3.8 In `buildFilteredRows`: skip preset if normalized query doesn't match searchable text
+- [x] 3.9 In `buildFilteredRows`: insert category header row when category changes
+- [x] 3.10 In `buildFilteredRows`: push preset row with originalIndex for selection tracking
+- [x] 3.11 Implement `getPresetIndices` function: extract indices of preset rows (skip headers)
+- [x] 3.12 Export both functions from `presetFilter.ts`
+- [x] 3.13 Run `bun run typecheck` to verify module compiles
 
 ## Phase 3: Search State in PresetSelectionStep
 
