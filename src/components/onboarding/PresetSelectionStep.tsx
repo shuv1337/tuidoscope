@@ -111,13 +111,18 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       }
       
       // Arrow keys: navigate results (even in search mode)
+      // No-op when results are empty
       if (event.name === "down") {
-        setFocusedIndex((prev) => Math.min(prev + 1, maxNavIndex))
+        if (indices.length > 0) {
+          setFocusedIndex((prev) => Math.min(prev + 1, maxNavIndex))
+        }
         event.preventDefault()
         return
       }
       if (event.name === "up") {
-        setFocusedIndex((prev) => Math.max(prev - 1, 0))
+        if (indices.length > 0) {
+          setFocusedIndex((prev) => Math.max(prev - 1, 0))
+        }
         event.preventDefault()
         return
       }
@@ -195,16 +200,20 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       return
     }
 
-    // Navigate down
+    // Navigate down - no-op when results are empty
     if (event.name === "j" || event.name === "down") {
-      setFocusedIndex((prev) => Math.min(prev + 1, maxNavIndex))
+      if (indices.length > 0) {
+        setFocusedIndex((prev) => Math.min(prev + 1, maxNavIndex))
+      }
       event.preventDefault()
       return
     }
 
-    // Navigate up
+    // Navigate up - no-op when results are empty
     if (event.name === "k" || event.name === "up") {
-      setFocusedIndex((prev) => Math.max(prev - 1, 0))
+      if (indices.length > 0) {
+        setFocusedIndex((prev) => Math.max(prev - 1, 0))
+      }
       event.preventDefault()
       return
     }
