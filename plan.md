@@ -849,24 +849,24 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/onboarding/OnboardingWizard.tsx`
 
-- [ ] **6.17.1** Read `src/components/onboarding/OnboardingWizard.tsx`
-- [ ] **6.17.2** Import `KeybindingStep` component
-- [ ] **6.17.3** Add `selectedLeaderKey` signal with default `"ctrl+a"`
-- [ ] **6.17.4** Update `handleNext` switch:
+- [x] **6.17.1** Read `src/components/onboarding/OnboardingWizard.tsx`
+- [x] **6.17.2** Import `KeybindingStep` component
+- [x] **6.17.3** Add `selectedLeaderKey` signal with default `"ctrl+a"`
+- [x] **6.17.4** Update `handleNext` switch:
   - `welcome` -> `keybindings`
   - `keybindings` -> `presets`
   - `presets` -> `custom`
   - `custom` -> `confirm`
-- [ ] **6.17.5** Update `handleBack` switch:
+- [x] **6.17.5** Update `handleBack` switch:
   - `confirm` -> `custom`
   - `custom` -> `presets`
   - `presets` -> `keybindings`
   - `keybindings` -> `welcome`
-- [ ] **6.17.6** Add `handleSelectLeader(key: string)` method to update signal
-- [ ] **6.17.7** Update `stepNumber()` to return 1-5 (was 1-4)
-- [ ] **6.17.8** Update `stepName()` to include "Keybindings" case
-- [ ] **6.17.9** Update `stepIndicator()` to show 5 dots instead of 4
-- [ ] **6.17.10** Add new `Match` case for `keybindings` step:
+- [x] **6.17.6** Add `handleSelectLeader(key: string)` method to update signal
+- [x] **6.17.7** Update `stepNumber()` to return 1-5 (was 1-4)
+- [x] **6.17.8** Update `stepName()` to include "Keybindings" case
+- [x] **6.17.9** Update `stepIndicator()` to show 5 dots instead of 4
+- [x] **6.17.10** Add new `Match` case for `keybindings` step:
   ```tsx
   <Match when={currentStep() === "keybindings"}>
     <KeybindingStep
@@ -878,7 +878,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     />
   </Match>
   ```
-- [ ] **6.17.11** Update step header text: "Step X of 5"
+- [x] **6.17.11** Update step header text: "Step X of 5"
 
 ---
 

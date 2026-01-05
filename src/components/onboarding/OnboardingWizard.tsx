@@ -3,6 +3,7 @@ import type { AppEntryConfig } from "../../types"
 import type { WizardStep, OnboardingWizardProps } from "./types"
 import { APP_PRESETS } from "./presets"
 import { WelcomeStep } from "./WelcomeStep"
+import { KeybindingStep } from "./KeybindingStep"
 import { PresetSelectionStep } from "./PresetSelectionStep"
 import { CustomAppStep } from "./CustomAppStep"
 import { ConfirmationStep } from "./ConfirmationStep"
@@ -15,8 +16,8 @@ import { ConfirmationStep } from "./ConfirmationStep"
  * - Step indicator should be:
  *   - role="navigation" aria-label="Wizard progress"
  *   - Current step text: role="status" aria-live="polite" aria-atomic="true"
- *   - Progress dots: role="progressbar" aria-valuemin="1" aria-valuemax="4"
- *     aria-valuenow={stepNumber} aria-valuetext="Step X of 4: StepName"
+ *   - Progress dots: role="progressbar" aria-valuemin="1" aria-valuemax="5"
+ *     aria-valuenow={stepNumber} aria-valuetext="Step X of 5: StepName"
  * - Content area should be role="main" with aria-live="polite" for step changes
  * - Each step transition should announce the new step to screen readers
  * - The outer border provides visual containment (aria-hidden for the border itself)
@@ -27,6 +28,7 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
   const [currentStep, setCurrentStep] = createSignal<WizardStep>("welcome")
   const [selectedPresets, setSelectedPresets] = createSignal<Set<string>>(new Set())
   const [customApps, setCustomApps] = createSignal<AppEntryConfig[]>([])
+  const [selectedLeaderKey, setSelectedLeaderKey] = createSignal("ctrl+a")
 
   // Step navigation
   const goToStep = (step: WizardStep) => setCurrentStep(step)
@@ -34,6 +36,9 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
   const handleNext = () => {
     switch (currentStep()) {
       case "welcome":
+        goToStep("keybindings")
+        break
+      case "keybindings":
         goToStep("presets")
         break
       case "presets":
@@ -54,9 +59,17 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
         goToStep("presets")
         break
       case "presets":
+        goToStep("keybindings")
+        break
+      case "keybindings":
         goToStep("welcome")
         break
     }
+  }
+
+  // Leader key selection
+  const handleSelectLeader = (key: string) => {
+    setSelectedLeaderKey(key)
   }
 
   // Preset management
@@ -116,11 +129,11 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
   }
 
   // Step indicator helpers for the progress display at the top of the wizard.
-  // These render a visual indicator like: [*]---[*]---[ ]---[ ] for step 2 of 4.
+  // These render a visual indicator like: [*]---[*]---[ ]---[ ]---[ ] for step 2 of 5.
   
-  // Returns 1-based step number (1-4) for display
+  // Returns 1-based step number (1-5) for display
   const stepNumber = () => {
-    const steps: WizardStep[] = ["welcome", "presets", "custom", "confirm"]
+    const steps: WizardStep[] = ["welcome", "keybindings", "presets", "custom", "confirm"]
     return steps.indexOf(currentStep()) + 1
   }
 
@@ -129,6 +142,8 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
     switch (currentStep()) {
       case "welcome":
         return "Welcome"
+      case "keybindings":
+        return "Keybindings"
       case "presets":
         return "Select Apps"
       case "custom":
@@ -141,7 +156,7 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
   // Renders visual progress indicator: filled [*] for completed/current steps,
   // empty [ ] for future steps, connected with dashes
   const stepIndicator = () => {
-    const steps: WizardStep[] = ["welcome", "presets", "custom", "confirm"]
+    const steps: WizardStep[] = ["welcome", "keybindings", "presets", "custom", "confirm"]
     return steps
       .map((step, i) => (i < stepNumber() ? "[*]" : "[ ]"))
       .join("---")
@@ -160,11 +175,11 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
       {/* role="status" aria-live="polite" aria-atomic="true" - current step announcement */}
       <box height={1} justifyContent="center">
         <text fg={props.theme.muted}>
-          Step {stepNumber()} of 4: {stepName()}
+          Step {stepNumber()} of 5: {stepName()}
         </text>
       </box>
-      {/* role="progressbar" aria-valuemin="1" aria-valuemax="4" aria-valuenow={stepNumber} */}
-      {/* aria-valuetext="Step X of 4: StepName" */}
+      {/* role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow={stepNumber} */}
+      {/* aria-valuetext="Step X of 5: StepName" */}
       <box height={1} justifyContent="center">
         <text fg={props.theme.accent}>
           {stepIndicator()}
@@ -179,6 +194,15 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
               theme={props.theme}
               onNext={handleNext}
               onSkip={handleSkip}
+            />
+          </Match>
+          <Match when={currentStep() === "keybindings"}>
+            <KeybindingStep
+              theme={props.theme}
+              selectedLeaderKey={selectedLeaderKey()}
+              onSelectLeader={handleSelectLeader}
+              onNext={handleNext}
+              onBack={handleBack}
             />
           </Match>
           <Match when={currentStep() === "presets"}>
