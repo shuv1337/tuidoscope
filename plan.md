@@ -342,10 +342,10 @@ This backlog covers bug fixes, feature enhancements, and documentation for tuido
 ### 5.7 Update README
 
 - [x] **5.7.1** Add link to docs/ directory
-- [ ] **5.7.2** Add quick installation instructions
-- [ ] **5.7.3** Add feature highlights
-- [ ] **5.7.4** Add screenshot/demo GIF
-- [ ] **5.7.5** Add contributing guidelines reference
+- [x] **5.7.2** Add quick installation instructions
+- [x] **5.7.3** Add feature highlights
+- [x] **5.7.4** Add screenshot/demo GIF
+- [x] **5.7.5** Add contributing guidelines reference
 
 ---
 

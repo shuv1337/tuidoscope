@@ -145,6 +145,10 @@ theme:
 - Runtime application configuration (Add/Edit).
 - Path expansion for working directories.
 
+## Contributing
+
+Contributions are welcome! Please feel free to open an issue or submit a pull request on [GitHub](https://github.com/shuv1337/tuidoscope).
+
 ## Acknowledgments
 
 This project is built directly on top of:
