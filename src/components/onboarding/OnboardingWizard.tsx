@@ -97,7 +97,7 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
   /**
    * Builds the final app configuration list and triggers wizard completion.
    * Converts selected preset IDs to AppEntryConfig objects and merges with custom apps.
-   * The resulting array is passed to the parent component to save to config.
+   * The resulting array and selected leader key are passed to the parent component to save to config.
    */
   const handleConfirm = () => {
     const apps: AppEntryConfig[] = []
@@ -120,7 +120,8 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
     // Custom apps are already in AppEntryConfig format, just append them
     apps.push(...customApps())
 
-    props.onComplete(apps)
+    // Pass both apps and selected leader key to parent
+    props.onComplete(apps, selectedLeaderKey())
   }
 
   // Skip handler

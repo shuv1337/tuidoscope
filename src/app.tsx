@@ -218,7 +218,7 @@ export const App: Component<AppProps> = (props) => {
     }
   }
 
-  const persistAppsConfig = async (): Promise<boolean> => {
+  const persistAppsConfig = async (keybindsOverride?: Config["keybinds"]): Promise<boolean> => {
     const nextApps: AppEntryConfig[] = appsStore.store.entries.map((entry) => ({
       name: entry.name,
       command: entry.command,
@@ -229,8 +229,15 @@ export const App: Component<AppProps> = (props) => {
       env: entry.env,
     }))
 
-    const nextConfig: Config = { ...props.config, apps: nextApps }
+    const nextConfig: Config = {
+      ...props.config,
+      apps: nextApps,
+      keybinds: keybindsOverride ?? props.config.keybinds,
+    }
     props.config.apps = nextApps
+    if (keybindsOverride) {
+      props.config.keybinds = keybindsOverride
+    }
 
     try {
       await saveConfig(nextConfig)
@@ -242,14 +249,44 @@ export const App: Component<AppProps> = (props) => {
   }
 
   // Handle wizard completion
-  const handleWizardComplete = async (apps: AppEntryConfig[]) => {
+  const handleWizardComplete = async (apps: AppEntryConfig[], leaderKey: string) => {
     // Add each app to the store
     for (const appConfig of apps) {
       appsStore.addEntry(appConfig)
     }
 
-    // Persist to config file
-    const success = await persistAppsConfig()
+    // Construct keybinds config with selected leader key
+    const keybindsConfig: Config["keybinds"] = {
+      leader: {
+        key: leaderKey,
+        timeout: 1000,
+        show_hints: true,
+        hint_delay: 300,
+      },
+      bindings: {
+        next_tab: "n",
+        prev_tab: "p",
+        close_tab: "w",
+        new_tab: "t",
+        toggle_focus: "a",
+        edit_app: "e",
+        restart_app: "r",
+        command_palette: "space",
+        stop_app: "x",
+        kill_all: "K",
+        quit: "q",
+      },
+      direct: {
+        navigate_up: "k",
+        navigate_down: "j",
+        select: "enter",
+        go_top: "g",
+        go_bottom: "G",
+      },
+    }
+
+    // Persist to config file with keybinds
+    const success = await persistAppsConfig(keybindsConfig)
     if (success) {
       // Mark wizard as completed only on success
       setWizardCompleted(true)

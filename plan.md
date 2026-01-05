@@ -888,11 +888,11 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/app.tsx`
 
-- [ ] **6.18.1** Update `handleWizardComplete` signature to accept leader key:
+- [x] **6.18.1** Update `handleWizardComplete` signature to accept leader key:
   ```typescript
   const handleWizardComplete = async (apps: AppEntryConfig[], leaderKey: string) => { ... }
   ```
-- [ ] **6.18.2** Construct keybinds config with selected leader:
+- [x] **6.18.2** Construct keybinds config with selected leader:
   ```typescript
   const keybindsConfig = {
     leader: {
@@ -905,11 +905,11 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     direct: { /* defaults */ },
   }
   ```
-- [ ] **6.18.3** Update `persistAppsConfig` to also save keybinds (rename to `persistConfig`)
-- [ ] **6.18.4** Merge keybinds into `nextConfig` alongside apps
-- [ ] **6.18.5** Update OnboardingWizard `onComplete` prop to pass leader key
-- [ ] **6.18.6** Update OnboardingWizard `handleConfirm` to call `props.onComplete(apps, selectedLeaderKey())`
-- [ ] **6.18.7** Test: complete wizard with custom leader, verify config file has correct leader key
+- [x] **6.18.3** Update `persistAppsConfig` to also save keybinds (rename to `persistConfig`)
+- [x] **6.18.4** Merge keybinds into `nextConfig` alongside apps
+- [x] **6.18.5** Update OnboardingWizard `onComplete` prop to pass leader key
+- [x] **6.18.6** Update OnboardingWizard `handleConfirm` to call `props.onComplete(apps, selectedLeaderKey())`
+- [x] **6.18.7** Test: complete wizard with custom leader, verify config file has correct leader key
 
 ---
 

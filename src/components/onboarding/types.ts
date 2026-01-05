@@ -11,7 +11,7 @@ export interface WizardState {
 
 export interface OnboardingWizardProps {
   theme: ThemeConfig
-  onComplete: (apps: AppEntryConfig[]) => void
+  onComplete: (apps: AppEntryConfig[], leaderKey: string) => void
   onSkip: () => void
 }
 
