@@ -718,3 +718,198 @@ apps:
 - Consider having multiple k9s tabs for different clusters (staging, production)
 - lazydocker is excellent alongside a shell tab for quick container debugging
 - Both tools support custom themes - match them to your tuidoscope Night Owl theme for consistency
+
+---
+
+## Editor Examples
+
+Terminal text editors are a natural fit for tuidoscope, allowing you to edit files in one tab while running commands, monitoring logs, or managing files in others.
+
+### Neovim
+
+A hyperextensible Vim-based text editor with a modern plugin ecosystem.
+
+```yaml
+apps:
+  - name: "nvim"
+    command: "nvim"
+    cwd: "~/projects/myapp"
+```
+
+Open a specific file:
+
+```yaml
+apps:
+  - name: "nvim (config)"
+    command: "nvim"
+    args: "<CONFIG_DIR>/tuidoscope.yaml"
+```
+
+Open a directory (file explorer mode):
+
+```yaml
+apps:
+  - name: "nvim (project)"
+    command: "nvim"
+    args: "."
+    cwd: "~/projects/myapp"
+```
+
+With a specific config (for different setups):
+
+```yaml
+apps:
+  - name: "nvim (minimal)"
+    command: "nvim"
+    args: "-u ~/.config/nvim/minimal.lua"
+```
+
+Diff mode (compare two files):
+
+```yaml
+apps:
+  - name: "nvim (diff)"
+    command: "nvim"
+    args: "-d file1.txt file2.txt"
+    cwd: "~/projects"
+```
+
+With custom environment for plugins:
+
+```yaml
+apps:
+  - name: "nvim"
+    command: "nvim"
+    cwd: "~/projects/myapp"
+    env:
+      NVIM_APPNAME: "nvim-tuidoscope"  # Use alternate config directory
+```
+
+### Helix
+
+A post-modern modal text editor with built-in LSP support and tree-sitter integration.
+
+```yaml
+apps:
+  - name: "helix"
+    command: "hx"
+    cwd: "~/projects/myapp"
+```
+
+Open a specific file:
+
+```yaml
+apps:
+  - name: "helix"
+    command: "hx"
+    args: "src/main.rs"
+    cwd: "~/projects/myapp"
+```
+
+Open multiple files:
+
+```yaml
+apps:
+  - name: "helix"
+    command: "hx"
+    args: "src/lib.rs src/main.rs Cargo.toml"
+    cwd: "~/projects/myapp"
+```
+
+With a specific config directory:
+
+```yaml
+apps:
+  - name: "helix"
+    command: "hx"
+    args: "--config ~/.config/helix/tuidoscope.toml"
+```
+
+Health check mode (verify LSP and tree-sitter):
+
+```yaml
+apps:
+  - name: "helix (health)"
+    command: "hx"
+    args: "--health"
+```
+
+With verbose logging for debugging:
+
+```yaml
+apps:
+  - name: "helix (debug)"
+    command: "hx"
+    args: "-v"  # -vv for more verbose
+    cwd: "~/projects/myapp"
+```
+
+### micro
+
+A modern and intuitive terminal-based text editor with familiar keybindings (Ctrl+S, Ctrl+C, etc.).
+
+```yaml
+apps:
+  - name: "micro"
+    command: "micro"
+    cwd: "~/projects/myapp"
+```
+
+Open a specific file:
+
+```yaml
+apps:
+  - name: "micro"
+    command: "micro"
+    args: "README.md"
+    cwd: "~/projects/myapp"
+```
+
+With a custom config directory:
+
+```yaml
+apps:
+  - name: "micro"
+    command: "micro"
+    args: "-config-dir ~/.config/micro-tuidoscope"
+```
+
+With plugin enabled:
+
+```yaml
+apps:
+  - name: "micro"
+    command: "micro"
+    env:
+      MICRO_TRUECOLOR: "1"  # Enable true color support
+```
+
+Open file at a specific line:
+
+```yaml
+apps:
+  - name: "micro"
+    command: "micro"
+    args: "+42 src/main.go"  # Open at line 42
+    cwd: "~/projects/myapp"
+```
+
+Read-only mode (view files without editing):
+
+```yaml
+apps:
+  - name: "micro (viewer)"
+    command: "micro"
+    args: "-readonly true ~/logs/app.log"
+```
+
+### Editor Tips
+
+- Editors work well without `autostart` - launch them when you need to edit
+- Set `cwd` to your project root so relative paths work correctly
+- Most editors support opening directories for file browsing - useful for project navigation
+- Neovim and Helix use modal editing (vim-style), while micro uses standard keybindings
+- For Neovim with many plugins, consider a minimal config for faster startup in tuidoscope
+- Helix has built-in LSP support - no plugins needed for code intelligence
+- micro is excellent for quick edits if you're not familiar with vim keybindings
+- Consider setting `TERM=xterm-256color` in `env` if you see color issues
