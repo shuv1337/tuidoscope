@@ -85,19 +85,19 @@
 
 ## Phase 3: Keyboard Mode State Machine
 
-- [ ] 3.26 Find `useKeyboard` hook in PresetSelectionStep
-- [ ] 3.27 Add `/` key handler: set `isSearchFocused(true)` to enter search mode
-- [ ] 3.28 In search mode: capture printable characters and append to `searchQuery`
-- [ ] 3.29 In search mode: `Backspace` deletes last character from query (not go back)
-- [ ] 3.30 In search mode: `Enter` exits search mode by setting `isSearchFocused(false)`
-- [ ] 3.31 In search mode: arrow keys (↑/↓) navigate filtered results
-- [ ] 3.32 In search mode: j/k type characters into query (not navigate)
-- [ ] 3.33 In search mode: Space appends space to query (not toggle selection)
-- [ ] 3.34 Implement Esc priority chain: (1) if search focused, blur search
-- [ ] 3.35 Implement Esc priority chain: (2) if query non-empty, clear query and reset focus
-- [ ] 3.36 Implement Esc priority chain: (3) if no search state, call `props.onBack()`
-- [ ] 3.37 In navigation mode: ensure j/k/gg/G navigate as before
-- [ ] 3.38 In navigation mode: ensure Backspace calls `props.onBack()` as before
+- [x] 3.26 Find `useKeyboard` hook in PresetSelectionStep
+- [x] 3.27 Add `/` key handler: set `isSearchFocused(true)` to enter search mode
+- [x] 3.28 In search mode: capture printable characters and append to `searchQuery`
+- [x] 3.29 In search mode: `Backspace` deletes last character from query (not go back)
+- [x] 3.30 In search mode: `Enter` exits search mode by setting `isSearchFocused(false)`
+- [x] 3.31 In search mode: arrow keys (↑/↓) navigate filtered results
+- [x] 3.32 In search mode: j/k type characters into query (not navigate)
+- [x] 3.33 In search mode: Space appends space to query (not toggle selection)
+- [x] 3.34 Implement Esc priority chain: (1) if search focused, blur search
+- [x] 3.35 Implement Esc priority chain: (2) if query non-empty, clear query and reset focus
+- [x] 3.36 Implement Esc priority chain: (3) if no search state, call `props.onBack()`
+- [x] 3.37 In navigation mode: ensure j/k/gg/G navigate as before
+- [x] 3.38 In navigation mode: ensure Backspace calls `props.onBack()` as before
 
 ## Phase 3: Search Input Rendering
 

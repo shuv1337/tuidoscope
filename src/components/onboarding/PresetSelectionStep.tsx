@@ -85,6 +85,91 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
     const indices = presetIndices()
     const maxNavIndex = indices.length - 1
     
+    // ==========================================
+    // SEARCH MODE - handles input when search is focused
+    // ==========================================
+    if (isSearchFocused()) {
+      // Enter: exit search mode (keep query)
+      if (event.name === "return" || event.name === "enter") {
+        setIsSearchFocused(false)
+        event.preventDefault()
+        return
+      }
+      
+      // Escape: blur search (query persists, Esc chain handles clearing later)
+      if (event.name === "escape") {
+        setIsSearchFocused(false)
+        event.preventDefault()
+        return
+      }
+      
+      // Backspace: delete last char from query (not go back)
+      if (event.name === "backspace") {
+        setSearchQuery((prev) => prev.slice(0, -1))
+        event.preventDefault()
+        return
+      }
+      
+      // Arrow keys: navigate results (even in search mode)
+      if (event.name === "down") {
+        setFocusedIndex((prev) => Math.min(prev + 1, maxNavIndex))
+        event.preventDefault()
+        return
+      }
+      if (event.name === "up") {
+        setFocusedIndex((prev) => Math.max(prev - 1, 0))
+        event.preventDefault()
+        return
+      }
+      
+      // Printable characters (including j, k, space): append to query
+      // event.sequence contains the actual character for printable keys
+      if (event.sequence && event.sequence.length === 1) {
+        const char = event.sequence
+        // Check if it's a printable character (space through tilde in ASCII)
+        if (char >= " " && char <= "~") {
+          setSearchQuery((prev) => prev + char)
+          event.preventDefault()
+          return
+        }
+      }
+      
+      return // Swallow other keys in search mode
+    }
+    
+    // ==========================================
+    // NAVIGATION MODE - normal list navigation
+    // ==========================================
+    
+    // ESC priority chain (only when not in search mode)
+    if (event.name === "escape") {
+      if (searchQuery()) {
+        // (2) Clear query and reset focus
+        setSearchQuery("")
+        setFocusedIndex(0)
+        event.preventDefault()
+        return
+      }
+      // (3) No search state, go back
+      props.onBack()
+      event.preventDefault()
+      return
+    }
+    
+    // Backspace: go back (only in navigation mode)
+    if (event.name === "backspace") {
+      props.onBack()
+      event.preventDefault()
+      return
+    }
+    
+    // "/" enters search mode
+    if (event.sequence === "/") {
+      setIsSearchFocused(true)
+      event.preventDefault()
+      return
+    }
+    
     // Complete the "gg" sequence: if we're waiting for second 'g' and got it, jump to top
     if (pendingG()) {
       setPendingG(false)
@@ -138,13 +223,6 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
     // Next step
     if (event.name === "return" || event.name === "enter") {
       props.onNext()
-      event.preventDefault()
-      return
-    }
-
-    // Back
-    if (event.name === "escape" || event.name === "backspace") {
-      props.onBack()
       event.preventDefault()
       return
     }
