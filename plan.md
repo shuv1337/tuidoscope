@@ -330,14 +330,14 @@ This backlog covers bug fixes, feature enhancements, and documentation for tuido
 
 ### 5.6 Write Troubleshooting Guide
 
-- [ ] **5.6.1** Document "Ctrl+C exits app" issue and solution
-- [ ] **5.6.2** Document terminal rendering issues and TERM settings
-- [ ] **5.6.3** Document color/theme not applying correctly
-- [ ] **5.6.4** Document app not starting: command not found
-- [ ] **5.6.5** Document session not persisting
-- [ ] **5.6.6** Document keybind conflicts with terminal apps
-- [ ] **5.6.7** Add FAQ section with common questions
-- [ ] **5.6.8** Add debug mode instructions: `DEBUG=1 tuidoscope`
+- [x] **5.6.1** Document "Ctrl+C exits app" issue and solution
+- [x] **5.6.2** Document terminal rendering issues and TERM settings
+- [x] **5.6.3** Document color/theme not applying correctly
+- [x] **5.6.4** Document app not starting: command not found
+- [x] **5.6.5** Document session not persisting
+- [x] **5.6.6** Document keybind conflicts with terminal apps
+- [x] **5.6.7** Add FAQ section with common questions
+- [x] **5.6.8** Add debug mode instructions: `DEBUG=1 tuidoscope`
 
 ### 5.7 Update README
 
