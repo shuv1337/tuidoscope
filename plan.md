@@ -1092,10 +1092,10 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 **Goal:** Review and polish implementation.
 
 - [x] **6.28.1** Review all new files for consistent code style
-- [ ] **6.28.2** Add JSDoc comments to all new exported functions
-- [ ] **6.28.3** Remove any debug console.log statements
-- [ ] **6.28.4** Verify no TypeScript `any` types in new code
-- [ ] **6.28.5** Verify all new components have proper prop types
+- [x] **6.28.2** Add JSDoc comments to all new exported functions
+- [x] **6.28.3** Remove any debug console.log statements
+- [x] **6.28.4** Verify no TypeScript `any` types in new code
+- [x] **6.28.5** Verify all new components have proper prop types
 - [x] **6.28.6** Run `bun run typecheck` to verify no errors
 - [x] **6.28.7** Run `bun run dev` to verify app starts correctly
 

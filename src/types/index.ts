@@ -9,7 +9,7 @@ export interface ThemeConfig {
   muted: string
 }
 
-// V1 keybind config (legacy, for migration)
+/** V1 keybind config (legacy format, used for migration to V2) */
 export interface KeybindConfigV1 {
   next_tab: string
   prev_tab: string
@@ -24,7 +24,7 @@ export interface KeybindConfigV1 {
   quit: string
 }
 
-// V2 keybind config with leader key support
+/** Leader key configuration for V2 keybind system */
 export interface LeaderConfig {
   key: string
   timeout: number
@@ -32,6 +32,7 @@ export interface LeaderConfig {
   hint_delay: number
 }
 
+/** Single-key bindings that follow the leader key activation */
 export interface LeaderBindings {
   next_tab: string
   prev_tab: string
@@ -46,6 +47,7 @@ export interface LeaderBindings {
   quit: string
 }
 
+/** Direct bindings that work without leader key (in tabs focus mode) */
 export interface DirectBindings {
   navigate_up: string
   navigate_down: string
@@ -54,16 +56,20 @@ export interface DirectBindings {
   go_bottom: string
 }
 
+/** V2 keybind config with tmux-style leader key support */
 export interface KeybindConfigV2 {
   leader: LeaderConfig
   bindings: LeaderBindings
   direct: DirectBindings
 }
 
-// Union type for keybind config (supports both V1 and V2)
+/** Union type for keybind config (supports both V1 and V2 for migration) */
 export type KeybindConfig = KeybindConfigV1 | KeybindConfigV2
 
-// Type guard to check if config is V2 format
+/**
+ * Type guard to check if a keybind config is V2 format.
+ * V2 configs have leader, bindings, and direct properties.
+ */
 export function isV2KeybindConfig(config: KeybindConfig): config is KeybindConfigV2 {
   return 'leader' in config && 'bindings' in config && 'direct' in config
 }
