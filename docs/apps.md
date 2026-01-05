@@ -1092,3 +1092,219 @@ apps:
 - Most agents have high memory usage - monitor with htop/btop in another tab
 - Use `restart_on_exit: false` as agents naturally exit after completing tasks
 - For long sessions, the agent may consume significant tokens - be aware of costs
+
+---
+
+## Utility Examples
+
+Disk usage analyzers and other utility TUIs are helpful for quickly understanding storage consumption and system state. These tools typically exit after displaying information, making them ideal for quick checks.
+
+### ncdu
+
+NCurses Disk Usage - an interactive disk usage analyzer with an ncurses interface.
+
+```yaml
+apps:
+  - name: "ncdu"
+    command: "ncdu"
+    cwd: "~"
+```
+
+Scan a specific directory:
+
+```yaml
+apps:
+  - name: "ncdu (projects)"
+    command: "ncdu"
+    args: "~/projects"
+```
+
+With color output:
+
+```yaml
+apps:
+  - name: "ncdu"
+    command: "ncdu"
+    args: "--color dark"
+    cwd: "~"
+```
+
+Export scan results to a file for later analysis:
+
+```yaml
+apps:
+  - name: "ncdu (export)"
+    command: "ncdu"
+    args: "-o ~/ncdu-scan.json ~"
+```
+
+Read from a previously exported scan:
+
+```yaml
+apps:
+  - name: "ncdu (import)"
+    command: "ncdu"
+    args: "-f ~/ncdu-scan.json"
+```
+
+Exclude certain directories:
+
+```yaml
+apps:
+  - name: "ncdu"
+    command: "ncdu"
+    args: "--exclude .git --exclude node_modules ~"
+```
+
+### dust
+
+A more intuitive version of `du` written in Rust. Shows disk usage in a tree-like format.
+
+```yaml
+apps:
+  - name: "dust"
+    command: "dust"
+    cwd: "~"
+```
+
+Scan a specific directory:
+
+```yaml
+apps:
+  - name: "dust (projects)"
+    command: "dust"
+    args: "~/projects"
+```
+
+Show only top N directories:
+
+```yaml
+apps:
+  - name: "dust"
+    command: "dust"
+    args: "-n 20"  # Show top 20 largest
+    cwd: "~"
+```
+
+Show files alongside directories:
+
+```yaml
+apps:
+  - name: "dust"
+    command: "dust"
+    args: "-f"  # Include files
+    cwd: "~"
+```
+
+Show apparent size (not disk usage):
+
+```yaml
+apps:
+  - name: "dust"
+    command: "dust"
+    args: "-s"  # Apparent size
+    cwd: "~"
+```
+
+Reverse order (smallest first):
+
+```yaml
+apps:
+  - name: "dust"
+    command: "dust"
+    args: "-r"
+    cwd: "~"
+```
+
+Ignore hidden files:
+
+```yaml
+apps:
+  - name: "dust"
+    command: "dust"
+    args: "-i"  # Ignore hidden
+    cwd: "~"
+```
+
+### duf
+
+Disk Usage/Free utility - a better `df` alternative with a colorful output.
+
+```yaml
+apps:
+  - name: "duf"
+    command: "duf"
+```
+
+Show all filesystems (including pseudo, duplicates, etc.):
+
+```yaml
+apps:
+  - name: "duf (all)"
+    command: "duf"
+    args: "--all"
+```
+
+Show only local filesystems:
+
+```yaml
+apps:
+  - name: "duf (local)"
+    command: "duf"
+    args: "--only local"
+```
+
+Show only network filesystems:
+
+```yaml
+apps:
+  - name: "duf (network)"
+    command: "duf"
+    args: "--only network"
+```
+
+Hide specific filesystems:
+
+```yaml
+apps:
+  - name: "duf"
+    command: "duf"
+    args: "--hide special"
+```
+
+Sort by usage:
+
+```yaml
+apps:
+  - name: "duf"
+    command: "duf"
+    args: "--sort usage"
+```
+
+JSON output (for scripting):
+
+```yaml
+apps:
+  - name: "duf (json)"
+    command: "duf"
+    args: "--json"
+```
+
+With custom theme:
+
+```yaml
+apps:
+  - name: "duf"
+    command: "duf"
+    args: "--theme dark"
+```
+
+### Utility Tips
+
+- `ncdu` is interactive and allows navigation/deletion - great for cleaning up disk space
+- `dust` provides a quick snapshot and exits - ideal for quick checks
+- `duf` shows filesystem overview and exits - use it to check mounted volumes
+- None of these tools need `restart_on_exit` since they're meant for one-off checks
+- `ncdu` requires scanning time for large directories - be patient with big filesystems
+- Consider running `dust` or `duf` with `autostart: false` and launching manually when needed
+- For ongoing disk monitoring, pair these with a system monitor like `btop` in another tab
