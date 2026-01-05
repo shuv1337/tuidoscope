@@ -1008,13 +1008,13 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/lib/keybinds.test.ts` (new, if test framework exists)
 
-- [ ] **6.23.1** Create test file if test framework is configured
-- [ ] **6.23.2** Test `matchesLeaderKey` with various key combinations
-- [ ] **6.23.3** Test `matchesSingleKey` with letters, space, enter
-- [ ] **6.23.4** Test `formatLeaderKeybind` output format
-- [ ] **6.23.5** Test `eventToKeybindString` conversion
-- [ ] **6.23.6** Test `isValidLeaderKey` validation rules
-- [ ] **6.23.7** Test `leaderKeyToSequence` control code generation
+- [x] **6.23.1** Create test file if test framework is configured
+- [x] **6.23.2** Test `matchesLeaderKey` with various key combinations
+- [x] **6.23.3** Test `matchesSingleKey` with letters, space, enter
+- [x] **6.23.4** Test `formatLeaderKeybind` output format
+- [x] **6.23.5** Test `eventToKeybindString` conversion
+- [x] **6.23.6** Test `isValidLeaderKey` validation rules
+- [x] **6.23.7** Test `leaderKeyToSequence` control code generation
 
 ---
 
