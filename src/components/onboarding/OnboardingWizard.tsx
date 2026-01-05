@@ -231,6 +231,8 @@ export const OnboardingWizard: Component<OnboardingWizardProps> = (props) => {
               theme={props.theme}
               selectedPresets={selectedPresets()}
               customApps={customApps()}
+              selectedLeaderKey={selectedLeaderKey()}
+              newTabBinding="t"
               onConfirm={handleConfirm}
               onBack={handleBack}
             />

@@ -2,6 +2,7 @@ import { Component, For, Show } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntryConfig } from "../../types"
 import { APP_PRESETS } from "./presets"
+import { formatLeaderKeybind } from "../../lib/keybinds"
 
 /**
  * ConfirmationStep - Final review step of the onboarding wizard
@@ -29,6 +30,8 @@ export interface ConfirmationStepProps {
   theme: ThemeConfig
   selectedPresets: Set<string>
   customApps: AppEntryConfig[]
+  selectedLeaderKey: string
+  newTabBinding: string
   onConfirm: () => void
   onBack: () => void
 }
@@ -134,7 +137,7 @@ export const ConfirmationStep: Component<ConfirmationStepProps> = (props) => {
       <Show when={totalApps() === 0}>
         <box height={1}>
           <text fg={props.theme.muted}>
-            No apps selected. You can add apps later with Ctrl+T
+            No apps selected. Add more apps later with {formatLeaderKeybind(props.selectedLeaderKey, props.newTabBinding)}
           </text>
         </box>
         <box height={1} />

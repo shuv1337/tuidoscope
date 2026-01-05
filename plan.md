@@ -937,14 +937,14 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **Files:** Multiple onboarding components
 
-- [ ] **6.20.1** Read `src/components/onboarding/CustomAppStep.tsx` line 305
-- [ ] **6.20.2** Update CustomAppStep footer: "Ctrl+A: Add" is fine (this is a local key, not leader)
-- [ ] **6.20.3** Read `src/components/onboarding/ConfirmationStep.tsx` line 137
-- [ ] **6.20.4** ConfirmationStep references "Ctrl+T" - this should mention leader after wizard
-- [ ] **6.20.5** Update ConfirmationStep to show: "Add more apps later with Leader+t"
-- [ ] **6.20.6** Pass `selectedLeaderKey` to ConfirmationStep props
-- [ ] **6.20.7** Import and use `formatLeaderKeybind` in ConfirmationStep
-- [ ] **6.20.8** Verify all onboarding hints are consistent
+- [x] **6.20.1** Read `src/components/onboarding/CustomAppStep.tsx` line 305
+- [x] **6.20.2** Update CustomAppStep footer: "Ctrl+A: Add" is fine (this is a local key, not leader)
+- [x] **6.20.3** Read `src/components/onboarding/ConfirmationStep.tsx` line 137
+- [x] **6.20.4** ConfirmationStep references "Ctrl+T" - this should mention leader after wizard
+- [x] **6.20.5** Update ConfirmationStep to show: "Add more apps later with Leader+t"
+- [x] **6.20.6** Pass `selectedLeaderKey` to ConfirmationStep props
+- [x] **6.20.7** Import and use `formatLeaderKeybind` in ConfirmationStep
+- [x] **6.20.8** Verify all onboarding hints are consistent
 
 ---
 
