@@ -1091,7 +1091,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **Goal:** Review and polish implementation.
 
-- [ ] **6.28.1** Review all new files for consistent code style
+- [x] **6.28.1** Review all new files for consistent code style
 - [ ] **6.28.2** Add JSDoc comments to all new exported functions
 - [ ] **6.28.3** Remove any debug console.log statements
 - [ ] **6.28.4** Verify no TypeScript `any` types in new code

@@ -2,6 +2,7 @@ import { Component, createSignal, For } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { KeybindingStepProps } from "./types"
 import { LEADER_PRESETS, type LeaderPreset } from "./keybindingPresets"
+import { eventToKeybindString, isValidLeaderKey } from "../../lib/key-capture"
 
 /**
  * KeybindingStep - Leader key selection step of the onboarding wizard
@@ -35,37 +36,6 @@ export const KeybindingStep: Component<KeybindingStepProps> = (props) => {
       return !LEADER_PRESETS.slice(0, -1).some((p) => p.key === props.selectedLeaderKey)
     }
     return preset.key === props.selectedLeaderKey
-  }
-
-  /**
-   * Convert a keyboard event to a keybind string representation.
-   */
-  const eventToKeybindString = (event: { ctrl?: boolean; option?: boolean; shift?: boolean; meta?: boolean; name: string }): string => {
-    const parts: string[] = []
-    if (event.ctrl) parts.push("ctrl")
-    if (event.option) parts.push("alt")
-    if (event.shift) parts.push("shift")
-    if (event.meta) parts.push("meta")
-    parts.push(event.name.toLowerCase())
-    return parts.join("+")
-  }
-
-  /**
-   * Check if a captured keybind is valid as a leader key.
-   * Rejects single letters without modifiers and reserved keys.
-   */
-  const isValidLeaderKey = (keybind: string): boolean => {
-    const reserved = ["return", "enter", "escape", "tab", "backspace"]
-    const parts = keybind.split("+")
-    const key = parts[parts.length - 1]
-    
-    // Reject reserved keys
-    if (reserved.includes(key)) return false
-    
-    // Require at least one modifier for single letter keys
-    if (key.length === 1 && parts.length === 1) return false
-    
-    return true
   }
 
   useKeyboard((event) => {
