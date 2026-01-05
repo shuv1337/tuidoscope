@@ -954,9 +954,9 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/lib/key-capture.ts` (new)
 
-- [ ] **6.21.1** Create new file `src/lib/key-capture.ts`
-- [ ] **6.21.2** Import `KeyEvent` type from `@opentui/core`
-- [ ] **6.21.3** Implement `eventToKeybindString(event: KeyEvent): string`:
+- [x] **6.21.1** Create new file `src/lib/key-capture.ts`
+- [x] **6.21.2** Import `KeyEvent` type from `@opentui/core`
+- [x] **6.21.3** Implement `eventToKeybindString(event: KeyEvent): string`:
   ```typescript
   export function eventToKeybindString(event: KeyEvent): string {
     const parts: string[] = []
@@ -968,15 +968,16 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     return parts.join("+")
   }
   ```
-- [ ] **6.21.4** Implement `isValidLeaderKey(keybind: string): boolean`:
+- [x] **6.21.4** Implement `isValidLeaderKey(keybind: string): boolean`:
   - Reject single letters without modifiers
   - Reject Enter, Escape, Tab
   - Require at least one modifier (ctrl, alt, meta)
-- [ ] **6.21.5** Implement `leaderKeyToSequence(leaderKey: string): string | null`:
+- [x] **6.21.5** Implement `leaderKeyToSequence(leaderKey: string): string | null`:
   - Parse keybind
   - If ctrl+letter, return control code (charCode - 96)
   - Otherwise return null
-- [ ] **6.21.6** Export all functions
+  - NOTE: Re-exported from keybinds.ts where it was already implemented
+- [x] **6.21.6** Export all functions
 
 ---
 
