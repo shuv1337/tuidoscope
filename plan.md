@@ -987,18 +987,18 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `docs/keybindings.md`
 
-- [ ] **6.22.1** Read current `docs/keybindings.md`
-- [ ] **6.22.2** Add "Leader Key Concept" section at top
-- [ ] **6.22.3** Explain what a leader key is and how it works
-- [ ] **6.22.4** Document default leader key: `Ctrl+A`
-- [ ] **6.22.5** Document leader key timeout behavior
-- [ ] **6.22.6** Document double-tap to send leader to terminal
-- [ ] **6.22.7** Update all keybind references to use `Leader+key` format
-- [ ] **6.22.8** Add "Choosing a Leader Key" section with recommendations
-- [ ] **6.22.9** Document available presets and their trade-offs
-- [ ] **6.22.10** Add "Direct Bindings" section for j/k/gg/G navigation
-- [ ] **6.22.11** Add configuration example showing full V2 keybind config
-- [ ] **6.22.12** Add troubleshooting for leader key conflicts
+- [x] **6.22.1** Read current `docs/keybindings.md`
+- [x] **6.22.2** Add "Leader Key Concept" section at top
+- [x] **6.22.3** Explain what a leader key is and how it works
+- [x] **6.22.4** Document default leader key: `Ctrl+A`
+- [x] **6.22.5** Document leader key timeout behavior
+- [x] **6.22.6** Document double-tap to send leader to terminal
+- [x] **6.22.7** Update all keybind references to use `Leader+key` format
+- [x] **6.22.8** Add "Choosing a Leader Key" section with recommendations
+- [x] **6.22.9** Document available presets and their trade-offs
+- [x] **6.22.10** Add "Direct Bindings" section for j/k/gg/G navigation
+- [x] **6.22.11** Add configuration example showing full V2 keybind config
+- [x] **6.22.12** Add troubleshooting for leader key conflicts
 
 ---
 
