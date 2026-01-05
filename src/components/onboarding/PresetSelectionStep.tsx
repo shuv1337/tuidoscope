@@ -3,6 +3,7 @@ import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig } from "../../types"
 import type { ListRow } from "./types"
 import { APP_PRESETS, CATEGORY_LABELS } from "./presets"
+import { buildFilteredRows, getPresetIndices } from "./presetFilter"
 import { commandExists } from "../../lib/command"
 
 /**
@@ -32,6 +33,9 @@ export interface PresetSelectionStepProps {
   onBack: () => void
 }
 
+// Category order for tab navigation
+const CATEGORY_ORDER = ["all", "shell", "productivity", "monitor", "files", "git", "dev", "editor", "ai", "utility"] as const
+
 export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) => {
   const [focusedIndex, setFocusedIndex] = createSignal(0)
   
@@ -39,6 +43,11 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
   // When user presses 'g', we set pendingG=true and wait for the next key.
   // If next key is also 'g', we jump to top. Otherwise, reset and process normally.
   const [pendingG, setPendingG] = createSignal(false)
+  
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = createSignal("")
+  const [isSearchFocused, setIsSearchFocused] = createSignal(false)
+  const [activeCategory, setActiveCategory] = createSignal<string>("all")
   
   // Track which preset commands are available on the system
   const [availability, setAvailability] = createSignal<Record<string, boolean>>({})

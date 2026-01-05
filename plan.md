@@ -67,12 +67,12 @@
 
 ## Phase 3: Search State in PresetSelectionStep
 
-- [ ] 3.14 Open `src/components/onboarding/PresetSelectionStep.tsx`
-- [ ] 3.15 Add import for `buildFilteredRows` and `getPresetIndices` from `./presetFilter`
-- [ ] 3.16 Add `searchQuery` signal: `const [searchQuery, setSearchQuery] = createSignal("")`
-- [ ] 3.17 Add `isSearchFocused` signal: `const [isSearchFocused, setIsSearchFocused] = createSignal(false)`
-- [ ] 3.18 Add `activeCategory` signal: `const [activeCategory, setActiveCategory] = createSignal<string>("all")`
-- [ ] 3.19 Define category order array: `["all", "shell", "productivity", "monitor", "files", "git", "dev", "editor", "ai", "utility"]`
+- [x] 3.14 Open `src/components/onboarding/PresetSelectionStep.tsx`
+- [x] 3.15 Add import for `buildFilteredRows` and `getPresetIndices` from `./presetFilter`
+- [x] 3.16 Add `searchQuery` signal: `const [searchQuery, setSearchQuery] = createSignal("")`
+- [x] 3.17 Add `isSearchFocused` signal: `const [isSearchFocused, setIsSearchFocused] = createSignal(false)`
+- [x] 3.18 Add `activeCategory` signal: `const [activeCategory, setActiveCategory] = createSignal<string>("all")`
+- [x] 3.19 Define category order array: `["all", "shell", "productivity", "monitor", "files", "git", "dev", "editor", "ai", "utility"]`
 
 ## Phase 3: Filtered List Integration
 
