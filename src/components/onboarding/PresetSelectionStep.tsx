@@ -1,8 +1,8 @@
-import { Component, createSignal, createMemo, For, onMount } from "solid-js"
+import { Component, createSignal, createMemo, createEffect, For, onMount } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig } from "../../types"
 import type { ListRow } from "./types"
-import { APP_PRESETS, CATEGORY_LABELS } from "./presets"
+import { APP_PRESETS } from "./presets"
 import { buildFilteredRows, getPresetIndices } from "./presetFilter"
 import { commandExists } from "../../lib/command"
 
@@ -52,30 +52,20 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
   // Track which preset commands are available on the system
   const [availability, setAvailability] = createSignal<Record<string, boolean>>({})
   
-  // Build a flat list of rows (headers + presets) for rendering with category grouping
-  const listRows = createMemo<ListRow[]>(() => {
-    const rows: ListRow[] = []
-    let currentCategory: string | undefined
-    
-    APP_PRESETS.forEach((preset, originalIndex) => {
-      // Insert category header when category changes
-      if (preset.category && preset.category !== currentCategory) {
-        currentCategory = preset.category
-        const label = CATEGORY_LABELS[preset.category] || preset.category
-        rows.push({ type: "header", category: preset.category, label })
-      }
-      rows.push({ type: "preset", preset, originalIndex })
-    })
-    
-    return rows
-  })
-  
-  // Get only the preset rows for navigation (skip headers)
-  const presetIndices = createMemo(() => 
-    listRows()
-      .map((row, idx) => row.type === "preset" ? idx : -1)
-      .filter(idx => idx !== -1)
+  // Build a filtered list of rows (headers + presets) based on category and search query
+  const filteredRows = createMemo<ListRow[]>(() => 
+    buildFilteredRows(APP_PRESETS, activeCategory(), searchQuery())
   )
+  
+  // Get only the preset row indices for navigation (skip headers)
+  const presetIndices = createMemo(() => getPresetIndices(filteredRows()))
+  
+  // Reset focus to first item when filtered results change
+  createEffect(() => {
+    // Access filteredRows to create dependency
+    filteredRows()
+    setFocusedIndex(0)
+  })
   
   // Check availability of all preset commands on mount
   onMount(async () => {
@@ -137,7 +127,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
     // Toggle selection
     if (event.name === "space") {
       const rowIndex = indices[focusedIndex()]
-      const row = listRows()[rowIndex]
+      const row = filteredRows()[rowIndex]
       if (row?.type === "preset") {
         props.onTogglePreset(row.preset.id)
       }
@@ -188,7 +178,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
 
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
       <box flexDirection="column" alignItems="flex-start">
-        <For each={listRows()}>
+        <For each={filteredRows()}>
           {(row, rowIndex) => {
             // Category header row
             if (row.type === "header") {

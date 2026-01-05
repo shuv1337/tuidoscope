@@ -76,12 +76,12 @@
 
 ## Phase 3: Filtered List Integration
 
-- [ ] 3.20 Find existing `listRows` memo in PresetSelectionStep
-- [ ] 3.21 Replace `listRows` computation to use `buildFilteredRows(APP_PRESETS, activeCategory(), searchQuery())`
-- [ ] 3.22 Add `presetIndices` memo using `getPresetIndices(filteredRows())`
-- [ ] 3.23 Add `createEffect` to reset `focusedIndex` to 0 when `filteredRows` changes
-- [ ] 3.24 Update navigation logic to use `presetIndices()` for j/k/arrow navigation
-- [ ] 3.25 Update selection toggle to use `originalIndex` from ListRow for correct selection state
+- [x] 3.20 Find existing `listRows` memo in PresetSelectionStep
+- [x] 3.21 Replace `listRows` computation to use `buildFilteredRows(APP_PRESETS, activeCategory(), searchQuery())`
+- [x] 3.22 Add `presetIndices` memo using `getPresetIndices(filteredRows())`
+- [x] 3.23 Add `createEffect` to reset `focusedIndex` to 0 when `filteredRows` changes
+- [x] 3.24 Update navigation logic to use `presetIndices()` for j/k/arrow navigation
+- [x] 3.25 Update selection toggle to use `originalIndex` from ListRow for correct selection state
 
 ## Phase 3: Keyboard Mode State Machine
 
