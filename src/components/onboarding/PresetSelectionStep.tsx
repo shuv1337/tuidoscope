@@ -363,6 +363,14 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
               const isFocused = () => focusedIndex() === navIndex()
               const isSelected = () => props.selectedPresets.has(preset.id)
               const available = () => isAvailable(preset.id)
+              
+              // Background colors: focused gets primary, selected gets dim highlight, others get default
+              // Using a semi-transparent/dim version of accent for selected rows
+              const rowBg = () => isFocused() 
+                ? props.theme.primary 
+                : isSelected() 
+                  ? "#1a3a1a" // Dim green background for selected rows
+                  : props.theme.background
 
               return (
                 // role="option" aria-selected={isSelected} aria-label="{preset.name} - {preset.description}"
@@ -371,7 +379,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
                   {/* Focus indicator - visible focus for accessibility */}
                   <text
                     fg={isFocused() ? props.theme.accent : props.theme.muted}
-                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                    bg={rowBg()}
                   >
                     {isFocused() ? "> " : "  "}
                   </text>
@@ -382,7 +390,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
                       : isSelected() 
                         ? "#22c55e"
                         : props.theme.muted}
-                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                    bg={rowBg()}
                   >
                     {isSelected() ? "[✓]" : "[ ]"}
                   </text>
@@ -392,13 +400,13 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
                       : available() 
                         ? props.theme.foreground 
                         : props.theme.muted}
-                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                    bg={rowBg()}
                   >
                     {" "}{preset.icon} {preset.name}
                   </text>
                   <text
                     fg={isFocused() ? props.theme.background : props.theme.muted}
-                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                    bg={rowBg()}
                   >
                     {" "}- {preset.description}{!available() ? " (not installed)" : ""}
                   </text>

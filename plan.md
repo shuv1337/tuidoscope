@@ -156,9 +156,9 @@
 
 ## Phase 5: Selection Polish (Optional)
 
-- [ ] 5.1 Assess remaining vertical space at 80x24 after Phase 3-4 changes
-- [ ] 5.2 If space allows: add subtle background highlight to selected rows
-- [ ] 5.3 Selected row background: use dim version of accent color (distinct from focus)
+- [x] 5.1 Assess remaining vertical space at 80x24 after Phase 3-4 changes
+- [x] 5.2 If space allows: add subtle background highlight to selected rows
+- [x] 5.3 Selected row background: use dim version of accent color (distinct from focus)
 - [ ] 5.4 If space allows: add selection summary header above preset list
 - [ ] 5.5 Selection summary format: `3 selected: htop, lazygit, nvim...`
 - [ ] 5.6 Truncate selection summary at ~40 characters with ellipsis
