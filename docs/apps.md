@@ -584,3 +584,137 @@ apps:
 - lazygit and gitui are full-featured alternatives to git CLI commands
 - tig excels at viewing history and blame - pair it with lazygit or gitui for staging/commits
 - Consider having multiple git tool tabs for different repositories in a monorepo workflow
+
+---
+
+## Container Tool Examples
+
+Container management TUIs are invaluable for monitoring and managing Docker containers and Kubernetes clusters. They integrate seamlessly with tuidoscope for DevOps workflows.
+
+### lazydocker
+
+A simple terminal UI for Docker and docker-compose.
+
+```yaml
+apps:
+  - name: "lazydocker"
+    command: "lazydocker"
+```
+
+With a specific docker-compose file:
+
+```yaml
+apps:
+  - name: "lazydocker"
+    command: "lazydocker"
+    args: "--file ~/projects/myapp/docker-compose.yml"
+    cwd: "~/projects/myapp"
+```
+
+With custom config:
+
+```yaml
+apps:
+  - name: "lazydocker"
+    command: "lazydocker"
+    args: "--config ~/.config/lazydocker/tuidoscope.yml"
+```
+
+For a specific project directory:
+
+```yaml
+apps:
+  - name: "lazydocker (myapp)"
+    command: "lazydocker"
+    cwd: "~/projects/myapp"  # Finds docker-compose.yml in this directory
+```
+
+### k9s
+
+A powerful Kubernetes CLI to manage clusters with a TUI.
+
+```yaml
+apps:
+  - name: "k9s"
+    command: "k9s"
+```
+
+With a specific kubeconfig:
+
+```yaml
+apps:
+  - name: "k9s"
+    command: "k9s"
+    args: "--kubeconfig ~/.kube/staging-config"
+```
+
+With a specific context:
+
+```yaml
+apps:
+  - name: "k9s (production)"
+    command: "k9s"
+    args: "--context production-cluster"
+```
+
+With a specific namespace:
+
+```yaml
+apps:
+  - name: "k9s (default ns)"
+    command: "k9s"
+    args: "--namespace default"
+```
+
+All namespaces view:
+
+```yaml
+apps:
+  - name: "k9s (all)"
+    command: "k9s"
+    args: "--all-namespaces"
+```
+
+Read-only mode (safer for production):
+
+```yaml
+apps:
+  - name: "k9s (readonly)"
+    command: "k9s"
+    args: "--readonly"
+```
+
+With custom skin/theme:
+
+```yaml
+apps:
+  - name: "k9s"
+    command: "k9s"
+    env:
+      K9S_CONFIG_DIR: "~/.config/k9s-tuidoscope"
+```
+
+Start directly in a specific resource view:
+
+```yaml
+apps:
+  - name: "k9s (pods)"
+    command: "k9s"
+    args: "--command pods"
+```
+
+```yaml
+apps:
+  - name: "k9s (deployments)"
+    command: "k9s"
+    args: "--command deployments"
+```
+
+### Container Tool Tips
+
+- lazydocker requires Docker to be running and accessible (your user must be in the `docker` group or using rootless Docker)
+- k9s requires a valid kubeconfig and kubectl access to your cluster
+- Use `--readonly` flag with k9s on production clusters to prevent accidental changes
+- Consider having multiple k9s tabs for different clusters (staging, production)
+- lazydocker is excellent alongside a shell tab for quick container debugging
+- Both tools support custom themes - match them to your tuidoscope Night Owl theme for consistency

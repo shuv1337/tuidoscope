@@ -307,7 +307,7 @@ This backlog covers bug fixes, feature enhancements, and documentation for tuido
 - [x] **5.4.3** Document system monitor examples: htop, btop, glances, bottom
 - [x] **5.4.4** Document file manager examples: yazi, ranger, lf, nnn, mc
 - [x] **5.4.5** Document git tool examples: lazygit, tig, gitui
-- [ ] **5.4.6** Document container tool examples: lazydocker, k9s
+- [x] **5.4.6** Document container tool examples: lazydocker, k9s
 - [ ] **5.4.7** Document editor examples: nvim, helix, micro
 - [ ] **5.4.8** Document AI coding agent examples: claude, opencode, aider
 - [ ] **5.4.9** Document utility examples: ncdu, dust, duf
