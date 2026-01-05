@@ -1,31 +1,57 @@
 # Example tuidoscope configuration
-# Copy to ~/.config/tuidoscope/config.yaml
+# Copy to ~/.config/tuidoscope/tuidoscope.yaml
 
-version: 1
+version: 2
 
+# Theme configuration (Night Owl)
+# See https://github.com/sdras/night-owl-vscode-theme
 theme:
-  primary: "#7aa2f7"
-  background: "#1a1b26"
-  foreground: "#c0caf5"
-  accent: "#bb9af7"
-  muted: "#565f89"
+  primary: "#82aaff"      # Blue - selections, highlights
+  background: "#011627"   # Deep dark blue
+  foreground: "#d6deeb"   # Light gray-blue text
+  accent: "#7fdbca"       # Cyan/teal - active indicators
+  muted: "#637777"        # Gray-blue for inactive elements
 
+# Keybindings - tmux-style leader key system
+# Press the leader key, then press a binding key to execute an action.
+# For example: Ctrl+A then 'n' to go to the next tab.
 keybinds:
-  next_tab: "ctrl+n"
-  prev_tab: "ctrl+p"
-  close_tab: "ctrl+w"
-  new_tab: "ctrl+t"
-  toggle_focus: "ctrl+a"
-  edit_app: "ctrl+e"
-  restart_app: "ctrl+shift+r"
-  command_palette: "ctrl+p"
-  stop_app: "ctrl+x"
-  kill_all: "ctrl+shift+k"
-  quit: "ctrl+q"
+  # Leader key configuration
+  leader:
+    key: "ctrl+a"         # The leader key to activate command mode
+    timeout: 1000         # ms before leader mode auto-cancels
+    show_hints: true      # Show available bindings after delay
+    hint_delay: 300       # ms before showing hint popup
 
+  # Leader bindings - press Leader + key to execute
+  bindings:
+    next_tab: "n"         # Leader + n: Next tab
+    prev_tab: "p"         # Leader + p: Previous tab
+    close_tab: "w"        # Leader + w: Close current tab
+    new_tab: "t"          # Leader + t: Open new tab
+    toggle_focus: "a"     # Leader + a: Toggle focus between tabs/terminal
+    edit_app: "e"         # Leader + e: Edit current app
+    restart_app: "r"      # Leader + r: Restart current app
+    command_palette: "space"  # Leader + Space: Open command palette
+    stop_app: "x"         # Leader + x: Stop current app
+    kill_all: "K"         # Leader + Shift+K: Kill all apps
+    quit: "q"             # Leader + q: Quit tuidoscope
+
+  # Direct bindings - navigation keys that work without leader (tabs mode only)
+  direct:
+    navigate_up: "k"      # Previous tab (vim style)
+    navigate_down: "j"    # Next tab (vim style)
+    select: "enter"       # Select/focus current tab
+    go_top: "g"           # Go to first tab (press twice: gg)
+    go_bottom: "G"        # Go to last tab (Shift+G)
+
+# Tab width in characters
 tab_width: 20
 
+# Application entries
+# Each app can be launched as a tab in tuidoscope
 apps:
+  # Default shell - autostart enabled
   - name: "Shell"
     command: "zsh"
     cwd: "~"
@@ -33,11 +59,7 @@ apps:
     env:
       TERM: "xterm-256color"
 
-  - name: "Top"
-    command: "top"
-    cwd: "~"
-    autostart: false
-
+  # System monitors
   - name: "htop"
     command: "htop"
     cwd: "~"
@@ -48,26 +70,12 @@ apps:
     cwd: "~"
     autostart: false
 
-  - name: "lazytodo"
-    command: "lazytodo tui"
+  - name: "glances"
+    command: "glances"
     cwd: "~"
     autostart: false
 
-  - name: "lazygit"
-    command: "lazygit"
-    cwd: "<CONFIG_DIR>"
-    autostart: false
-
-  - name: "tig"
-    command: "tig"
-    cwd: "<CONFIG_DIR>"
-    autostart: false
-
-  - name: "neovim"
-    command: "nvim"
-    cwd: "<CONFIG_DIR>"
-    autostart: false
-
+  # File managers
   - name: "ranger"
     command: "ranger"
     cwd: "~"
@@ -78,33 +86,37 @@ apps:
     cwd: "~"
     autostart: false
 
-  - name: "weechat"
-    command: "weechat"
-    cwd: "~"
+  # Git tools - use <CONFIG_DIR> to open in config directory
+  - name: "lazygit"
+    command: "lazygit"
+    cwd: "<CONFIG_DIR>"
     autostart: false
 
+  - name: "tig"
+    command: "tig"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  # Editors
+  - name: "neovim"
+    command: "nvim"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+  # Container tools
   - name: "k9s"
     command: "k9s"
     cwd: "~"
     autostart: false
 
-  - name: "glances"
-    command: "glances"
+  - name: "lazydocker"
+    command: "lazydocker"
     cwd: "~"
     autostart: false
 
-  - name: "gh dash"
-    command: "gh dash"
-    cwd: "<CONFIG_DIR>"
-    autostart: false
-
-  - name: "gh enhance"
-    command: "gh enhance"
-    cwd: "<CONFIG_DIR>"
-    autostart: false
-
-  - name: "shuvcode"
-    command: "shuvcode"
+  # AI coding agents
+  - name: "claude"
+    command: "claude"
     cwd: "~"
     autostart: false
 
@@ -113,8 +125,8 @@ apps:
     cwd: "~"
     autostart: false
 
-  - name: "claude"
-    command: "claude"
+  - name: "aider"
+    command: "aider"
     cwd: "~"
     autostart: false
 
@@ -128,6 +140,13 @@ apps:
     cwd: "~"
     autostart: false
 
+  # GitHub CLI extensions
+  - name: "gh dash"
+    command: "gh dash"
+    cwd: "<CONFIG_DIR>"
+    autostart: false
+
+# Session persistence
 session:
   persist: true
   file: "~/.local/state/tuidoscope/session.yaml"
