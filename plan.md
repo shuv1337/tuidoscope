@@ -51,7 +51,7 @@
 
 ## Phase 3: Filter Helper Module
 
-- [ ] 3.1 Create new file `src/components/onboarding/presetFilter.ts`
+- [x] 3.1 Create new file `src/components/onboarding/presetFilter.ts`
 - [ ] 3.2 Add imports: `AppPreset` from `./presets`, `ListRow` from `./types`, `CATEGORY_LABELS` from `./presets`
 - [ ] 3.3 Implement `buildFilteredRows` function signature: `(presets: AppPreset[], category: string | "all", query: string) => ListRow[]`
 - [ ] 3.4 In `buildFilteredRows`: normalize query to lowercase and trim whitespace
