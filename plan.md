@@ -181,19 +181,19 @@
 
 ## Phase 7: Unit Tests
 
-- [ ] 7.1 Create new file `src/components/onboarding/presetFilter.test.ts`
-- [ ] 7.2 Add imports: `describe`, `it`, `expect` from bun test, filter functions, test data
-- [ ] 7.3 Test: `buildFilteredRows` returns all presets when category="all" and query=""
-- [ ] 7.4 Test: `buildFilteredRows` filters by category correctly
-- [ ] 7.5 Test: `buildFilteredRows` query match is case-insensitive
-- [ ] 7.6 Test: `buildFilteredRows` query matches partial strings
-- [ ] 7.7 Test: `buildFilteredRows` query matches against name, description, command
-- [ ] 7.8 Test: `buildFilteredRows` combined category + query uses AND logic
-- [ ] 7.9 Test: `buildFilteredRows` returns empty array when no matches
-- [ ] 7.10 Test: `buildFilteredRows` only inserts headers for categories with matches
-- [ ] 7.11 Test: `getPresetIndices` returns only indices of preset rows
-- [ ] 7.12 Test: `getPresetIndices` skips header rows
-- [ ] 7.13 Run `bun test` to verify all tests pass
+- [x] 7.1 Create new file `src/components/onboarding/presetFilter.test.ts`
+- [x] 7.2 Add imports: `describe`, `it`, `expect` from bun test, filter functions, test data
+- [x] 7.3 Test: `buildFilteredRows` returns all presets when category="all" and query=""
+- [x] 7.4 Test: `buildFilteredRows` filters by category correctly
+- [x] 7.5 Test: `buildFilteredRows` query match is case-insensitive
+- [x] 7.6 Test: `buildFilteredRows` query matches partial strings
+- [x] 7.7 Test: `buildFilteredRows` query matches against name, description, command
+- [x] 7.8 Test: `buildFilteredRows` combined category + query uses AND logic
+- [x] 7.9 Test: `buildFilteredRows` returns empty array when no matches
+- [x] 7.10 Test: `buildFilteredRows` only inserts headers for categories with matches
+- [x] 7.11 Test: `getPresetIndices` returns only indices of preset rows
+- [x] 7.12 Test: `getPresetIndices` skips header rows
+- [x] 7.13 Run `bun test` to verify all tests pass
 
 ## Phase 7: Manual QA Checklist
 
