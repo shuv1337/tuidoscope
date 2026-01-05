@@ -277,8 +277,8 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
       <box flexDirection="column" alignItems="flex-start">
         {presetIndices().length === 0 ? (
-          // Empty results message
-          <box height={1}>
+          // Empty results message - centered
+          <box height={1} width="100%" justifyContent="center">
             <text fg={props.theme.muted}>
               No matching apps
             </text>
