@@ -1022,16 +1022,16 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **Goal:** Verify config migration works correctly.
 
-- [ ] **6.24.1** Create test V1 config file with custom keybinds
-- [ ] **6.24.2** Load config, verify migration runs
-- [ ] **6.24.3** Verify all custom bindings preserved
-- [ ] **6.24.4** Verify leader key extracted from toggle_focus
-- [ ] **6.24.5** Verify version updated to 2
-- [ ] **6.24.6** Verify command_palette changed to "space"
-- [ ] **6.24.7** Create test with default V1 config (no customizations)
-- [ ] **6.24.8** Verify defaults applied correctly
-- [ ] **6.24.9** Create test with already-V2 config
-- [ ] **6.24.10** Verify V2 config loaded unchanged (no migration)
+- [x] **6.24.1** Create test V1 config file with custom keybinds
+- [x] **6.24.2** Load config, verify migration runs
+- [x] **6.24.3** Verify all custom bindings preserved
+- [x] **6.24.4** Verify leader key extracted from toggle_focus
+- [x] **6.24.5** Verify version updated to 2
+- [x] **6.24.6** Verify command_palette changed to "space"
+- [x] **6.24.7** Create test with default V1 config (no customizations)
+- [x] **6.24.8** Verify defaults applied correctly
+- [x] **6.24.9** Create test with already-V2 config
+- [x] **6.24.10** Verify V2 config loaded unchanged (no migration)
 
 ---
 
