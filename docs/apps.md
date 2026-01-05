@@ -260,3 +260,184 @@ apps:
 - Consider using `restart_on_exit: true` if you want the monitor to restart after pressing `q`
 - Most monitors support custom configs - check their documentation for personalization options
 - Use lightweight options (like `--low-color` or reduced update intervals) if running many tabs
+
+---
+
+## File Manager Examples
+
+Terminal file managers are perfect for tuidoscope - navigate your filesystem in one tab while working in another.
+
+### yazi
+
+A blazing fast terminal file manager written in Rust with async I/O.
+
+```yaml
+apps:
+  - name: "yazi"
+    command: "yazi"
+    cwd: "~"
+```
+
+Open in a specific directory:
+
+```yaml
+apps:
+  - name: "yazi (projects)"
+    command: "yazi"
+    args: "~/projects"
+```
+
+### ranger
+
+A vim-inspired file manager with previews and extensive customization.
+
+```yaml
+apps:
+  - name: "ranger"
+    command: "ranger"
+    cwd: "~"
+```
+
+With a custom config directory:
+
+```yaml
+apps:
+  - name: "ranger"
+    command: "ranger"
+    args: "--confdir=~/.config/ranger-tuidoscope"
+```
+
+Clean mode (no preview column):
+
+```yaml
+apps:
+  - name: "ranger"
+    command: "ranger"
+    args: "--cmd='set column_ratios 1,3'"
+```
+
+### lf
+
+A terminal file manager inspired by ranger, written in Go.
+
+```yaml
+apps:
+  - name: "lf"
+    command: "lf"
+    cwd: "~"
+```
+
+With custom config:
+
+```yaml
+apps:
+  - name: "lf"
+    command: "lf"
+    args: "-config ~/.config/lf/tuidoscope.lfrc"
+```
+
+Open in a specific path:
+
+```yaml
+apps:
+  - name: "lf (downloads)"
+    command: "lf"
+    args: "~/Downloads"
+```
+
+### nnn
+
+A fast and minimal file manager with a focus on simplicity.
+
+```yaml
+apps:
+  - name: "nnn"
+    command: "nnn"
+    cwd: "~"
+```
+
+With plugins enabled:
+
+```yaml
+apps:
+  - name: "nnn"
+    command: "nnn"
+    args: "-e"  # Open text files in $EDITOR
+    env:
+      NNN_PLUG: "f:finder;o:fzopen;p:preview-tui"
+```
+
+Detail mode (show file details):
+
+```yaml
+apps:
+  - name: "nnn"
+    command: "nnn"
+    args: "-d"  # Show file details
+```
+
+### Midnight Commander (mc)
+
+A classic dual-pane file manager with built-in editor and viewer.
+
+```yaml
+apps:
+  - name: "mc"
+    command: "mc"
+    cwd: "~"
+```
+
+With specific directories in each pane:
+
+```yaml
+apps:
+  - name: "mc"
+    command: "mc"
+    args: "~/projects ~/Downloads"  # Left pane, right pane
+```
+
+Viewer mode only:
+
+```yaml
+apps:
+  - name: "mc (viewer)"
+    command: "mc"
+    args: "--view ~/logs/app.log"
+```
+
+### vifm
+
+A vim-like file manager with two panes and extensive customization.
+
+```yaml
+apps:
+  - name: "vifm"
+    command: "vifm"
+    cwd: "~"
+```
+
+With specific directories:
+
+```yaml
+apps:
+  - name: "vifm"
+    command: "vifm"
+    args: "~/projects ~/backups"  # Left pane, right pane
+```
+
+Single pane mode:
+
+```yaml
+apps:
+  - name: "vifm"
+    command: "vifm"
+    args: "--select ~/projects"
+```
+
+### File Manager Tips
+
+- File managers work great alongside a shell tab for quick navigation
+- Most file managers support opening files in your `$EDITOR` - set it in `env`
+- Use `cwd` to start in your most-used directory
+- Consider having multiple file manager tabs for different project roots
+- For file managers that exit when you press `q`, omit `restart_on_exit` to avoid loops

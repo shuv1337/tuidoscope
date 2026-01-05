@@ -305,7 +305,7 @@ This backlog covers bug fixes, feature enhancements, and documentation for tuido
 - [x] **5.4.1** Write introduction explaining app configuration
 - [x] **5.4.2** Document shell examples: bash, zsh, fish, nushell
 - [x] **5.4.3** Document system monitor examples: htop, btop, glances, bottom
-- [ ] **5.4.4** Document file manager examples: yazi, ranger, lf, nnn, mc
+- [x] **5.4.4** Document file manager examples: yazi, ranger, lf, nnn, mc
 - [ ] **5.4.5** Document git tool examples: lazygit, tig, gitui
 - [ ] **5.4.6** Document container tool examples: lazydocker, k9s
 - [ ] **5.4.7** Document editor examples: nvim, helix, micro
