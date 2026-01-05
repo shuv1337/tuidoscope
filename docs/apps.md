@@ -1501,3 +1501,271 @@ apps:
 - Both tools benefit from a stable terminal size - avoid resizing while running
 - For ongoing monitoring, set `autostart: true` if you need constant network visibility
 - Pair these with a system monitor tab to correlate network usage with CPU/memory
+
+---
+
+## Advanced Configuration
+
+This section covers advanced patterns for configuring apps with custom environment variables, working directories, and other specialized settings.
+
+### Custom Environment Variables
+
+Environment variables let you customize app behavior without modifying system-wide settings.
+
+**Basic environment variable:**
+
+```yaml
+apps:
+  - name: "Shell (dev)"
+    command: "zsh"
+    env:
+      NODE_ENV: "development"
+      DEBUG: "app:*"
+```
+
+**Multiple environment variables:**
+
+```yaml
+apps:
+  - name: "API Dev Server"
+    command: "npm"
+    args: "run dev"
+    cwd: "~/projects/api"
+    env:
+      NODE_ENV: "development"
+      PORT: "3000"
+      DATABASE_URL: "postgresql://localhost/devdb"
+      REDIS_URL: "redis://localhost:6379"
+      LOG_LEVEL: "debug"
+```
+
+**Using shell environment variables (inheritance):**
+
+```yaml
+apps:
+  - name: "Claude"
+    command: "claude"
+    cwd: "~/projects/myapp"
+    env:
+      # Reference your shell's environment variables
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      HOME: "${HOME}"
+```
+
+**Overriding PATH for specific apps:**
+
+```yaml
+apps:
+  - name: "Node 20 Shell"
+    command: "zsh"
+    env:
+      PATH: "/opt/node20/bin:${PATH}"
+```
+
+**Setting locale for apps with encoding issues:**
+
+```yaml
+apps:
+  - name: "Legacy App"
+    command: "oldapp"
+    env:
+      LANG: "en_US.UTF-8"
+      LC_ALL: "en_US.UTF-8"
+```
+
+### Working Directory Patterns
+
+The `cwd` (current working directory) setting is crucial for apps that need filesystem context.
+
+**Project-specific shells:**
+
+```yaml
+apps:
+  - name: "Frontend Shell"
+    command: "zsh"
+    cwd: "~/projects/myapp/frontend"
+    autostart: true
+
+  - name: "Backend Shell"
+    command: "zsh"
+    cwd: "~/projects/myapp/backend"
+    autostart: true
+```
+
+**Git tools in different repos:**
+
+```yaml
+apps:
+  - name: "lazygit (main)"
+    command: "lazygit"
+    cwd: "~/projects/main-app"
+
+  - name: "lazygit (libs)"
+    command: "lazygit"
+    cwd: "~/projects/shared-libs"
+```
+
+**Using path placeholders:**
+
+```yaml
+apps:
+  - name: "Config Editor"
+    command: "nvim"
+    args: "tuidoscope.yaml"
+    cwd: "<CONFIG_DIR>"  # Opens config in its own directory
+
+  - name: "Log Viewer"
+    command: "less"
+    args: "+F session.log"
+    cwd: "<STATE_DIR>"  # Opens state files
+```
+
+**Home directory shorthand:**
+
+```yaml
+apps:
+  - name: "Home Shell"
+    command: "zsh"
+    cwd: "~"  # Expands to /home/username or /Users/username
+```
+
+### Combining Environment and Working Directory
+
+**Full development environment setup:**
+
+```yaml
+apps:
+  - name: "Dev Shell"
+    command: "zsh"
+    cwd: "~/projects/myapp"
+    autostart: true
+    env:
+      NODE_ENV: "development"
+      EDITOR: "nvim"
+      TERM: "xterm-256color"
+
+  - name: "Test Runner"
+    command: "npm"
+    args: "run test:watch"
+    cwd: "~/projects/myapp"
+    env:
+      CI: "false"
+      FORCE_COLOR: "1"
+    restart_on_exit: true  # Keep tests running
+
+  - name: "Dev Server"
+    command: "npm"
+    args: "run dev"
+    cwd: "~/projects/myapp"
+    autostart: true
+    restart_on_exit: true
+    env:
+      PORT: "3000"
+      NODE_ENV: "development"
+```
+
+**Monorepo workspace pattern:**
+
+```yaml
+apps:
+  - name: "Root Shell"
+    command: "zsh"
+    cwd: "~/projects/monorepo"
+    autostart: true
+
+  - name: "Package A"
+    command: "npm"
+    args: "run dev"
+    cwd: "~/projects/monorepo/packages/a"
+    env:
+      DEBUG: "a:*"
+
+  - name: "Package B"
+    command: "npm"
+    args: "run dev"
+    cwd: "~/projects/monorepo/packages/b"
+    env:
+      DEBUG: "b:*"
+
+  - name: "lazygit"
+    command: "lazygit"
+    cwd: "~/projects/monorepo"
+```
+
+**Docker development with environment:**
+
+```yaml
+apps:
+  - name: "Docker Shell"
+    command: "zsh"
+    cwd: "~/projects/myapp"
+    env:
+      DOCKER_BUILDKIT: "1"
+      COMPOSE_DOCKER_CLI_BUILD: "1"
+
+  - name: "lazydocker"
+    command: "lazydocker"
+    cwd: "~/projects/myapp"
+    env:
+      DOCKER_HOST: "unix:///var/run/docker.sock"
+```
+
+### Conditional Behavior with Environment
+
+**Debug mode toggle:**
+
+```yaml
+apps:
+  # Production-like environment
+  - name: "App (prod)"
+    command: "npm"
+    args: "run start"
+    cwd: "~/projects/myapp"
+    env:
+      NODE_ENV: "production"
+      LOG_LEVEL: "warn"
+
+  # Debug environment  
+  - name: "App (debug)"
+    command: "npm"
+    args: "run start"
+    cwd: "~/projects/myapp"
+    env:
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+      DEBUG: "*"
+```
+
+**GPU/CUDA settings:**
+
+```yaml
+apps:
+  - name: "ML Training"
+    command: "python"
+    args: "train.py"
+    cwd: "~/projects/ml-model"
+    env:
+      CUDA_VISIBLE_DEVICES: "0"
+      TF_CPP_MIN_LOG_LEVEL: "2"
+```
+
+**SSH agent forwarding:**
+
+```yaml
+apps:
+  - name: "Remote Shell"
+    command: "ssh"
+    args: "-A user@server"
+    env:
+      SSH_AUTH_SOCK: "${SSH_AUTH_SOCK}"
+```
+
+### Tips for Advanced Configuration
+
+- Environment variables set in `env` override system environment variables
+- Use `${VAR}` syntax to reference your shell's environment variables
+- `cwd` supports `~`, `<CONFIG_DIR>`, and `<STATE_DIR>` placeholders
+- Relative paths in `args` are resolved relative to `cwd`
+- For complex startup sequences, consider using a shell script as the command
+- Test your environment setup by running `env` in a shell tab to see all variables
+- Remember that `autostart: true` apps launch in the order they're defined

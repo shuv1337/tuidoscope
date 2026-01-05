@@ -312,7 +312,7 @@ This backlog covers bug fixes, feature enhancements, and documentation for tuido
 - [x] **5.4.8** Document AI coding agent examples: claude, opencode, aider
 - [x] **5.4.9** Document utility examples: ncdu, dust, duf
 - [x] **5.4.10** Document network tool examples: bandwhich, trippy
-- [ ] **5.4.11** Add advanced examples: custom env vars, working directories
+- [x] **5.4.11** Add advanced examples: custom env vars, working directories
 - [ ] **5.4.12** Add example for apps requiring specific TERM settings
 
 ### 5.5 Write Keybindings Guide
