@@ -745,13 +745,13 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/onboarding/types.ts`
 
-- [ ] **6.13.1** Read `src/components/onboarding/types.ts`
-- [ ] **6.13.2** Add `"keybindings"` to `WizardStep` union type:
+- [x] **6.13.1** Read `src/components/onboarding/types.ts`
+- [x] **6.13.2** Add `"keybindings"` to `WizardStep` union type:
   ```typescript
   export type WizardStep = "welcome" | "keybindings" | "presets" | "custom" | "confirm"
   ```
-- [ ] **6.13.3** Add `selectedLeaderKey: string` to `WizardState` interface
-- [ ] **6.13.4** Create `KeybindingStepProps` interface:
+- [x] **6.13.3** Add `selectedLeaderKey: string` to `WizardState` interface
+- [x] **6.13.4** Create `KeybindingStepProps` interface:
   ```typescript
   export interface KeybindingStepProps {
     theme: ThemeConfig
@@ -761,7 +761,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     onBack: () => void
   }
   ```
-- [ ] **6.13.5** Export new interface
+- [x] **6.13.5** Export new interface
 
 ---
 
