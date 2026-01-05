@@ -1039,7 +1039,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **Goal:** Verify end-to-end leader key functionality.
 
-- [ ] **6.25.1** Test: fresh install, complete onboarding with default leader
+- [x] **6.25.1** Test: fresh install, complete onboarding with default leader
 - [ ] **6.25.2** Test: press leader + n, verify next tab selected
 - [ ] **6.25.3** Test: press leader + p, verify previous tab selected
 - [ ] **6.25.4** Test: press leader + t, verify new tab modal opens
