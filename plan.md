@@ -1044,7 +1044,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 - [x] **6.25.3** Test: press leader + p, verify previous tab selected
 - [x] **6.25.4** Test: press leader + t, verify new tab modal opens
 - [x] **6.25.5** Test: press leader + q, verify app quits
-- [ ] **6.25.6** Test: press leader, wait 1.1s, verify leader cancelled
+- [x] **6.25.6** Test: press leader, wait 1.1s, verify leader cancelled
 - [ ] **6.25.7** Test: press leader twice in terminal, verify key sent to PTY
 - [ ] **6.25.8** Test: press leader + unknown key, verify leader cancelled
 - [ ] **6.25.9** Test: open modal, press leader, verify nothing happens
