@@ -771,8 +771,8 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/onboarding/keybindingPresets.ts` (new)
 
-- [ ] **6.14.1** Create new file `src/components/onboarding/keybindingPresets.ts`
-- [ ] **6.14.2** Define `LeaderPreset` interface:
+- [x] **6.14.1** Create new file `src/components/onboarding/keybindingPresets.ts`
+- [x] **6.14.2** Define `LeaderPreset` interface:
   ```typescript
   export interface LeaderPreset {
     id: string
@@ -781,12 +781,12 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     description: string
   }
   ```
-- [ ] **6.14.3** Add tmux-style preset: `{ id: "tmux", key: "ctrl+a", name: "Ctrl+A", description: "tmux-style (recommended)" }`
-- [ ] **6.14.4** Add tmux-alt preset: `{ id: "tmux-alt", key: "ctrl+b", name: "Ctrl+B", description: "tmux alternate" }`
-- [ ] **6.14.5** Add screen-style preset: `{ id: "screen", key: "ctrl+\\", name: "Ctrl+\\", description: "GNU Screen style" }`
-- [ ] **6.14.6** Add desktop-style preset: `{ id: "desktop", key: "alt+space", name: "Alt+Space", description: "Desktop-style" }`
-- [ ] **6.14.7** Add custom option: `{ id: "custom", key: "", name: "Custom...", description: "Choose your own" }`
-- [ ] **6.14.8** Export `LEADER_PRESETS` array
+- [x] **6.14.3** Add tmux-style preset: `{ id: "tmux", key: "ctrl+a", name: "Ctrl+A", description: "tmux-style (recommended)" }`
+- [x] **6.14.4** Add tmux-alt preset: `{ id: "tmux-alt", key: "ctrl+b", name: "Ctrl+B", description: "tmux alternate" }`
+- [x] **6.14.5** Add screen-style preset: `{ id: "screen", key: "ctrl+\\", name: "Ctrl+\\", description: "GNU Screen style" }`
+- [x] **6.14.6** Add desktop-style preset: `{ id: "desktop", key: "alt+space", name: "Alt+Space", description: "Desktop-style" }`
+- [x] **6.14.7** Add custom option: `{ id: "custom", key: "", name: "Custom...", description: "Choose your own" }`
+- [x] **6.14.8** Export `LEADER_PRESETS` array
 
 ---
 
@@ -796,27 +796,27 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/onboarding/KeybindingStep.tsx` (new)
 
-- [ ] **6.15.1** Create new file `src/components/onboarding/KeybindingStep.tsx`
-- [ ] **6.15.2** Import dependencies: solid-js, useKeyboard, types, presets
-- [ ] **6.15.3** Create component skeleton with `KeybindingStepProps`
-- [ ] **6.15.4** Add `focusedIndex` signal for keyboard navigation (default: 0)
-- [ ] **6.15.5** Add `isCapturing` signal for custom key capture mode (default: false)
-- [ ] **6.15.6** Add `capturedKey` signal to store custom key (default: "")
-- [ ] **6.15.7** Implement `useKeyboard` handler for navigation:
+- [x] **6.15.1** Create new file `src/components/onboarding/KeybindingStep.tsx`
+- [x] **6.15.2** Import dependencies: solid-js, useKeyboard, types, presets
+- [x] **6.15.3** Create component skeleton with `KeybindingStepProps`
+- [x] **6.15.4** Add `focusedIndex` signal for keyboard navigation (default: 0)
+- [x] **6.15.5** Add `isCapturing` signal for custom key capture mode (default: false)
+- [x] **6.15.6** Add `capturedKey` signal to store custom key (default: "")
+- [x] **6.15.7** Implement `useKeyboard` handler for navigation:
   - j/down: increment focusedIndex
   - k/up: decrement focusedIndex
   - Enter/Space: select current preset or enter capture mode
   - Escape/Backspace: go back
-- [ ] **6.15.8** Render title: "Choose your leader key"
-- [ ] **6.15.9** Render explanation text about leader key concept
-- [ ] **6.15.10** Render preset list with selection indicator `[*]` / `[ ]`
-- [ ] **6.15.11** Highlight focused preset with `theme.primary` background
-- [ ] **6.15.12** Mark selected preset with `theme.accent` checkbox
-- [ ] **6.15.13** Render example: "For example: Leader + n = next tab"
-- [ ] **6.15.14** Render tip about terminal conflicts
-- [ ] **6.15.15** Render footer hints: "j/k: Navigate | Enter: Select | Esc: Back"
-- [ ] **6.15.16** Export component
-- [ ] **6.15.17** Add to `src/components/onboarding/index.ts` exports
+- [x] **6.15.8** Render title: "Choose your leader key"
+- [x] **6.15.9** Render explanation text about leader key concept
+- [x] **6.15.10** Render preset list with selection indicator `[*]` / `[ ]`
+- [x] **6.15.11** Highlight focused preset with `theme.primary` background
+- [x] **6.15.12** Mark selected preset with `theme.accent` checkbox
+- [x] **6.15.13** Render example: "For example: Leader + n = next tab"
+- [x] **6.15.14** Render tip about terminal conflicts
+- [x] **6.15.15** Render footer hints: "j/k: Navigate | Enter: Select | Esc: Back"
+- [x] **6.15.16** Export component
+- [x] **6.15.17** Add to `src/components/onboarding/index.ts` exports
 
 ---
 
@@ -826,20 +826,20 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/onboarding/KeybindingStep.tsx`
 
-- [ ] **6.16.1** When "Custom..." is selected and Enter pressed, set `isCapturing(true)`
-- [ ] **6.16.2** In capture mode, render modal overlay:
+- [x] **6.16.1** When "Custom..." is selected and Enter pressed, set `isCapturing(true)`
+- [x] **6.16.2** In capture mode, render modal overlay:
   ```
   Press the key combination you want to use as your leader key...
   Detected: [Ctrl+Space]
   [Cancel]  [Use This]
   ```
-- [ ] **6.16.3** In capture mode useKeyboard: capture any key with modifiers
-- [ ] **6.16.4** Convert captured event to keybind string: `eventToKeybindString(event)`
-- [ ] **6.16.5** Validate captured key is usable (not Enter, Escape, single letter without modifier)
-- [ ] **6.16.6** Display captured key in real-time
-- [ ] **6.16.7** On Enter in capture mode: confirm captured key, exit capture mode
-- [ ] **6.16.8** On Escape in capture mode: cancel capture, return to preset list
-- [ ] **6.16.9** Update `selectedLeaderKey` with captured key
+- [x] **6.16.3** In capture mode useKeyboard: capture any key with modifiers
+- [x] **6.16.4** Convert captured event to keybind string: `eventToKeybindString(event)`
+- [x] **6.16.5** Validate captured key is usable (not Enter, Escape, single letter without modifier)
+- [x] **6.16.6** Display captured key in real-time
+- [x] **6.16.7** On Enter in capture mode: confirm captured key, exit capture mode
+- [x] **6.16.8** On Escape in capture mode: cancel capture, return to preset list
+- [x] **6.16.9** Update `selectedLeaderKey` with captured key
 
 ---
 
