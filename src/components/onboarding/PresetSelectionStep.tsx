@@ -2,7 +2,7 @@ import { Component, createSignal, createMemo, createEffect, For, onMount } from 
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig } from "../../types"
 import type { ListRow } from "./types"
-import { APP_PRESETS } from "./presets"
+import { APP_PRESETS, CATEGORY_TAB_LABELS } from "./presets"
 import { buildFilteredRows, getPresetIndices } from "./presetFilter"
 import { commandExists } from "../../lib/command"
 
@@ -262,6 +262,28 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
         <text fg={props.theme.muted}>
           Space to select, Enter to continue
         </text>
+      </box>
+
+      {/* Category tabs row */}
+      <box height={1}>
+        <For each={CATEGORY_ORDER}>
+          {(cat) => {
+            const isActive = () => activeCategory() === cat
+            const label = CATEGORY_TAB_LABELS[cat] || cat
+            return (
+              <text
+                fg={isActive() 
+                  ? cat === "all" 
+                    ? props.theme.foreground 
+                    : props.theme.accent
+                  : props.theme.muted}
+              >
+                {isActive() && cat === "all" ? `[${label}]` : label}
+                {" "}
+              </text>
+            )
+          }}
+        </For>
       </box>
 
       {/* Search input row */}
