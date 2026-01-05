@@ -247,7 +247,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       width="100%"
       height="100%"
       flexDirection="column"
-      justifyContent="center"
+      justifyContent="flex-start"
       alignItems="center"
     >
       {/* aria-level="1" role="heading" - Title */}
@@ -263,9 +263,6 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
           Space to select, Enter to continue
         </text>
       </box>
-
-      {/* Spacer */}
-      <box height={1} />
 
       {/* Search input row */}
       {isSearchFocused() ? (
@@ -288,7 +285,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       )}
 
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
-      <box flexDirection="column" alignItems="flex-start">
+      <box flexDirection="column" alignItems="flex-start" flexGrow={1}>
         {presetIndices().length === 0 ? (
           // Empty results message - centered
           <box height={1} width="100%" justifyContent="center">
@@ -363,18 +360,12 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
         )}
       </box>
 
-      {/* Spacer */}
-      <box height={1} />
-
       {/* role="status" aria-live="polite" aria-atomic="true" - Selected count */}
       <box height={1}>
         <text fg={props.theme.foreground}>
           {props.selectedPresets.size} app{props.selectedPresets.size !== 1 ? "s" : ""} selected
         </text>
       </box>
-
-      {/* Spacer */}
-      <box height={1} />
 
       {/* role="note" aria-label="Keyboard shortcuts" - Footer keybind hints */}
       <box height={1}>

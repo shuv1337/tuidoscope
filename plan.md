@@ -119,10 +119,10 @@
 
 ## Phase 3: Layout Adjustments
 
-- [ ] 3.51 Find `justifyContent="center"` in PresetSelectionStep outer box
-- [ ] 3.52 Change `justifyContent="center"` to `justifyContent="flex-start"`
-- [ ] 3.53 Find spacer `<box height={1} />` elements and reduce or remove them
-- [ ] 3.54 Add `maxHeight` or `flexGrow={1}` to preset list container to fill available space
+- [x] 3.51 Find `justifyContent="center"` in PresetSelectionStep outer box
+- [x] 3.52 Change `justifyContent="center"` to `justifyContent="flex-start"`
+- [x] 3.53 Find spacer `<box height={1} />` elements and reduce or remove them
+- [x] 3.54 Add `maxHeight` or `flexGrow={1}` to preset list container to fill available space
 - [ ] 3.55 Test layout at 80x24 terminal size to verify no overflow
 
 ## Phase 4: Category Tabs Data
