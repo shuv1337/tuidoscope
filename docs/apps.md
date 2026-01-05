@@ -913,3 +913,182 @@ apps:
 - Helix has built-in LSP support - no plugins needed for code intelligence
 - micro is excellent for quick edits if you're not familiar with vim keybindings
 - Consider setting `TERM=xterm-256color` in `env` if you see color issues
+
+---
+
+## AI Coding Agent Examples
+
+AI coding agents are terminal-based tools that use large language models to help write, review, and debug code. They work exceptionally well in tuidoscope - run the AI agent in one tab while monitoring system resources, browsing files, or running tests in others.
+
+### Claude Code
+
+Anthropic's official CLI for Claude, providing AI-powered coding assistance.
+
+```yaml
+apps:
+  - name: "claude"
+    command: "claude"
+    cwd: "~/projects/myapp"
+```
+
+Start in a specific project:
+
+```yaml
+apps:
+  - name: "claude (project)"
+    command: "claude"
+    cwd: "~/projects/myapp"
+    env:
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"  # Uses your shell's env var
+```
+
+With a specific model:
+
+```yaml
+apps:
+  - name: "claude"
+    command: "claude"
+    args: "--model claude-sonnet-4-20250514"
+    cwd: "~/projects/myapp"
+```
+
+### OpenCode
+
+An open source AI coding agent with support for multiple LLM providers.
+
+```yaml
+apps:
+  - name: "opencode"
+    command: "opencode"
+    cwd: "~/projects/myapp"
+```
+
+With a specific provider and model:
+
+```yaml
+apps:
+  - name: "opencode"
+    command: "opencode"
+    cwd: "~/projects/myapp"
+    env:
+      OPENCODE_MODEL: "anthropic/claude-sonnet-4-20250514"
+```
+
+In a git worktree workflow:
+
+```yaml
+apps:
+  - name: "opencode (feature)"
+    command: "opencode"
+    cwd: "~/projects/myapp-feature-branch"
+```
+
+### Aider
+
+AI pair programming in your terminal - works with many LLM providers.
+
+```yaml
+apps:
+  - name: "aider"
+    command: "aider"
+    cwd: "~/projects/myapp"
+```
+
+With Claude:
+
+```yaml
+apps:
+  - name: "aider"
+    command: "aider"
+    args: "--model claude-3-5-sonnet-20241022"
+    cwd: "~/projects/myapp"
+    env:
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+```
+
+With OpenAI:
+
+```yaml
+apps:
+  - name: "aider"
+    command: "aider"
+    args: "--model gpt-4o"
+    cwd: "~/projects/myapp"
+    env:
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+```
+
+Watch mode (auto-commit changes):
+
+```yaml
+apps:
+  - name: "aider (watch)"
+    command: "aider"
+    args: "--auto-commits --watch"
+    cwd: "~/projects/myapp"
+```
+
+Architect mode (planning without editing):
+
+```yaml
+apps:
+  - name: "aider (architect)"
+    command: "aider"
+    args: "--architect"
+    cwd: "~/projects/myapp"
+```
+
+### Codex CLI
+
+OpenAI's Codex-based CLI assistant.
+
+```yaml
+apps:
+  - name: "codex"
+    command: "codex"
+    cwd: "~/projects/myapp"
+```
+
+With a specific model:
+
+```yaml
+apps:
+  - name: "codex"
+    command: "codex"
+    args: "--model o4-mini"
+    cwd: "~/projects/myapp"
+    env:
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+```
+
+### Gemini CLI
+
+Google's Gemini-powered coding assistant.
+
+```yaml
+apps:
+  - name: "gemini"
+    command: "gemini"
+    cwd: "~/projects/myapp"
+```
+
+With authentication:
+
+```yaml
+apps:
+  - name: "gemini"
+    command: "gemini"
+    cwd: "~/projects/myapp"
+    env:
+      GOOGLE_API_KEY: "${GOOGLE_API_KEY}"
+```
+
+### AI Coding Agent Tips
+
+- Set `cwd` to your project root - AI agents need context from your codebase
+- Keep API keys in your shell environment rather than hardcoding them in config
+- AI agents work great alongside a file manager tab for context navigation
+- Consider having multiple agent tabs for different projects or feature branches
+- Most agents have high memory usage - monitor with htop/btop in another tab
+- Use `restart_on_exit: false` as agents naturally exit after completing tasks
+- For long sessions, the agent may consume significant tokens - be aware of costs
