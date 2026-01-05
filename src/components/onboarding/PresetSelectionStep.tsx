@@ -276,69 +276,78 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
 
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
       <box flexDirection="column" alignItems="flex-start">
-        <For each={filteredRows()}>
-          {(row, rowIndex) => {
-            // Category header row
-            if (row.type === "header") {
+        {presetIndices().length === 0 ? (
+          // Empty results message
+          <box height={1}>
+            <text fg={props.theme.muted}>
+              No matching apps
+            </text>
+          </box>
+        ) : (
+          <For each={filteredRows()}>
+            {(row, rowIndex) => {
+              // Category header row
+              if (row.type === "header") {
+                return (
+                  <box height={1}>
+                    <text fg={props.theme.accent}>
+                      <b>── {row.label} ──</b>
+                    </text>
+                  </box>
+                )
+              }
+              
+              // Preset item row
+              const preset = row.preset
+              // Find this preset's position in the navigation order
+              const navIndex = () => presetIndices().indexOf(rowIndex())
+              const isFocused = () => focusedIndex() === navIndex()
+              const isSelected = () => props.selectedPresets.has(preset.id)
+              const available = () => isAvailable(preset.id)
+
               return (
+                // role="option" aria-selected={isSelected} aria-label="{preset.name} - {preset.description}"
+                // aria-posinset={index+1} aria-setsize={APP_PRESETS.length}
                 <box height={1}>
-                  <text fg={props.theme.accent}>
-                    <b>── {row.label} ──</b>
+                  {/* Focus indicator - visible focus for accessibility */}
+                  <text
+                    fg={isFocused() ? props.theme.accent : props.theme.muted}
+                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                  >
+                    {isFocused() ? "> " : "  "}
+                  </text>
+                  {/* aria-checked={isSelected} - checkbox state with unicode indicators */}
+                  <text
+                    fg={isFocused() 
+                      ? props.theme.background 
+                      : isSelected() 
+                        ? "#22c55e"
+                        : props.theme.muted}
+                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                  >
+                    {isSelected() ? "[✓]" : "[ ]"}
+                  </text>
+                  <text
+                    fg={isFocused() 
+                      ? props.theme.background 
+                      : available() 
+                        ? props.theme.foreground 
+                        : props.theme.muted}
+                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                  >
+                    {" "}{preset.icon} {preset.name}
+                  </text>
+                  <text
+                    fg={isFocused() ? props.theme.background : props.theme.muted}
+                    bg={isFocused() ? props.theme.primary : props.theme.background}
+                  >
+                    {" "}- {preset.description}{!available() ? " (not installed)" : ""}
                   </text>
                 </box>
               )
-            }
-            
-            // Preset item row
-            const preset = row.preset
-            // Find this preset's position in the navigation order
-            const navIndex = () => presetIndices().indexOf(rowIndex())
-            const isFocused = () => focusedIndex() === navIndex()
-            const isSelected = () => props.selectedPresets.has(preset.id)
-            const available = () => isAvailable(preset.id)
-
-            return (
-              // role="option" aria-selected={isSelected} aria-label="{preset.name} - {preset.description}"
-              // aria-posinset={index+1} aria-setsize={APP_PRESETS.length}
-              <box height={1}>
-                {/* Focus indicator - visible focus for accessibility */}
-                <text
-                  fg={isFocused() ? props.theme.accent : props.theme.muted}
-                  bg={isFocused() ? props.theme.primary : props.theme.background}
-                >
-                  {isFocused() ? "> " : "  "}
-                </text>
-                {/* aria-checked={isSelected} - checkbox state with unicode indicators */}
-                <text
-                  fg={isFocused() 
-                    ? props.theme.background 
-                    : isSelected() 
-                      ? "#22c55e"
-                      : props.theme.muted}
-                  bg={isFocused() ? props.theme.primary : props.theme.background}
-                >
-                  {isSelected() ? "[✓]" : "[ ]"}
-                </text>
-                <text
-                  fg={isFocused() 
-                    ? props.theme.background 
-                    : available() 
-                      ? props.theme.foreground 
-                      : props.theme.muted}
-                  bg={isFocused() ? props.theme.primary : props.theme.background}
-                >
-                  {" "}{preset.icon} {preset.name}
-                </text>
-                <text
-                  fg={isFocused() ? props.theme.background : props.theme.muted}
-                  bg={isFocused() ? props.theme.primary : props.theme.background}
-                >
-                  {" "}- {preset.description}{!available() ? " (not installed)" : ""}
-                </text>
-              </box>
-            )
-          }}
-        </For>
+            }}
+          </For>
+        )}
       </box>
 
       {/* Spacer */}

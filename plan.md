@@ -111,7 +111,7 @@
 
 ## Phase 3: Empty Results Handling
 
-- [ ] 3.46 Add conditional rendering when `presetIndices().length === 0`
+- [x] 3.46 Add conditional rendering when `presetIndices().length === 0`
 - [ ] 3.47 Display "No matching apps" message centered with `props.theme.muted` color
 - [ ] 3.48 Disable j/k/↑/↓ navigation when results are empty (no-op)
 - [ ] 3.49 Disable Space key when results are empty (no-op)
