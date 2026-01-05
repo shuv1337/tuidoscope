@@ -919,15 +919,15 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/TerminalPane.tsx`
 
-- [ ] **6.19.1** Read `src/components/TerminalPane.tsx` line 29-31
-- [ ] **6.19.2** Add `leaderKey: string` and `newTabBinding: string` to `TerminalPaneProps`
-- [ ] **6.19.3** Import `formatLeaderKeybind` from `../lib/keybinds`
-- [ ] **6.19.4** Update fallback text:
+- [x] **6.19.1** Read `src/components/TerminalPane.tsx` line 29-31
+- [x] **6.19.2** Add `leaderKey: string` and `newTabBinding: string` to `TerminalPaneProps`
+- [x] **6.19.3** Import `formatLeaderKeybind` from `../lib/keybinds`
+- [x] **6.19.4** Update fallback text:
   ```tsx
   No app selected. Press {formatLeaderKeybind(props.leaderKey, props.newTabBinding)} to add one.
   ```
-- [ ] **6.19.5** Update App.tsx to pass `leaderKey` and `newTabBinding` props
-- [ ] **6.19.6** Verify text displays correctly: "Press ^A+t to add one."
+- [x] **6.19.5** Update App.tsx to pass `leaderKey` and `newTabBinding` props
+- [x] **6.19.6** Verify text displays correctly: "Press ^A+t to add one."
 
 ---
 

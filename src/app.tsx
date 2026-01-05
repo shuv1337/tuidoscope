@@ -714,6 +714,8 @@ export const App: Component<AppProps> = (props) => {
             width={terminalDims().width - props.config.tab_width}
             height={terminalDims().height - 1}
             theme={props.config.theme}
+            leaderKey={props.config.keybinds.leader.key}
+            newTabBinding={props.config.keybinds.bindings.new_tab}
             onInput={handleTerminalInput}
           />
         </box>
