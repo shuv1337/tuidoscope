@@ -254,6 +254,26 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* Spacer */}
       <box height={1} />
 
+      {/* Search input row */}
+      {isSearchFocused() ? (
+        <box height={1}>
+          <text bg={props.theme.primary} fg={props.theme.background}>
+            {" Search: "}
+          </text>
+          <text fg={props.theme.foreground}>
+            {searchQuery()}█
+          </text>
+        </box>
+      ) : searchQuery() ? (
+        <box height={1}>
+          <text fg={props.theme.muted}>
+            Filter: {searchQuery()}
+          </text>
+        </box>
+      ) : (
+        <box height={1} />
+      )}
+
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
       <box flexDirection="column" alignItems="flex-start">
         <For each={filteredRows()}>
@@ -337,7 +357,10 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       {/* role="note" aria-label="Keyboard shortcuts" - Footer keybind hints */}
       <box height={1}>
         <text fg={props.theme.primary}>
-          j/k: Navigate | gg/G: Top/Bottom | Space: Toggle | Enter: Next | Esc/Backspace: Back
+          {isSearchFocused() 
+            ? "Enter: Done | Esc: Cancel | ↑/↓: Navigate"
+            : "j/k: Navigate | /: Search | Space: Toggle | Enter: Next | Esc: Back"
+          }
         </text>
       </box>
     </box>

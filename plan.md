@@ -101,13 +101,13 @@
 
 ## Phase 3: Search Input Rendering
 
-- [ ] 3.39 Add search input row to JSX, positioned below category tabs (Phase 4) or at top
-- [ ] 3.40 When `isSearchFocused()`: render `Search: ` prefix with `props.theme.primary` background
-- [ ] 3.41 When `isSearchFocused()`: render query text followed by cursor block `█`
-- [ ] 3.42 When `!isSearchFocused() && searchQuery()`: render dimmed `Filter: {query}`
-- [ ] 3.43 When `!isSearchFocused() && !searchQuery()`: hide search input row or show placeholder
-- [ ] 3.44 Update footer hints to show `/: Search` when not in search mode
-- [ ] 3.45 Update footer hints to show `Enter: Done` and `Esc: Cancel` when in search mode
+- [x] 3.39 Add search input row to JSX, positioned below category tabs (Phase 4) or at top
+- [x] 3.40 When `isSearchFocused()`: render `Search: ` prefix with `props.theme.primary` background
+- [x] 3.41 When `isSearchFocused()`: render query text followed by cursor block `█`
+- [x] 3.42 When `!isSearchFocused() && searchQuery()`: render dimmed `Filter: {query}`
+- [x] 3.43 When `!isSearchFocused() && !searchQuery()`: hide search input row or show placeholder
+- [x] 3.44 Update footer hints to show `/: Search` when not in search mode
+- [x] 3.45 Update footer hints to show `Enter: Done` and `Esc: Cancel` when in search mode
 
 ## Phase 3: Empty Results Handling
 
