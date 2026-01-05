@@ -1097,7 +1097,7 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 - [ ] **6.28.4** Verify no TypeScript `any` types in new code
 - [ ] **6.28.5** Verify all new components have proper prop types
 - [x] **6.28.6** Run `bun run typecheck` to verify no errors
-- [ ] **6.28.7** Run `bun run dev` to verify app starts correctly
+- [x] **6.28.7** Run `bun run dev` to verify app starts correctly
 
 ---
 
