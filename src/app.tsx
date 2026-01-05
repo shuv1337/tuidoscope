@@ -7,6 +7,7 @@ import { CommandPalette } from "./components/CommandPalette"
 import { AddTabModal } from "./components/AddTabModal"
 import { EditAppModal } from "./components/EditAppModal"
 import { OnboardingWizard } from "./components/onboarding"
+import { LeaderHints } from "./components/LeaderHints"
 import { createAppsStore } from "./stores/apps"
 import { createTabsStore } from "./stores/tabs"
 import { createUIStore } from "./stores/ui"
@@ -51,6 +52,8 @@ export const App: Component<AppProps> = (props) => {
   const [isQuitting, setIsQuitting] = createSignal(false)
   const [editingEntryId, setEditingEntryId] = createSignal<string | null>(null)
   const [lastGTime, setLastGTime] = createSignal(0)
+  const [showHints, setShowHints] = createSignal(false)
+  let hintsTimeout: ReturnType<typeof setTimeout> | null = null
 
   const getPtyDimensions = () => {
     const dims = terminalDims()
@@ -391,6 +394,16 @@ export const App: Component<AppProps> = (props) => {
   // Create the leader binding handler
   const handleLeaderBinding = createLeaderBindingHandler(leaderBindings, actionHandlers)
 
+  // Helper to cancel leader state and hints together
+  const cancelLeader = () => {
+    uiStore.setLeaderActive(false)
+    if (hintsTimeout) {
+      clearTimeout(hintsTimeout)
+      hintsTimeout = null
+    }
+    setShowHints(false)
+  }
+
   // Hook up keyboard events from opentui
   useKeyboard((event) => {
     debugLog(`[App] key: ${event.name} modal: ${uiStore.store.activeModal} leader: ${uiStore.store.leaderActive} prevented: ${event.defaultPrevented}`)
@@ -399,7 +412,7 @@ export const App: Component<AppProps> = (props) => {
     if (uiStore.store.activeModal) {
       // Clear leader state when modal is open
       if (uiStore.store.leaderActive) {
-        uiStore.setLeaderActive(false)
+        cancelLeader()
       }
       if (event.name === "escape") {
         if (uiStore.store.activeModal === "edit-app") {
@@ -430,7 +443,7 @@ export const App: Component<AppProps> = (props) => {
     if (uiStore.store.leaderActive) {
       // Cancel leader on Escape
       if (event.name === "escape") {
-        uiStore.setLeaderActive(false)
+        cancelLeader()
         event.preventDefault()
         return
       }
@@ -443,7 +456,7 @@ export const App: Component<AppProps> = (props) => {
             activeApp.pty.write(sequence)
           }
         }
-        uiStore.setLeaderActive(false)
+        cancelLeader()
         event.preventDefault()
         return
       }
@@ -451,13 +464,13 @@ export const App: Component<AppProps> = (props) => {
       // Check if event matches a leader binding
       const action = handleLeaderBinding(event)
       if (action !== null) {
-        uiStore.setLeaderActive(false)
+        cancelLeader()
         event.preventDefault()
         return
       }
 
       // Unknown key while leader active: cancel leader, do nothing else
-      uiStore.setLeaderActive(false)
+      cancelLeader()
       event.preventDefault()
       return
     }
@@ -466,8 +479,14 @@ export const App: Component<AppProps> = (props) => {
     if (matchesLeaderKey(event, leaderConfig.key)) {
       uiStore.setLeaderActive(true)
       uiStore.startLeaderTimeout(() => {
-        uiStore.setLeaderActive(false)
+        cancelLeader()
       }, leaderConfig.timeout)
+      // Start hints timeout if enabled
+      if (leaderConfig.show_hints) {
+        hintsTimeout = setTimeout(() => {
+          setShowHints(true)
+        }, leaderConfig.hint_delay)
+      }
       event.preventDefault()
       return
     }
@@ -717,6 +736,15 @@ export const App: Component<AppProps> = (props) => {
               uiStore.closeModal()
               setEditingEntryId(null)
             }}
+          />
+        </Show>
+
+        {/* Leader hints popup - shown after delay when leader is active */}
+        <Show when={uiStore.store.leaderActive && showHints()}>
+          <LeaderHints
+            bindings={props.config.keybinds.bindings}
+            leaderKey={props.config.keybinds.leader.key}
+            theme={props.config.theme}
           />
         </Show>
       </box>

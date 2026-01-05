@@ -639,12 +639,12 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/StatusBar.tsx`
 
-- [ ] **6.9.1** Read `src/components/StatusBar.tsx` to understand current structure
-- [ ] **6.9.2** Add `leaderActive: boolean` to `StatusBarProps` interface
-- [ ] **6.9.3** Add `leaderKey: string` to `StatusBarProps` interface
-- [ ] **6.9.4** Update `App.tsx` to pass `leaderActive={uiStore.store.leaderActive}` to StatusBar
-- [ ] **6.9.5** Update `App.tsx` to pass `leaderKey={props.config.keybinds.leader.key}` to StatusBar
-- [ ] **6.9.6** In StatusBar render, add leader indicator before keybind hints:
+- [x] **6.9.1** Read `src/components/StatusBar.tsx` to understand current structure
+- [x] **6.9.2** Add `leaderActive: boolean` to `StatusBarProps` interface
+- [x] **6.9.3** Add `leaderKey: string` to `StatusBarProps` interface
+- [x] **6.9.4** Update `App.tsx` to pass `leaderActive={uiStore.store.leaderActive}` to StatusBar
+- [x] **6.9.5** Update `App.tsx` to pass `leaderKey={props.config.keybinds.leader.key}` to StatusBar
+- [x] **6.9.6** In StatusBar render, add leader indicator before keybind hints:
   ```tsx
   <Show when={props.leaderActive}>
     <text fg={props.theme.accent}>
@@ -652,9 +652,9 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     </text>
   </Show>
   ```
-- [ ] **6.9.7** Add helper `formatLeaderKey(key: string): string` to show "^A" style
-- [ ] **6.9.8** Test: press leader, verify indicator appears in status bar
-- [ ] **6.9.9** Test: press second key or timeout, verify indicator disappears
+- [x] **6.9.7** Add helper `formatLeaderKey(key: string): string` to show "^A" style
+- [x] **6.9.8** Test: press leader, verify indicator appears in status bar
+- [x] **6.9.9** Test: press second key or timeout, verify indicator disappears
 
 ---
 
@@ -664,16 +664,16 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/StatusBar.tsx`
 
-- [ ] **6.10.1** Import `formatLeaderKeybind` from `../lib/keybinds`
-- [ ] **6.10.2** Update props to receive full keybind config instead of individual strings
-- [ ] **6.10.3** Update `toggle_focus` hint: `{formatLeaderKeybind(leader.key, bindings.toggle_focus)}:Focus`
-- [ ] **6.10.4** Update `command_palette` hint: `{formatLeaderKeybind(leader.key, bindings.command_palette)}:Palette`
-- [ ] **6.10.5** Update `edit_app` hint: `{formatLeaderKeybind(leader.key, bindings.edit_app)}:Edit`
-- [ ] **6.10.6** Update `stop_app` hint: `{formatLeaderKeybind(leader.key, bindings.stop_app)}:Stop`
-- [ ] **6.10.7** Update `kill_all` hint: `{formatLeaderKeybind(leader.key, bindings.kill_all)}:KillAll`
-- [ ] **6.10.8** Update `quit` hint: `{formatLeaderKeybind(leader.key, bindings.quit)}:Quit`
-- [ ] **6.10.9** Update App.tsx to pass new props structure to StatusBar
-- [ ] **6.10.10** Verify hints display correctly: `^A+a:Focus | ^A+Space:Palette | ...`
+- [x] **6.10.1** Import `formatLeaderKeybind` from `../lib/keybinds`
+- [x] **6.10.2** Update props to receive full keybind config instead of individual strings
+- [x] **6.10.3** Update `toggle_focus` hint: `{formatLeaderKeybind(leader.key, bindings.toggle_focus)}:Focus`
+- [x] **6.10.4** Update `command_palette` hint: `{formatLeaderKeybind(leader.key, bindings.command_palette)}:Palette`
+- [x] **6.10.5** Update `edit_app` hint: `{formatLeaderKeybind(leader.key, bindings.edit_app)}:Edit`
+- [x] **6.10.6** Update `stop_app` hint: `{formatLeaderKeybind(leader.key, bindings.stop_app)}:Stop`
+- [x] **6.10.7** Update `kill_all` hint: `{formatLeaderKeybind(leader.key, bindings.kill_all)}:KillAll`
+- [x] **6.10.8** Update `quit` hint: `{formatLeaderKeybind(leader.key, bindings.quit)}:Quit`
+- [x] **6.10.9** Update App.tsx to pass new props structure to StatusBar
+- [x] **6.10.10** Verify hints display correctly: `^A+a:Focus | ^A+Space:Palette | ...`
 
 ---
 
@@ -683,8 +683,8 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/components/LeaderHints.tsx` (new)
 
-- [ ] **6.11.1** Create new file `src/components/LeaderHints.tsx`
-- [ ] **6.11.2** Define `LeaderHintsProps` interface:
+- [x] **6.11.1** Create new file `src/components/LeaderHints.tsx`
+- [x] **6.11.2** Define `LeaderHintsProps` interface:
   ```typescript
   interface LeaderHintsProps {
     bindings: LeaderBindings
@@ -692,18 +692,18 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     theme: ThemeConfig
   }
   ```
-- [ ] **6.11.3** Create component with absolute positioning (center-bottom of screen)
-- [ ] **6.11.4** Render bindings in 2-column grid format:
+- [x] **6.11.3** Create component with absolute positioning (center-bottom of screen)
+- [x] **6.11.4** Render bindings in 2-column grid format:
   ```
   n: Next Tab    p: Prev Tab
   t: New Tab     w: Close Tab
   a: Focus       e: Edit
   ...
   ```
-- [ ] **6.11.5** Style with `theme.background` background and `theme.primary` border
-- [ ] **6.11.6** Style keys with `theme.accent`, descriptions with `theme.foreground`
-- [ ] **6.11.7** Add "Press any key..." footer in `theme.muted`
-- [ ] **6.11.8** Export component
+- [x] **6.11.5** Style with `theme.background` background and `theme.primary` border
+- [x] **6.11.6** Style keys with `theme.accent`, descriptions with `theme.foreground`
+- [x] **6.11.7** Add "Press any key..." footer in `theme.muted`
+- [x] **6.11.8** Export component
 
 ---
 
@@ -713,17 +713,17 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/app.tsx`
 
-- [ ] **6.12.1** Import `LeaderHints` component
-- [ ] **6.12.2** Add `showHints: boolean` state to uiStore or local signal
-- [ ] **6.12.3** Add `hintsTimeout: ReturnType<typeof setTimeout> | null` to track hint delay
-- [ ] **6.12.4** When leader activates, start hints timeout:
+- [x] **6.12.1** Import `LeaderHints` component
+- [x] **6.12.2** Add `showHints: boolean` state to uiStore or local signal
+- [x] **6.12.3** Add `hintsTimeout: ReturnType<typeof setTimeout> | null` to track hint delay
+- [x] **6.12.4** When leader activates, start hints timeout:
   ```typescript
   if (leaderConfig.show_hints) {
     hintsTimeout = setTimeout(() => setShowHints(true), leaderConfig.hint_delay)
   }
   ```
-- [ ] **6.12.5** When leader deactivates, clear hints timeout and hide hints
-- [ ] **6.12.6** Render LeaderHints conditionally:
+- [x] **6.12.5** When leader deactivates, clear hints timeout and hide hints
+- [x] **6.12.6** Render LeaderHints conditionally:
   ```tsx
   <Show when={uiStore.store.leaderActive && showHints()}>
     <LeaderHints
@@ -733,9 +733,9 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
     />
   </Show>
   ```
-- [ ] **6.12.7** Test: press leader, wait 300ms, verify hints appear
-- [ ] **6.12.8** Test: press leader, immediately press binding, verify hints don't appear
-- [ ] **6.12.9** Test: set `show_hints: false` in config, verify hints never appear
+- [x] **6.12.7** Test: press leader, wait 300ms, verify hints appear
+- [x] **6.12.8** Test: press leader, immediately press binding, verify hints don't appear
+- [x] **6.12.9** Test: set `show_hints: false` in config, verify hints never appear
 
 ---
 
