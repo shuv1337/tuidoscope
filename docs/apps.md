@@ -1308,3 +1308,196 @@ apps:
 - `ncdu` requires scanning time for large directories - be patient with big filesystems
 - Consider running `dust` or `duf` with `autostart: false` and launching manually when needed
 - For ongoing disk monitoring, pair these with a system monitor like `btop` in another tab
+
+---
+
+## Network Tool Examples
+
+Network monitoring TUIs help you understand bandwidth usage, diagnose connectivity issues, and visualize network traffic. They're invaluable for debugging network problems or monitoring traffic in real-time.
+
+### bandwhich
+
+A terminal bandwidth utilization tool that displays current network utilization by process, connection, and remote IP/hostname.
+
+```yaml
+apps:
+  - name: "bandwhich"
+    command: "bandwhich"
+```
+
+**Note:** bandwhich requires root privileges to capture network data. Run with sudo:
+
+```yaml
+apps:
+  - name: "bandwhich"
+    command: "sudo"
+    args: "bandwhich"
+```
+
+Show raw (numeric) addresses instead of resolving hostnames:
+
+```yaml
+apps:
+  - name: "bandwhich"
+    command: "sudo"
+    args: "bandwhich --raw"
+```
+
+Show only specific network interface:
+
+```yaml
+apps:
+  - name: "bandwhich (eth0)"
+    command: "sudo"
+    args: "bandwhich --interface eth0"
+```
+
+Show processes table (default view):
+
+```yaml
+apps:
+  - name: "bandwhich"
+    command: "sudo"
+    args: "bandwhich --show-table processes"
+```
+
+Show connections table:
+
+```yaml
+apps:
+  - name: "bandwhich (connections)"
+    command: "sudo"
+    args: "bandwhich --show-table connections"
+```
+
+Show remote addresses table:
+
+```yaml
+apps:
+  - name: "bandwhich (remotes)"
+    command: "sudo"
+    args: "bandwhich --show-table remote-addresses"
+```
+
+Disable DNS resolution (faster startup):
+
+```yaml
+apps:
+  - name: "bandwhich"
+    command: "sudo"
+    args: "bandwhich --no-resolve"
+```
+
+### trippy
+
+A network diagnostic tool that combines traceroute and ping with a real-time TUI. Great for diagnosing latency and packet loss along network paths.
+
+```yaml
+apps:
+  - name: "trippy"
+    command: "trip"
+    args: "google.com"
+```
+
+**Note:** trippy requires root privileges for raw socket access. Run with sudo:
+
+```yaml
+apps:
+  - name: "trippy"
+    command: "sudo"
+    args: "trip google.com"
+```
+
+Trace to a specific target:
+
+```yaml
+apps:
+  - name: "trippy (github)"
+    command: "sudo"
+    args: "trip github.com"
+```
+
+Use ICMP (default) protocol:
+
+```yaml
+apps:
+  - name: "trippy"
+    command: "sudo"
+    args: "trip --protocol icmp google.com"
+```
+
+Use UDP protocol:
+
+```yaml
+apps:
+  - name: "trippy (udp)"
+    command: "sudo"
+    args: "trip --protocol udp google.com"
+```
+
+Use TCP protocol (useful when ICMP is blocked):
+
+```yaml
+apps:
+  - name: "trippy (tcp)"
+    command: "sudo"
+    args: "trip --protocol tcp google.com"
+```
+
+Specify target port (for TCP/UDP):
+
+```yaml
+apps:
+  - name: "trippy (tcp:443)"
+    command: "sudo"
+    args: "trip --protocol tcp --target-port 443 google.com"
+```
+
+Set maximum hops:
+
+```yaml
+apps:
+  - name: "trippy"
+    command: "sudo"
+    args: "trip --max-ttl 30 google.com"
+```
+
+Set packet interval (faster updates):
+
+```yaml
+apps:
+  - name: "trippy (fast)"
+    command: "sudo"
+    args: "trip --min-round-duration 500ms google.com"
+```
+
+Use a specific source interface:
+
+```yaml
+apps:
+  - name: "trippy (eth0)"
+    command: "sudo"
+    args: "trip --interface eth0 google.com"
+```
+
+Trace multiple targets:
+
+```yaml
+apps:
+  - name: "trippy (multi)"
+    command: "sudo"
+    args: "trip google.com cloudflare.com 8.8.8.8"
+```
+
+### Network Tool Tips
+
+- Both `bandwhich` and `trippy` require elevated privileges for raw network access
+- On Linux, you can grant capabilities instead of running as root:
+  - `sudo setcap cap_net_raw+ep $(which bandwhich)`
+  - `sudo setcap cap_net_raw+ep $(which trip)`
+- After setting capabilities, you can run without sudo in your tuidoscope config
+- `bandwhich` is excellent for understanding which processes are using network bandwidth
+- `trippy` is great for diagnosing latency issues and visualizing network paths
+- Both tools benefit from a stable terminal size - avoid resizing while running
+- For ongoing monitoring, set `autostart: true` if you need constant network visibility
+- Pair these with a system monitor tab to correlate network usage with CPU/memory
