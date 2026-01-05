@@ -152,7 +152,7 @@
 - [x] 4.14 Verify `buildFilteredRows` correctly filters by `activeCategory()`
 - [x] 4.15 Verify category headers only appear for categories with matching presets
 - [x] 4.16 Test: category + search query filters combine with AND logic
-- [ ] 4.17 Test: switching category resets focus to first result
+- [x] 4.17 Test: switching category resets focus to first result
 
 ## Phase 5: Selection Polish (Optional)
 
