@@ -141,11 +141,11 @@
 
 ## Phase 4: Category Keyboard Navigation
 
-- [ ] 4.9 Add `[` key handler: cycle to previous category in order array
-- [ ] 4.10 Add `]` key handler: cycle to next category in order array
-- [ ] 4.11 Ensure category cycling wraps around (last -> first, first -> last)
-- [ ] 4.12 Ensure `[` and `]` work in both navigation mode and search mode
-- [ ] 4.13 Update footer hints to show `[/]: Category`
+- [x] 4.9 Add `[` key handler: cycle to previous category in order array
+- [x] 4.10 Add `]` key handler: cycle to next category in order array
+- [x] 4.11 Ensure category cycling wraps around (last -> first, first -> last)
+- [x] 4.12 Ensure `[` and `]` work in both navigation mode and search mode
+- [x] 4.13 Update footer hints to show `[/]: Category`
 
 ## Phase 4: Category Filter Integration
 

@@ -86,6 +86,32 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
     const maxNavIndex = indices.length - 1
     
     // ==========================================
+    // CATEGORY CYCLING - works in both search and navigation mode
+    // ==========================================
+    
+    // "[" cycles to previous category (wraps around)
+    if (event.sequence === "[") {
+      setActiveCategory((prev) => {
+        const currentIndex = CATEGORY_ORDER.indexOf(prev as typeof CATEGORY_ORDER[number])
+        const newIndex = currentIndex <= 0 ? CATEGORY_ORDER.length - 1 : currentIndex - 1
+        return CATEGORY_ORDER[newIndex]
+      })
+      event.preventDefault()
+      return
+    }
+    
+    // "]" cycles to next category (wraps around)
+    if (event.sequence === "]") {
+      setActiveCategory((prev) => {
+        const currentIndex = CATEGORY_ORDER.indexOf(prev as typeof CATEGORY_ORDER[number])
+        const newIndex = currentIndex >= CATEGORY_ORDER.length - 1 ? 0 : currentIndex + 1
+        return CATEGORY_ORDER[newIndex]
+      })
+      event.preventDefault()
+      return
+    }
+    
+    // ==========================================
     // SEARCH MODE - handles input when search is focused
     // ==========================================
     if (isSearchFocused()) {
@@ -132,7 +158,8 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       if (event.sequence && event.sequence.length === 1) {
         const char = event.sequence
         // Check if it's a printable character (space through tilde in ASCII)
-        if (char >= " " && char <= "~") {
+        // Skip [ and ] as they're handled above for category cycling
+        if (char >= " " && char <= "~" && char !== "[" && char !== "]") {
           setSearchQuery((prev) => prev + char)
           event.preventDefault()
           return
@@ -393,8 +420,8 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       <box height={1}>
         <text fg={props.theme.primary}>
           {isSearchFocused() 
-            ? "Enter: Done | Esc: Cancel | ↑/↓: Navigate"
-            : "j/k: Navigate | /: Search | Space: Toggle | Enter: Next | Esc: Back"
+            ? "Enter: Done | Esc: Cancel | ↑/↓: Navigate | [/]: Category"
+            : "j/k: Navigate | /: Search | [/]: Category | Space: Toggle | Enter: Next"
           }
         </text>
       </box>
