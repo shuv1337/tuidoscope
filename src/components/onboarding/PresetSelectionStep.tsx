@@ -218,8 +218,12 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       return
     }
 
-    // Toggle selection
+    // Toggle selection - no-op when results are empty
     if (event.name === "space") {
+      if (indices.length === 0) {
+        event.preventDefault()
+        return
+      }
       const rowIndex = indices[focusedIndex()]
       const row = filteredRows()[rowIndex]
       if (row?.type === "preset") {
