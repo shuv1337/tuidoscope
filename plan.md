@@ -159,10 +159,10 @@
 - [x] 5.1 Assess remaining vertical space at 80x24 after Phase 3-4 changes
 - [x] 5.2 If space allows: add subtle background highlight to selected rows
 - [x] 5.3 Selected row background: use dim version of accent color (distinct from focus)
-- [ ] 5.4 If space allows: add selection summary header above preset list
-- [ ] 5.5 Selection summary format: `3 selected: htop, lazygit, nvim...`
-- [ ] 5.6 Truncate selection summary at ~40 characters with ellipsis
-- [ ] 5.7 Only show selection summary when 1+ apps selected
+- [x] 5.4 If space allows: add selection summary header above preset list
+- [x] 5.5 Selection summary format: `3 selected: htop, lazygit, nvim...`
+- [x] 5.6 Truncate selection summary at ~40 characters with ellipsis
+- [x] 5.7 Only show selection summary when 1+ apps selected
 - [ ] 5.8 Test layout at 80x24 to ensure no overflow with polish features
 
 ## Phase 6: Layout Verification

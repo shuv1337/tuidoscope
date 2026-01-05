@@ -333,6 +333,27 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
         <box height={1} />
       )}
 
+      {/* Selection summary header - only shown when 1+ apps selected */}
+      {props.selectedPresets.size > 0 && (
+        <box height={1}>
+          <text fg={props.theme.accent}>
+            {(() => {
+              const count = props.selectedPresets.size
+              const names = APP_PRESETS
+                .filter((p) => props.selectedPresets.has(p.id))
+                .map((p) => p.name)
+              const prefix = `${count} selected: `
+              const maxLen = 40 - prefix.length
+              let summary = names.join(", ")
+              if (summary.length > maxLen) {
+                summary = summary.slice(0, maxLen - 3) + "..."
+              }
+              return prefix + summary
+            })()}
+          </text>
+        </box>
+      )}
+
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
       <box flexDirection="column" alignItems="flex-start" flexGrow={1} overflow="hidden">
         {presetIndices().length === 0 ? (
