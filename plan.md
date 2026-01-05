@@ -115,7 +115,7 @@
 - [x] 3.47 Display "No matching apps" message centered with `props.theme.muted` color
 - [x] 3.48 Disable j/k/↑/↓ navigation when results are empty (no-op)
 - [x] 3.49 Disable Space key when results are empty (no-op)
-- [ ] 3.50 Ensure Enter key still advances to next step when results are empty
+- [x] 3.50 Ensure Enter key still advances to next step when results are empty
 
 ## Phase 3: Layout Adjustments
 
