@@ -441,3 +441,146 @@ apps:
 - Use `cwd` to start in your most-used directory
 - Consider having multiple file manager tabs for different project roots
 - For file managers that exit when you press `q`, omit `restart_on_exit` to avoid loops
+
+---
+
+## Git Tool Examples
+
+Git TUI tools provide powerful visual interfaces for git operations. They're excellent tuidoscope companions for development workflows.
+
+### lazygit
+
+A simple terminal UI for git commands with intuitive keybindings.
+
+```yaml
+apps:
+  - name: "lazygit"
+    command: "lazygit"
+    cwd: "~/projects/myrepo"
+```
+
+With a specific path:
+
+```yaml
+apps:
+  - name: "lazygit"
+    command: "lazygit"
+    args: "--path ~/projects/myrepo"
+```
+
+With custom config:
+
+```yaml
+apps:
+  - name: "lazygit"
+    command: "lazygit"
+    args: "--use-config-file ~/.config/lazygit/tuidoscope.yml"
+```
+
+In work tree mode (for git worktrees):
+
+```yaml
+apps:
+  - name: "lazygit"
+    command: "lazygit"
+    args: "-w"  # Open in worktree mode
+    cwd: "~/projects/myrepo"
+```
+
+### tig
+
+A text-mode interface for git with a powerful log viewer.
+
+```yaml
+apps:
+  - name: "tig"
+    command: "tig"
+    cwd: "~/projects/myrepo"
+```
+
+View specific branch:
+
+```yaml
+apps:
+  - name: "tig (main)"
+    command: "tig"
+    args: "main"
+    cwd: "~/projects/myrepo"
+```
+
+View a specific file's history:
+
+```yaml
+apps:
+  - name: "tig (file)"
+    command: "tig"
+    args: "-- src/main.ts"
+    cwd: "~/projects/myrepo"
+```
+
+Blame mode (see line-by-line authorship):
+
+```yaml
+apps:
+  - name: "tig blame"
+    command: "tig"
+    args: "blame src/main.ts"
+    cwd: "~/projects/myrepo"
+```
+
+Status mode (like `git status` but interactive):
+
+```yaml
+apps:
+  - name: "tig status"
+    command: "tig"
+    args: "status"
+    cwd: "~/projects/myrepo"
+```
+
+### gitui
+
+A blazing fast git TUI written in Rust.
+
+```yaml
+apps:
+  - name: "gitui"
+    command: "gitui"
+    cwd: "~/projects/myrepo"
+```
+
+With a specific directory:
+
+```yaml
+apps:
+  - name: "gitui"
+    command: "gitui"
+    args: "--directory ~/projects/myrepo"
+```
+
+With custom theme:
+
+```yaml
+apps:
+  - name: "gitui"
+    command: "gitui"
+    args: "--theme ~/.config/gitui/theme.ron"
+```
+
+With watcher for auto-refresh on file changes:
+
+```yaml
+apps:
+  - name: "gitui"
+    command: "gitui"
+    args: "--watcher"
+    cwd: "~/projects/myrepo"
+```
+
+### Git Tool Tips
+
+- Set `cwd` to your repository root for automatic context
+- Git tools exit when you press `q` - avoid `restart_on_exit` unless you want them to restart
+- lazygit and gitui are full-featured alternatives to git CLI commands
+- tig excels at viewing history and blame - pair it with lazygit or gitui for staging/commits
+- Consider having multiple git tool tabs for different repositories in a monorepo workflow
