@@ -1769,3 +1769,225 @@ apps:
 - For complex startup sequences, consider using a shell script as the command
 - Test your environment setup by running `env` in a shell tab to see all variables
 - Remember that `autostart: true` apps launch in the order they're defined
+
+---
+
+## TERM Settings for Compatibility
+
+Some terminal applications require specific `TERM` environment variable settings to render correctly. This section covers common TERM-related issues and solutions.
+
+### Why TERM Matters
+
+The `TERM` variable tells applications what capabilities your terminal supports (colors, cursor movement, etc.). Apps that use advanced terminal features may misbehave if TERM is incorrect.
+
+### Common TERM Values
+
+| Value | Description | Use Case |
+|-------|-------------|----------|
+| `xterm-256color` | Standard 256-color xterm | Most modern TUI apps |
+| `xterm-direct` | True color (24-bit) support | Apps with rich color themes |
+| `screen-256color` | For use inside tmux/screen | Nested terminal sessions |
+| `dumb` | No capabilities | Simple text output only |
+
+### Default Setting (Recommended)
+
+For most apps, `xterm-256color` provides the best compatibility:
+
+```yaml
+apps:
+  - name: "Shell"
+    command: "zsh"
+    env:
+      TERM: "xterm-256color"
+```
+
+### Apps with True Color Support
+
+For apps that support 24-bit color (like Neovim with certain themes):
+
+```yaml
+apps:
+  - name: "nvim"
+    command: "nvim"
+    cwd: "~/projects"
+    env:
+      TERM: "xterm-256color"
+      COLORTERM: "truecolor"
+```
+
+**Note:** Some apps check `COLORTERM` separately from `TERM` for true color detection.
+
+### Legacy Applications
+
+Older applications may not handle modern TERM values well:
+
+```yaml
+apps:
+  - name: "Legacy TUI"
+    command: "oldapp"
+    env:
+      TERM: "vt100"  # Basic terminal emulation
+```
+
+Or for apps that expect Linux console:
+
+```yaml
+apps:
+  - name: "Console App"
+    command: "consoleapp"
+    env:
+      TERM: "linux"
+```
+
+### Nested Terminal Sessions
+
+When running tuidoscope inside tmux or screen, or when running tmux/screen inside tuidoscope:
+
+```yaml
+apps:
+  - name: "tmux"
+    command: "tmux"
+    env:
+      TERM: "screen-256color"  # tmux expects this inside screen/tmux
+```
+
+For running inside tmux:
+
+```yaml
+apps:
+  - name: "Inner Shell"
+    command: "zsh"
+    env:
+      TERM: "tmux-256color"
+```
+
+### Apps with Specific Requirements
+
+**htop** - works best with 256 colors:
+
+```yaml
+apps:
+  - name: "htop"
+    command: "htop"
+    env:
+      TERM: "xterm-256color"
+```
+
+**Neovim** - full color support:
+
+```yaml
+apps:
+  - name: "nvim"
+    command: "nvim"
+    env:
+      TERM: "xterm-256color"
+      COLORTERM: "truecolor"
+      NVIM_TUI_ENABLE_TRUE_COLOR: "1"
+```
+
+**Emacs in terminal** - requires 256 colors for themes:
+
+```yaml
+apps:
+  - name: "emacs"
+    command: "emacs"
+    args: "-nw"  # No window (terminal mode)
+    env:
+      TERM: "xterm-256color"
+```
+
+**btop** - supports true color:
+
+```yaml
+apps:
+  - name: "btop"
+    command: "btop"
+    env:
+      TERM: "xterm-256color"
+      COLORTERM: "truecolor"
+```
+
+**lazygit** - works with 256 colors:
+
+```yaml
+apps:
+  - name: "lazygit"
+    command: "lazygit"
+    cwd: "~/projects/myrepo"
+    env:
+      TERM: "xterm-256color"
+```
+
+**Midnight Commander (mc)** - needs proper TERM for function keys:
+
+```yaml
+apps:
+  - name: "mc"
+    command: "mc"
+    env:
+      TERM: "xterm-256color"
+      COLORTERM: "truecolor"
+```
+
+### Troubleshooting TERM Issues
+
+**Symptom: Garbled or missing characters**
+
+Try setting a simpler TERM:
+
+```yaml
+env:
+  TERM: "xterm"  # Simpler than xterm-256color
+```
+
+**Symptom: No colors in output**
+
+Ensure 256-color support:
+
+```yaml
+env:
+  TERM: "xterm-256color"
+```
+
+**Symptom: Function keys (F1-F12) don't work**
+
+Some apps need specific terminfo:
+
+```yaml
+env:
+  TERM: "xterm-256color"
+  # Or for mc specifically:
+  TERM: "xterm"
+```
+
+**Symptom: Cursor invisible or wrong shape**
+
+```yaml
+env:
+  TERM: "xterm-256color"
+```
+
+**Symptom: Mouse clicks not registering**
+
+Ensure your TERM supports mouse:
+
+```yaml
+env:
+  TERM: "xterm-256color"  # Has mouse support
+```
+
+### Finding the Right TERM
+
+1. Start with `TERM: "xterm-256color"` (works for 95% of apps)
+2. If colors are wrong, add `COLORTERM: "truecolor"`
+3. If still broken, try `TERM: "xterm"` (fewer features, more compatible)
+4. For very old apps, try `TERM: "vt100"` or `TERM: "dumb"`
+5. Check the app's documentation for specific requirements
+
+### Tips
+
+- Most modern TUI apps work fine with `xterm-256color`
+- If an app looks wrong, check its GitHub issues for TERM recommendations
+- The `COLORTERM` variable is separate from `TERM` and enables true color
+- You can check your terminal's capabilities with `tput colors` in a shell tab
+- Some apps respect `FORCE_COLOR=1` to enable colors regardless of TERM
