@@ -1,13 +1,9 @@
 import { Component, createSignal, createMemo, For, onMount } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig } from "../../types"
+import type { ListRow } from "./types"
 import { APP_PRESETS, CATEGORY_LABELS } from "./presets"
 import { commandExists } from "../../lib/command"
-
-/** A row in the preset list - either a category header or a preset item */
-type ListRow = 
-  | { type: "header"; category: string; label: string }
-  | { type: "preset"; preset: typeof APP_PRESETS[number]; originalIndex: number }
 
 /**
  * PresetSelectionStep - App preset selection step of the onboarding wizard

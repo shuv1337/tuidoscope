@@ -2,13 +2,13 @@
 
 ## Phase 0: Type Refactoring
 
-- [ ] 0.1 Open `src/components/onboarding/types.ts` and add import for `AppPreset` type from `./presets`
-- [ ] 0.2 Add `ListRow` type definition to `types.ts` with two variants: `header` (category, label) and `preset` (preset, originalIndex)
-- [ ] 0.3 Export `ListRow` type from `types.ts`
-- [ ] 0.4 Open `src/components/onboarding/PresetSelectionStep.tsx` and find local `ListRow` type definition
-- [ ] 0.5 Remove local `ListRow` type definition from `PresetSelectionStep.tsx`
-- [ ] 0.6 Add import for `ListRow` from `./types` in `PresetSelectionStep.tsx`
-- [ ] 0.7 Run `bun run typecheck` to verify no type errors
+- [x] 0.1 Open `src/components/onboarding/types.ts` and add import for `AppPreset` type from `./presets`
+- [x] 0.2 Add `ListRow` type definition to `types.ts` with two variants: `header` (category, label) and `preset` (preset, originalIndex)
+- [x] 0.3 Export `ListRow` type from `types.ts`
+- [x] 0.4 Open `src/components/onboarding/PresetSelectionStep.tsx` and find local `ListRow` type definition
+- [x] 0.5 Remove local `ListRow` type definition from `PresetSelectionStep.tsx`
+- [x] 0.6 Add import for `ListRow` from `./types` in `PresetSelectionStep.tsx`
+- [x] 0.7 Run `bun run typecheck` to verify no type errors
 
 ## Phase 1: Confirmation Screen Bug Verification
 

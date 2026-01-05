@@ -1,4 +1,5 @@
 import type { AppEntryConfig, ThemeConfig } from "../../types"
+import type { AppPreset } from "./presets"
 
 export type WizardStep = "welcome" | "keybindings" | "presets" | "custom" | "confirm"
 
@@ -22,3 +23,8 @@ export interface KeybindingStepProps {
   onNext: () => void
   onBack: () => void
 }
+
+/** A row in the preset list - either a category header or a preset item */
+export type ListRow =
+  | { type: "header"; category: string; label: string }
+  | { type: "preset"; preset: AppPreset; originalIndex: number }
