@@ -10,8 +10,9 @@ export interface AppPreset {
   category?: string
 }
 
-/** Category display labels */
+/** Category display labels (full names for section headers) */
 export const CATEGORY_LABELS: Record<string, string> = {
+  all: "All",
   shell: "Shell",
   productivity: "Productivity",
   monitor: "System Monitors",
@@ -21,6 +22,20 @@ export const CATEGORY_LABELS: Record<string, string> = {
   editor: "Editors",
   ai: "AI Coding Agents",
   utility: "Utilities",
+}
+
+/** Short category labels for tab navigation (space-constrained) */
+export const CATEGORY_TAB_LABELS: Record<string, string> = {
+  all: "All",
+  shell: "Shell",
+  productivity: "Prod",
+  monitor: "Monitor",
+  files: "Files",
+  git: "Git",
+  dev: "Dev",
+  editor: "Editor",
+  ai: "AI",
+  utility: "Util",
 }
 
 export const APP_PRESETS: AppPreset[] = [

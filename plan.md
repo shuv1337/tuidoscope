@@ -127,8 +127,8 @@
 
 ## Phase 4: Category Tabs Data
 
-- [ ] 4.1 Define display labels for category tabs (can use existing `CATEGORY_LABELS` or define new short labels)
-- [ ] 4.2 Ensure "All" is first in category order array
+- [x] 4.1 Define display labels for category tabs (can use existing `CATEGORY_LABELS` or define new short labels)
+- [x] 4.2 Ensure "All" is first in category order array
 
 ## Phase 4: Category Tabs Rendering
 
