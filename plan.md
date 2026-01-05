@@ -23,14 +23,14 @@
 
 ## Phase 2: Leader Key Tooltip Data
 
-- [ ] 2.1 Open `src/components/onboarding/keybindingPresets.ts`
-- [ ] 2.2 Add optional `tooltip` property to `LeaderPreset` interface with shape: `{ origin: string, example: string, conflicts?: string[] }`
-- [ ] 2.3 Add tooltip data to "tmux" preset (ctrl+a): origin about GNU Screen, example usage, readline/emacs conflicts
-- [ ] 2.4 Add tooltip data to "tmux-alt" preset (ctrl+b): origin about tmux default, example usage, tmux/readline conflicts
-- [ ] 2.5 Add tooltip data to "screen" preset (ctrl+\): origin about Screen alternative, example usage, SIGQUIT conflict
-- [ ] 2.6 Add tooltip data to "desktop" preset (alt+space): origin about desktop apps, example usage, GNOME/macOS/Windows conflicts
-- [ ] 2.7 Add tooltip data to "custom" preset: generic origin/example, no conflicts array
-- [ ] 2.8 Run `bun run typecheck` to verify tooltip types are correct
+- [x] 2.1 Open `src/components/onboarding/keybindingPresets.ts`
+- [x] 2.2 Add optional `tooltip` property to `LeaderPreset` interface with shape: `{ origin: string, example: string, conflicts?: string[] }`
+- [x] 2.3 Add tooltip data to "tmux" preset (ctrl+a): origin about GNU Screen, example usage, readline/emacs conflicts
+- [x] 2.4 Add tooltip data to "tmux-alt" preset (ctrl+b): origin about tmux default, example usage, tmux/readline conflicts
+- [x] 2.5 Add tooltip data to "screen" preset (ctrl+\): origin about Screen alternative, example usage, SIGQUIT conflict
+- [x] 2.6 Add tooltip data to "desktop" preset (alt+space): origin about desktop apps, example usage, GNOME/macOS/Windows conflicts
+- [x] 2.7 Add tooltip data to "custom" preset: generic origin/example, no conflicts array
+- [x] 2.8 Run `bun run typecheck` to verify tooltip types are correct
 
 ## Phase 2: Leader Key Tooltip UI
 
