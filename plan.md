@@ -133,11 +133,11 @@
 ## Phase 4: Category Tabs Rendering
 
 - [x] 4.3 Add category tabs row to JSX, positioned above search input
-- [ ] 4.4 Render each category as text with spacing between them
-- [ ] 4.5 When category is "all": render as `[All]` with brackets
-- [ ] 4.6 When category is active (not "all"): render with accent color or underline
-- [ ] 4.7 When category is inactive: render with `props.theme.muted` color
-- [ ] 4.8 Handle overflow: truncate or wrap if too many categories for terminal width
+- [x] 4.4 Render each category as text with spacing between them
+- [x] 4.5 When category is "all": render as `[All]` with brackets
+- [x] 4.6 When category is active (not "all"): render with accent color or underline
+- [x] 4.7 When category is inactive: render with `props.theme.muted` color
+- [x] 4.8 Handle overflow: truncate or wrap if too many categories for terminal width
 
 ## Phase 4: Category Keyboard Navigation
 

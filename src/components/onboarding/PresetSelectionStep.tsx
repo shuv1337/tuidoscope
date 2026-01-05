@@ -264,8 +264,8 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
         </text>
       </box>
 
-      {/* Category tabs row */}
-      <box height={1}>
+      {/* Category tabs row - overflow="hidden" truncates if terminal too narrow */}
+      <box height={1} overflow="hidden">
         <For each={CATEGORY_ORDER}>
           {(cat) => {
             const isActive = () => activeCategory() === cat
