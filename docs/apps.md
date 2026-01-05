@@ -59,3 +59,91 @@ apps:
 - Use `restart_on_exit: true` for long-running apps that should stay alive
 - Apps that exit quickly (like `dust` or `duf`) work best without `restart_on_exit`
 - Some apps require specific `TERM` settings - see troubleshooting if you have display issues
+
+---
+
+## Shell Examples
+
+Shells are the most common apps to run in tuidoscope. Here are examples for popular shells:
+
+### Bash
+
+```yaml
+apps:
+  - name: "Bash"
+    command: "bash"
+    autostart: true
+```
+
+With a custom profile:
+
+```yaml
+apps:
+  - name: "Bash (custom)"
+    command: "bash"
+    args: "--rcfile ~/.bashrc.tuidoscope"
+```
+
+### Zsh
+
+```yaml
+apps:
+  - name: "Zsh"
+    command: "zsh"
+    autostart: true
+```
+
+Project-specific shell:
+
+```yaml
+apps:
+  - name: "Project Shell"
+    command: "zsh"
+    cwd: "~/projects/myapp"
+    autostart: true
+    env:
+      PROJECT_ENV: "development"
+```
+
+### Fish
+
+```yaml
+apps:
+  - name: "Fish"
+    command: "fish"
+    autostart: true
+```
+
+With a specific config directory:
+
+```yaml
+apps:
+  - name: "Fish (custom)"
+    command: "fish"
+    args: "--config ~/.config/fish/tuidoscope.fish"
+```
+
+### Nushell
+
+```yaml
+apps:
+  - name: "Nushell"
+    command: "nu"
+    autostart: true
+```
+
+With custom config:
+
+```yaml
+apps:
+  - name: "Nushell (custom)"
+    command: "nu"
+    args: "--config ~/.config/nushell/tuidoscope.nu"
+```
+
+### Shell Tips
+
+- Use `autostart: true` for your primary shell
+- Set `cwd` to frequently-used project directories
+- Use `env` to set shell-specific environment variables
+- Consider having multiple shell tabs for different projects
