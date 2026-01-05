@@ -285,7 +285,7 @@ export const PresetSelectionStep: Component<PresetSelectionStepProps> = (props) 
       )}
 
       {/* role="listbox" aria-multiselectable="true" aria-label="Available preset applications" - Preset list */}
-      <box flexDirection="column" alignItems="flex-start" flexGrow={1}>
+      <box flexDirection="column" alignItems="flex-start" flexGrow={1} overflow="hidden">
         {presetIndices().length === 0 ? (
           // Empty results message - centered
           <box height={1} width="100%" justifyContent="center">
