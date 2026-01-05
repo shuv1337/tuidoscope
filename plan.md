@@ -34,20 +34,20 @@
 
 ## Phase 2: Leader Key Tooltip UI
 
-- [ ] 2.9 Open `src/components/onboarding/KeybindingStep.tsx`
-- [ ] 2.10 Add `showHelp` signal: `const [showHelp, setShowHelp] = createSignal(false)`
-- [ ] 2.11 Find the `useKeyboard` hook call and add handler for `?` key to toggle `showHelp`
-- [ ] 2.12 Create tooltip panel JSX that renders when `showHelp()` is true
-- [ ] 2.13 In tooltip panel: display "Origin:" label with `props.theme.muted` color
-- [ ] 2.14 In tooltip panel: display origin value from focused preset's tooltip
-- [ ] 2.15 In tooltip panel: display "Example:" label with `props.theme.muted` color
-- [ ] 2.16 In tooltip panel: display example value from focused preset's tooltip
-- [ ] 2.17 In tooltip panel: display "Conflicts:" label with `props.theme.muted` color (only if conflicts exist)
-- [ ] 2.18 In tooltip panel: display each conflict as bulleted list item
-- [ ] 2.19 Position tooltip panel below preset list, above footer hints
-- [ ] 2.20 Add `?: Help` to footer hints line
-- [ ] 2.21 Test: `?` toggles tooltip visibility
-- [ ] 2.22 Test: tooltip content updates when focus changes via j/k
+- [x] 2.9 Open `src/components/onboarding/KeybindingStep.tsx`
+- [x] 2.10 Add `showHelp` signal: `const [showHelp, setShowHelp] = createSignal(false)`
+- [x] 2.11 Find the `useKeyboard` hook call and add handler for `?` key to toggle `showHelp`
+- [x] 2.12 Create tooltip panel JSX that renders when `showHelp()` is true
+- [x] 2.13 In tooltip panel: display "Origin:" label with `props.theme.muted` color
+- [x] 2.14 In tooltip panel: display origin value from focused preset's tooltip
+- [x] 2.15 In tooltip panel: display "Example:" label with `props.theme.muted` color
+- [x] 2.16 In tooltip panel: display example value from focused preset's tooltip
+- [x] 2.17 In tooltip panel: display "Conflicts:" label with `props.theme.muted` color (only if conflicts exist)
+- [x] 2.18 In tooltip panel: display each conflict as bulleted list item
+- [x] 2.19 Position tooltip panel below preset list, above footer hints
+- [x] 2.20 Add `?: Help` to footer hints line
+- [x] 2.21 Test: `?` toggles tooltip visibility
+- [x] 2.22 Test: tooltip content updates when focus changes via j/k
 
 ## Phase 3: Filter Helper Module
 

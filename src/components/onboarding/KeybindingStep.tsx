@@ -22,6 +22,7 @@ export const KeybindingStep: Component<KeybindingStepProps> = (props) => {
   const [focusedIndex, setFocusedIndex] = createSignal(0)
   const [isCapturing, setIsCapturing] = createSignal(false)
   const [capturedKey, setCapturedKey] = createSignal("")
+  const [showHelp, setShowHelp] = createSignal(false)
 
   // Find current selected index based on selectedLeaderKey
   const getSelectedIndex = () => {
@@ -106,6 +107,13 @@ export const KeybindingStep: Component<KeybindingStepProps> = (props) => {
           props.onNext()
         }
       }
+      event.preventDefault()
+      return
+    }
+
+    // Toggle help tooltip
+    if (event.name === "?" || (event.shift && event.name === "/")) {
+      setShowHelp((prev) => !prev)
       event.preventDefault()
       return
     }
@@ -232,12 +240,45 @@ export const KeybindingStep: Component<KeybindingStepProps> = (props) => {
           {/* Spacer */}
           <box height={1} />
 
-          {/* Tip about conflicts */}
-          <box height={1}>
-            <text fg={props.theme.muted}>
-              Tip: Choose a key that doesn't conflict with your terminal
-            </text>
-          </box>
+          {/* Help tooltip panel */}
+          {showHelp() && (() => {
+            const preset = LEADER_PRESETS[focusedIndex()]
+            const tooltip = preset?.tooltip
+            return (
+              <box flexDirection="column" alignItems="flex-start">
+                <box height={1}>
+                  <text fg={props.theme.muted}>Origin: </text>
+                  <text fg={props.theme.foreground}>{tooltip?.origin ?? "N/A"}</text>
+                </box>
+                <box height={1}>
+                  <text fg={props.theme.muted}>Example: </text>
+                  <text fg={props.theme.foreground}>{tooltip?.example ?? "N/A"}</text>
+                </box>
+                {tooltip?.conflicts && tooltip.conflicts.length > 0 && (
+                  <>
+                    <box height={1}>
+                      <text fg={props.theme.muted}>Conflicts:</text>
+                    </box>
+                    {tooltip.conflicts.map((conflict) => (
+                      <box height={1}>
+                        <text fg={props.theme.foreground}>  • {conflict}</text>
+                      </box>
+                    ))}
+                  </>
+                )}
+                <box height={1} />
+              </box>
+            )
+          })()}
+
+          {/* Tip about conflicts - only show when help is not visible */}
+          {!showHelp() && (
+            <box height={1}>
+              <text fg={props.theme.muted}>
+                Tip: Choose a key that doesn't conflict with your terminal
+              </text>
+            </box>
+          )}
 
           {/* Spacer */}
           <box height={1} />
@@ -245,7 +286,7 @@ export const KeybindingStep: Component<KeybindingStepProps> = (props) => {
           {/* Footer keybind hints */}
           <box height={1}>
             <text fg={props.theme.primary}>
-              j/k: Navigate | Enter: Select | Esc/Backspace: Back
+              j/k: Navigate | Enter: Select | ?: Help | Esc/Backspace: Back
             </text>
           </box>
         </>
