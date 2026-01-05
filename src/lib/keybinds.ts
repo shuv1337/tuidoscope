@@ -1,5 +1,5 @@
 import type { KeyEvent } from "@opentui/core"
-import type { KeybindConfigV2, LeaderBindings } from "../types"
+import type { LeaderBindings } from "../types"
 
 export type KeybindAction =
   | "next_tab"
@@ -168,44 +168,6 @@ export function createLeaderBindingHandler(
       }
     }
     return null
-  }
-}
-
-/**
- * Create a keybind handler for V2 config that maps leader+key to actions.
- * This is a compatibility wrapper that works with the full keybind string.
- */
-export function createKeybindHandler(
-  config: KeybindConfigV2,
-  handlers: Partial<Record<KeybindAction, () => void>>
-) {
-  // Build full keybind strings for V2 (leader.key + "+" + binding)
-  // This is used for status bar display and direct matching
-  const keybindMap: Record<string, KeybindAction> = {
-    [`${config.leader.key}+${config.bindings.next_tab}`]: "next_tab",
-    [`${config.leader.key}+${config.bindings.prev_tab}`]: "prev_tab",
-    [`${config.leader.key}+${config.bindings.close_tab}`]: "close_tab",
-    [`${config.leader.key}+${config.bindings.new_tab}`]: "new_tab",
-    [`${config.leader.key}+${config.bindings.toggle_focus}`]: "toggle_focus",
-    [`${config.leader.key}+${config.bindings.edit_app}`]: "edit_app",
-    [`${config.leader.key}+${config.bindings.restart_app}`]: "restart_app",
-    [`${config.leader.key}+${config.bindings.command_palette}`]: "command_palette",
-    [`${config.leader.key}+${config.bindings.stop_app}`]: "stop_app",
-    [`${config.leader.key}+${config.bindings.kill_all}`]: "kill_all",
-    [`${config.leader.key}+${config.bindings.quit}`]: "quit",
-  }
-
-  return (event: KeyEvent): boolean => {
-    for (const [keybind, action] of Object.entries(keybindMap)) {
-      if (matchesKeybind(event, keybind)) {
-        const handler = handlers[action]
-        if (handler) {
-          handler()
-          return true
-        }
-      }
-    }
-    return false
   }
 }
 

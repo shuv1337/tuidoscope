@@ -1079,11 +1079,11 @@ This feature replaces hardcoded `Ctrl+` keybinds with a tmux-style leader key sy
 
 **File:** `src/app.tsx`
 
-- [ ] **6.27.1** Remove old `createKeybindHandler` call if still present
-- [ ] **6.27.2** Remove any V1-specific keybind matching code
-- [ ] **6.27.3** Verify all actions now go through leader system
-- [ ] **6.27.4** Remove unused imports
-- [ ] **6.27.5** Run typecheck to verify no broken references
+- [x] **6.27.1** Remove old `createKeybindHandler` call if still present
+- [x] **6.27.2** Remove any V1-specific keybind matching code
+- [x] **6.27.3** Verify all actions now go through leader system
+- [x] **6.27.4** Remove unused imports
+- [x] **6.27.5** Run typecheck to verify no broken references
 
 ---
 
