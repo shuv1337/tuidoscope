@@ -36,7 +36,8 @@ export const App: Component<AppProps> = (props) => {
   // First-run detection for onboarding wizard
   const isFirstRun = () => !props.configFileFound && appsStore.store.entries.length === 0
   const [wizardCompleted, setWizardCompleted] = createSignal(false)
-  const shouldShowWizard = () => isFirstRun() && !wizardCompleted()
+  const [forceOnboarding, setForceOnboarding] = createSignal(false)
+  const shouldShowWizard = () => (isFirstRun() || forceOnboarding()) && !wizardCompleted()
 
   // Get terminal dimensions from opentui
   const terminalDims = useTerminalDimensions()
@@ -248,6 +249,13 @@ export const App: Component<AppProps> = (props) => {
     }
   }
 
+  // Trigger onboarding wizard manually
+  const triggerOnboarding = () => {
+    setForceOnboarding(true)
+    setWizardCompleted(false)
+    uiStore.closeModal()
+  }
+
   // Handle wizard completion
   const handleWizardComplete = async (apps: AppEntryConfig[], leaderKey: string) => {
     // Add each app to the store
@@ -275,6 +283,7 @@ export const App: Component<AppProps> = (props) => {
         stop_app: "x",
         kill_all: "K",
         quit: "q",
+        rerun_onboarding: "O",
       },
       direct: {
         navigate_up: "k",
@@ -290,6 +299,7 @@ export const App: Component<AppProps> = (props) => {
     if (success) {
       // Mark wizard as completed only on success
       setWizardCompleted(true)
+      setForceOnboarding(false)
       // Show success message
       uiStore.showTemporaryMessage(`Added ${apps.length} app(s)`)
     } else {
@@ -312,6 +322,7 @@ export const App: Component<AppProps> = (props) => {
     if (success) {
       // Mark wizard as completed only on success
       setWizardCompleted(true)
+      setForceOnboarding(false)
       // Show hint message
       uiStore.showTemporaryMessage("Add apps with Ctrl+T")
     } else {
@@ -426,6 +437,7 @@ export const App: Component<AppProps> = (props) => {
       renderer.destroy()
       setTimeout(() => process.exit(0), 50)
     },
+    rerun_onboarding: () => triggerOnboarding(),
   }
 
   // Create the leader binding handler
@@ -752,6 +764,11 @@ export const App: Component<AppProps> = (props) => {
                 } else {
                   uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
                 }
+              }
+            }}
+            onGlobalAction={(action) => {
+              if (action === "rerun_onboarding") {
+                triggerOnboarding()
               }
             }}
             onClose={() => uiStore.closeModal()}
