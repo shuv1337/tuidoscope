@@ -234,6 +234,7 @@ describe("createLeaderBindingHandler", () => {
     stop_app: "x",
     kill_all: "K",
     quit: "q",
+    rerun_onboarding: "O",
   }
 
   test("returns action for matching key", () => {

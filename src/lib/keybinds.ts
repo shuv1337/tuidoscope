@@ -13,6 +13,7 @@ export type KeybindAction =
   | "stop_app"
   | "kill_all"
   | "quit"
+  | "rerun_onboarding"
 
 interface ParsedKeybind {
   key: string
@@ -155,6 +156,7 @@ export function createLeaderBindingHandler(
     [bindings.stop_app]: "stop_app",
     [bindings.kill_all]: "kill_all",
     [bindings.quit]: "quit",
+    [bindings.rerun_onboarding]: "rerun_onboarding",
   }
 
   return (event: KeyEvent): KeybindAction | null => {

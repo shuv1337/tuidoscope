@@ -53,6 +53,7 @@ const LeaderBindingsSchema = z.object({
   stop_app: z.string().default("x"),           // Leader + x
   kill_all: z.string().default("K"),           // Leader + K (shift+k)
   quit: z.string().default("q"),               // Leader + q
+  rerun_onboarding: z.string().default("O"),   // Leader + O (shift+o) - rerun onboarding wizard
 })
 
 // V2 direct bindings - navigation keys that work without leader in tabs mode

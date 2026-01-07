@@ -45,6 +45,7 @@ export interface LeaderBindings {
   stop_app: string
   kill_all: string
   quit: string
+  rerun_onboarding: string
 }
 
 /** Direct bindings that work without leader key (in tabs focus mode) */
