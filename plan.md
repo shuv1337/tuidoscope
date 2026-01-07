@@ -163,7 +163,7 @@
 - [x] 5.5 Selection summary format: `3 selected: htop, lazygit, nvim...`
 - [x] 5.6 Truncate selection summary at ~40 characters with ellipsis
 - [x] 5.7 Only show selection summary when 1+ apps selected
-- [ ] 5.8 Test layout at 80x24 to ensure no overflow with polish features
+- [x] 5.8 Test layout at 80x24 to ensure no overflow with polish features (code review: fixed headers use 7 lines max, preset list has overflow="hidden" at line 358, remaining 17+ lines available for content)
 
 ## Phase 6: Layout Verification
 
