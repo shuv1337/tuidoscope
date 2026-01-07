@@ -3,7 +3,7 @@ import { useKeyboard, useTerminalDimensions, useRenderer } from "@opentui/solid"
 import { TabList } from "./components/TabList"
 import { TerminalPane } from "./components/TerminalPane"
 import { StatusBar } from "./components/StatusBar"
-import { CommandPalette } from "./components/CommandPalette"
+import { CommandPalette, type GlobalAction } from "./components/CommandPalette"
 import { AddTabModal } from "./components/AddTabModal"
 import { EditAppModal } from "./components/EditAppModal"
 import { OnboardingWizard } from "./components/onboarding"
@@ -17,7 +17,8 @@ import { saveConfig } from "./lib/config"
 import { matchesLeaderKey, matchesSingleKey, createLeaderBindingHandler, leaderKeyToSequence } from "./lib/keybinds"
 import type { KeybindAction } from "./lib/keybinds"
 import { debugLog } from "./lib/debug"
-import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp } from "./types"
+import { getThemeById } from "./lib/themes"
+import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp, ThemeConfig } from "./types"
 
 export interface AppProps {
   config: Config
@@ -54,6 +55,7 @@ export const App: Component<AppProps> = (props) => {
   const [editingEntryId, setEditingEntryId] = createSignal<string | null>(null)
   const [lastGTime, setLastGTime] = createSignal(0)
   const [showHints, setShowHints] = createSignal(false)
+  const [currentTheme, setCurrentTheme] = createSignal<ThemeConfig>(props.config.theme)
   let hintsTimeout: ReturnType<typeof setTimeout> | null = null
 
   const getPtyDimensions = () => {
@@ -246,6 +248,34 @@ export const App: Component<AppProps> = (props) => {
     } catch (error) {
       console.error("Failed to save config:", error)
       return false
+    }
+  }
+
+  // Theme change handler
+  const handleThemeChange = async (themeId: string) => {
+    const theme = getThemeById(themeId)
+    if (!theme) {
+      uiStore.showTemporaryMessage(`Unknown theme: ${themeId}`)
+      return
+    }
+    
+    // Update reactive state (immediate UI update)
+    const newTheme: ThemeConfig = {
+      primary: theme.primary,
+      background: theme.background,
+      foreground: theme.foreground,
+      accent: theme.accent,
+      muted: theme.muted,
+    }
+    setCurrentTheme(newTheme)
+    
+    // Persist to config (mutate props.config to match existing pattern)
+    props.config.theme = newTheme
+    try {
+      await saveConfig(props.config)
+      uiStore.showTemporaryMessage(`Theme: ${theme.name}`)
+    } catch (error) {
+      uiStore.showTemporaryMessage(`Failed to save theme`)
     }
   }
 
@@ -695,7 +725,7 @@ export const App: Component<AppProps> = (props) => {
       when={!shouldShowWizard()}
       fallback={
         <OnboardingWizard
-          theme={props.config.theme}
+          theme={currentTheme()}
           onComplete={handleWizardComplete}
           onSkip={handleWizardSkip}
         />
@@ -714,7 +744,7 @@ export const App: Component<AppProps> = (props) => {
             width={props.config.tab_width}
             height={terminalDims().height - 1}
             scrollOffset={tabsStore.store.scrollOffset}
-            theme={props.config.theme}
+            theme={currentTheme()}
             onSelect={handleSelectApp}
             onAddClick={() => uiStore.openModal("add-tab")}
           />
@@ -725,7 +755,7 @@ export const App: Component<AppProps> = (props) => {
             isFocused={tabsStore.store.focusMode === "terminal"}
             width={terminalDims().width - props.config.tab_width}
             height={terminalDims().height - 1}
-            theme={props.config.theme}
+            theme={currentTheme()}
             leaderKey={props.config.keybinds.leader.key}
             newTabBinding={props.config.keybinds.bindings.new_tab}
             onInput={handleTerminalInput}
@@ -738,7 +768,7 @@ export const App: Component<AppProps> = (props) => {
           appStatus={activeRunningApp()?.status ?? null}
           focusMode={tabsStore.store.focusMode}
           message={uiStore.store.statusMessage}
-          theme={props.config.theme}
+          theme={currentTheme()}
           leader={props.config.keybinds.leader}
           bindings={props.config.keybinds.bindings}
           leaderActive={uiStore.store.leaderActive}
@@ -748,7 +778,7 @@ export const App: Component<AppProps> = (props) => {
         <Show when={uiStore.store.activeModal === "command-palette"}>
           <CommandPalette
             entries={appsStore.store.entries}
-            theme={props.config.theme}
+            theme={currentTheme()}
             onSelect={(entry, action) => {
               if (action === "edit") {
                 openEditModal(entry.id)
@@ -766,9 +796,16 @@ export const App: Component<AppProps> = (props) => {
                 }
               }
             }}
-            onGlobalAction={(action) => {
+            onGlobalAction={(action: GlobalAction) => {
+              // Handle string actions (existing)
               if (action === "rerun_onboarding") {
                 triggerOnboarding()
+                return
+              }
+              // Handle object actions (new theme selection)
+              if (typeof action === "object" && action.type === "set_theme") {
+                handleThemeChange(action.themeId)
+                return
               }
             }}
             onClose={() => uiStore.closeModal()}
@@ -777,7 +814,7 @@ export const App: Component<AppProps> = (props) => {
 
         <Show when={uiStore.store.activeModal === "add-tab"}>
           <AddTabModal
-            theme={props.config.theme}
+            theme={currentTheme()}
             onAdd={handleAddApp}
             onClose={() => uiStore.closeModal()}
           />
@@ -785,7 +822,7 @@ export const App: Component<AppProps> = (props) => {
 
         <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()}>
           <EditAppModal
-            theme={props.config.theme}
+            theme={currentTheme()}
             entry={editingEntry()!}
             onSave={(updates) => handleEditApp(editingEntry()!.id, updates)}
             onClose={() => {
@@ -800,7 +837,7 @@ export const App: Component<AppProps> = (props) => {
           <LeaderHints
             bindings={props.config.keybinds.bindings}
             leaderKey={props.config.keybinds.leader.key}
-            theme={props.config.theme}
+            theme={currentTheme()}
           />
         </Show>
       </box>
