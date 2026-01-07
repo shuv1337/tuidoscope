@@ -1,15 +1,40 @@
-import { Component, For, createSignal, createMemo, createEffect } from "solid-js"
+import { Component, For, Show, createSignal, createMemo, createEffect } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { AppEntry, ThemeConfig } from "../types"
 import { createAppSearch } from "../lib/fuzzy"
 import { buildEntryCommand } from "../lib/command"
 
+export type CommandAction = "switch" | "start" | "stop" | "restart" | "edit"
+export type GlobalAction = "rerun_onboarding"
+
 export interface CommandPaletteProps {
   entries: AppEntry[]
   theme: ThemeConfig
-  onSelect: (entry: AppEntry, action: "switch" | "start" | "stop" | "restart" | "edit") => void
+  onSelect: (entry: AppEntry, action: CommandAction) => void
+  onGlobalAction?: (action: GlobalAction) => void
   onClose: () => void
 }
+
+interface GlobalCommand {
+  id: GlobalAction
+  name: string
+  description: string
+  keywords: string[]
+}
+
+// Global commands that appear based on search query
+const GLOBAL_COMMANDS: GlobalCommand[] = [
+  {
+    id: "rerun_onboarding",
+    name: "Add Apps (Onboarding)",
+    description: "Rerun the onboarding wizard to add preset apps",
+    keywords: ["onboarding", "wizard", "add", "apps", "presets", "setup"],
+  },
+]
+
+type ResultItem = 
+  | { type: "app"; item: AppEntry }
+  | { type: "global"; command: GlobalCommand }
 
 export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   const [query, setQuery] = createSignal("")
@@ -17,9 +42,37 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
 
   const search = createMemo(() => createAppSearch(props.entries))
 
-  const results = createMemo(() => {
-    return search().search(query())
+  // Combined results: apps + matching global commands
+  const results = createMemo((): ResultItem[] => {
+    const q = query().toLowerCase()
+    const appResults = search().search(query())
+    
+    // Find matching global commands
+    const matchingGlobalCommands = GLOBAL_COMMANDS.filter((cmd) => {
+      if (q.length === 0) return true // Show all global commands when no query
+      return (
+        cmd.name.toLowerCase().includes(q) ||
+        cmd.description.toLowerCase().includes(q) ||
+        cmd.keywords.some((kw) => kw.includes(q))
+      )
+    })
+    
+    // Combine results: global commands first (when matching), then apps
+    const combined: ResultItem[] = [
+      ...matchingGlobalCommands.map((cmd): ResultItem => ({ type: "global", command: cmd })),
+      ...appResults.map((r): ResultItem => ({ type: "app", item: r.item })),
+    ]
+    
+    return combined
   })
+
+  const handleSelect = (result: ResultItem, action: CommandAction) => {
+    if (result.type === "global") {
+      props.onGlobalAction?.(result.command.id)
+    } else {
+      props.onSelect(result.item, action)
+    }
+  }
 
   useKeyboard((event) => {
     if (event.name === "escape") {
@@ -31,7 +84,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
     if (event.name === "return" || event.name === "enter") {
       const selected = results()[selectedIndex()]
       if (selected) {
-        props.onSelect(selected.item, "switch")
+        handleSelect(selected, "switch")
       }
       event.preventDefault()
       return
@@ -39,7 +92,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
 
     if (event.name === "x") {
       const selected = results()[selectedIndex()]
-      if (selected) {
+      if (selected && selected.type === "app") {
         props.onSelect(selected.item, "stop")
       }
       event.preventDefault()
@@ -48,7 +101,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
 
     if ((event.ctrl && event.name === "e") || event.sequence === "\u0005") {
       const selected = results()[selectedIndex()]
-      if (selected) {
+      if (selected && selected.type === "app") {
         props.onSelect(selected.item, "edit")
       }
       event.preventDefault()
@@ -110,23 +163,33 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       {/* Results list */}
       <box flexDirection="column" flexGrow={1} overflow="hidden">
         <For each={results().slice(0, 10)}>
-          {(result, index) => (
-            <box
-              height={1}
-              width="100%"
-              flexDirection="row"
-              backgroundColor={index() === selectedIndex() ? props.theme.primary : props.theme.background}
-              onMouseDown={() => props.onSelect(result.item, "switch")}
-            >
-              <text
+          {(result, index) => {
+            const isSelected = () => index() === selectedIndex()
+            const displayText = () => {
+              if (result.type === "global") {
+                return `[*] ${result.command.name}`
+              }
+              return `${result.item.name} - ${buildEntryCommand(result.item)}`
+            }
+            
+            return (
+              <box
+                height={1}
                 width="100%"
-                fg={index() === selectedIndex() ? props.theme.background : props.theme.foreground}
-                bg={index() === selectedIndex() ? props.theme.primary : props.theme.background}
+                flexDirection="row"
+                backgroundColor={isSelected() ? props.theme.primary : props.theme.background}
+                onMouseDown={() => handleSelect(result, "switch")}
               >
-                {" "}{`${result.item.name} - ${buildEntryCommand(result.item)}`}
-              </text>
-            </box>
-          )}
+                <text
+                  width="100%"
+                  fg={isSelected() ? props.theme.background : (result.type === "global" ? props.theme.accent : props.theme.foreground)}
+                  bg={isSelected() ? props.theme.primary : props.theme.background}
+                >
+                  {" "}{displayText()}
+                </text>
+              </box>
+            )
+          }}
         </For>
       </box>
 
