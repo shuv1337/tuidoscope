@@ -123,139 +123,139 @@
 ## Phase 6: Rewrite App.tsx
 
 ### 6.1 Remove imports from src/app.tsx
-- [ ] Remove `OnboardingWizard` import from `./components/onboarding`
-- [ ] Remove `LeaderHints` import from `./components/LeaderHints`
-- [ ] Remove `matchesLeaderKey` from `./lib/keybinds` import
-- [ ] Remove `matchesSingleKey` from `./lib/keybinds` import
-- [ ] Remove `createLeaderBindingHandler` from `./lib/keybinds` import
-- [ ] Remove `leaderKeyToSequence` from `./lib/keybinds` import
-- [ ] Remove `KeybindAction` type import from `./lib/keybinds`
-- [ ] Keep only `matchesKeybind` import from `./lib/keybinds`
+- [x] Remove `OnboardingWizard` import from `./components/onboarding`
+- [x] Remove `LeaderHints` import from `./components/LeaderHints`
+- [x] Remove `matchesLeaderKey` from `./lib/keybinds` import
+- [x] Remove `matchesSingleKey` from `./lib/keybinds` import
+- [x] Remove `createLeaderBindingHandler` from `./lib/keybinds` import
+- [x] Remove `leaderKeyToSequence` from `./lib/keybinds` import
+- [x] Remove `KeybindAction` type import from `./lib/keybinds`
+- [x] Keep only `matchesKeybind` import from `./lib/keybinds`
 
 ### 6.2 Remove wizard state signals from src/app.tsx
-- [ ] Delete `isFirstRun` memo
-- [ ] Delete `wizardCompleted` signal
-- [ ] Delete `forceOnboarding` signal
-- [ ] Delete `shouldShowWizard` memo
-- [ ] Delete `showHints` signal
-- [ ] Delete `hintsTimeout` variable
+- [x] Delete `isFirstRun` memo
+- [x] Delete `wizardCompleted` signal
+- [x] Delete `forceOnboarding` signal
+- [x] Delete `shouldShowWizard` memo
+- [x] Delete `showHints` signal
+- [x] Delete `hintsTimeout` variable
 
 ### 6.3 Remove wizard handlers from src/app.tsx
-- [ ] Delete `triggerOnboarding()` function
-- [ ] Delete `handleWizardComplete()` function
-- [ ] Delete `handleWizardSkip()` function
+- [x] Delete `triggerOnboarding()` function
+- [x] Delete `handleWizardComplete()` function
+- [x] Delete `handleWizardSkip()` function
 
 ### 6.4 Simplify persistAppsConfig() in src/app.tsx
-- [ ] Remove `keybindsOverride` parameter
-- [ ] Remove keybinds from `nextConfig` object
-- [ ] Remove `if (keybindsOverride)` block
+- [x] Remove `keybindsOverride` parameter
+- [x] Remove keybinds from `nextConfig` object
+- [x] Remove `if (keybindsOverride)` block
 
 ### 6.5 Remove leader config extraction from src/app.tsx
-- [ ] Delete `const leaderConfig = props.config.keybinds.leader`
-- [ ] Delete `const leaderBindings = props.config.keybinds.bindings`
+- [x] Delete `const leaderConfig = props.config.keybinds.leader`
+- [x] Delete `const leaderBindings = props.config.keybinds.bindings`
 
 ### 6.6 Remove action handlers object from src/app.tsx
-- [ ] Delete entire `actionHandlers` object (Partial<Record<KeybindAction, () => void>>)
-- [ ] Delete `handleLeaderBinding` creation (createLeaderBindingHandler call)
-- [ ] Delete `cancelLeader()` helper function
+- [x] Delete entire `actionHandlers` object (Partial<Record<KeybindAction, () => void>>)
+- [x] Delete `handleLeaderBinding` creation (createLeaderBindingHandler call)
+- [x] Delete `cancelLeader()` helper function
 
 ### 6.7 Add double-tap state variable in src/app.tsx
-- [ ] Add `let lastCtrlATime = 0` near other state variables (after `lastGTime` signal)
+- [x] Add `let lastCtrlATime = 0` near other state variables (after `lastGTime` signal)
 
 ### 6.8 Rewrite keyboard handler in src/app.tsx - Modal handling
-- [ ] Keep existing modal escape handling logic
-- [ ] Remove `if (uiStore.store.leaderActive) { cancelLeader() }` block
+- [x] Keep existing modal escape handling logic
+- [x] Remove `if (uiStore.store.leaderActive) { cancelLeader() }` block
 
 ### 6.9 Rewrite keyboard handler in src/app.tsx - Ctrl+A toggle
-- [ ] Replace leader key detection with `if (matchesKeybind(event, "ctrl+a"))`
-- [ ] Add double-tap detection: check `lastCtrlATime` within 500ms
-- [ ] If double-tap in terminal mode: write `"\x01"` to PTY, reset timer, return
-- [ ] Otherwise: update `lastCtrlATime`, call `tabsStore.toggleFocus()`, return
+- [x] Replace leader key detection with `if (matchesKeybind(event, "ctrl+a"))`
+- [x] Add double-tap detection: check `lastCtrlATime` within 500ms
+- [x] If double-tap in terminal mode: write `"\x01"` to PTY, reset timer, return
+- [x] Otherwise: update `lastCtrlATime`, call `tabsStore.toggleFocus()`, return
 
 ### 6.10 Rewrite keyboard handler in src/app.tsx - Terminal mode
-- [ ] Remove all leader state machine code
-- [ ] In terminal mode: pass `event.sequence` directly to PTY
-- [ ] Return early after terminal mode handling
+- [x] Remove all leader state machine code
+- [x] In terminal mode: pass `event.sequence` directly to PTY
+- [x] Return early after terminal mode handling
 
 ### 6.11 Rewrite keyboard handler in src/app.tsx - Tabs mode Ctrl+C
-- [ ] Keep Ctrl+C ignore logic in tabs mode
-- [ ] Remove "Press Leader+q to quit" message, just ignore silently
+- [x] Keep Ctrl+C ignore logic in tabs mode
+- [x] Remove "Press Leader+q to quit" message, just ignore silently
 
 ### 6.12 Rewrite keyboard handler in src/app.tsx - gg/G navigation
-- [ ] Keep existing `g` double-tap logic for go-to-top
-- [ ] Keep existing `G` (shift+g) logic for go-to-bottom
-- [ ] Keep `lastGTime` reset for other keys
+- [x] Keep existing `g` double-tap logic for go-to-top
+- [x] Keep existing `G` (shift+g) logic for go-to-bottom
+- [x] Keep `lastGTime` reset for other keys
 
 ### 6.13 Rewrite keyboard handler in src/app.tsx - Switch statement
-- [ ] Add case `"j"` / `"down"`: call `handleTabNavigation("down")`
-- [ ] Add case `"k"` / `"up"`: call `handleTabNavigation("up")`
-- [ ] Add case `"return"` / `"enter"`: call `handleSelectApp()` for selected entry
-- [ ] Add case `"space"` / `" "`: call `uiStore.openModal("command-palette")`
-- [ ] Add case `"t"`: call `uiStore.openModal("add-tab")`
-- [ ] Add case `"e"`: call `openEditModal()` for selected entry
-- [ ] Add case `"x"`: call `stopApp()` for selected entry if running
-- [ ] Add case `"r"`: call `restartApp()` for selected entry if running
-- [ ] Add case `"q"`: keep existing quit logic
-- [ ] Add default case for `K` (shift+k): call `stopAllApps({ showMessage: true })`
+- [x] Add case `"j"` / `"down"`: call `handleTabNavigation("down")`
+- [x] Add case `"k"` / `"up"`: call `handleTabNavigation("up")`
+- [x] Add case `"return"` / `"enter"`: call `handleSelectApp()` for selected entry
+- [x] Add case `"space"` / `" "`: call `uiStore.openModal("command-palette")`
+- [x] Add case `"t"`: call `uiStore.openModal("add-tab")`
+- [x] Add case `"e"`: call `openEditModal()` for selected entry
+- [x] Add case `"x"`: call `stopApp()` for selected entry if running
+- [x] Add case `"r"`: call `restartApp()` for selected entry if running
+- [x] Add case `"q"`: keep existing quit logic
+- [x] Add default case for `K` (shift+k): call `stopAllApps({ showMessage: true })`
 
 ### 6.14 Remove wizard JSX from src/app.tsx
-- [ ] Remove `<Show when={!shouldShowWizard()} fallback={<OnboardingWizard ... />}>` wrapper
-- [ ] Keep inner content, remove the Show wrapper entirely
+- [x] Remove `<Show when={!shouldShowWizard()} fallback={<OnboardingWizard ... />}>` wrapper
+- [x] Keep inner content, remove the Show wrapper entirely
 
 ### 6.15 Update StatusBar props in src/app.tsx
-- [ ] Remove `leader={props.config.keybinds.leader}` prop
-- [ ] Remove `bindings={props.config.keybinds.bindings}` prop
-- [ ] Remove `leaderActive={uiStore.store.leaderActive}` prop
+- [x] Remove `leader={props.config.keybinds.leader}` prop
+- [x] Remove `bindings={props.config.keybinds.bindings}` prop
+- [x] Remove `leaderActive={uiStore.store.leaderActive}` prop
 
 ### 6.16 Update TerminalPane props in src/app.tsx
-- [ ] Remove `leaderKey={props.config.keybinds.leader.key}` prop
-- [ ] Remove `newTabBinding={props.config.keybinds.bindings.new_tab}` prop
+- [x] Remove `leaderKey={props.config.keybinds.leader.key}` prop
+- [x] Remove `newTabBinding={props.config.keybinds.bindings.new_tab}` prop
 
 ### 6.17 Remove LeaderHints JSX from src/app.tsx
-- [ ] Delete `<Show when={uiStore.store.leaderActive && showHints()}>` block
-- [ ] Delete `<LeaderHints ... />` component
+- [x] Delete `<Show when={uiStore.store.leaderActive && showHints()}>` block
+- [x] Delete `<LeaderHints ... />` component
 
 ### 6.18 Update CommandPalette onGlobalAction in src/app.tsx
-- [ ] Remove `if (action === "rerun_onboarding")` block
-- [ ] Keep theme selection handling
+- [x] Remove `if (action === "rerun_onboarding")` block
+- [x] Keep theme selection handling
 
 ---
 
 ## Phase 7: Rewrite StatusBar
 
 ### 7.1 Update imports in src/components/StatusBar.tsx
-- [ ] Remove `LeaderConfig, LeaderBindings` from types import
-- [ ] Remove `formatLeaderKeybind` from keybinds import
-- [ ] Keep `ThemeConfig, FocusMode` imports
+- [x] Remove `LeaderConfig, LeaderBindings` from types import
+- [x] Remove `formatLeaderKeybind` from keybinds import
+- [x] Keep `ThemeConfig, FocusMode` imports
 
 ### 7.2 Update props interface in src/components/StatusBar.tsx
-- [ ] Remove `leader: LeaderConfig` from StatusBarProps
-- [ ] Remove `bindings: LeaderBindings` from StatusBarProps
-- [ ] Remove `leaderActive?: boolean` from StatusBarProps
+- [x] Remove `leader: LeaderConfig` from StatusBarProps
+- [x] Remove `bindings: LeaderBindings` from StatusBarProps
+- [x] Remove `leaderActive?: boolean` from StatusBarProps
 
 ### 7.3 Rewrite left section in src/components/StatusBar.tsx
-- [ ] Remove `<Show when={props.leaderActive} ...>` conditional
-- [ ] Add `<Show when={props.focusMode === "tabs"} ...>` conditional
-- [ ] Tabs mode text: `" j/k:Nav  gg/G:Jump  Enter:Select  Space:Palette  t:New  e:Edit  x:Stop  r:Restart  K:KillAll  q:Quit  Ctrl+A:Terminal"`
-- [ ] Terminal mode fallback text: `" Ctrl+A:Switch to Tabs"`
+- [x] Remove `<Show when={props.leaderActive} ...>` conditional
+- [x] Add `<Show when={props.focusMode === "tabs"} ...>` conditional
+- [x] Tabs mode text: `" j/k:Nav  gg/G:Jump  Enter:Select  Space:Palette  t:New  e:Edit  x:Stop  r:Restart  K:KillAll  q:Quit  Ctrl+A:Terminal"`
+- [x] Terminal mode fallback text: `" Ctrl+A:Switch to Tabs"`
 
 ### 7.4 Remove formatLeaderKey function from src/components/StatusBar.tsx
-- [ ] Delete the local `formatLeaderKey()` helper function (no longer needed)
+- [x] Delete the local `formatLeaderKey()` helper function (no longer needed)
 
 ---
 
 ## Phase 8: Update TerminalPane
 
 ### 8.1 Update imports in src/components/TerminalPane.tsx
-- [ ] Remove `formatLeaderKeybind` import from `../lib/keybinds`
+- [x] Remove `formatLeaderKeybind` import from `../lib/keybinds`
 
 ### 8.2 Update props interface in src/components/TerminalPane.tsx
-- [ ] Remove `leaderKey: string` from TerminalPaneProps
-- [ ] Remove `newTabBinding: string` from TerminalPaneProps
+- [x] Remove `leaderKey: string` from TerminalPaneProps
+- [x] Remove `newTabBinding: string` from TerminalPaneProps
 
 ### 8.3 Update "no app selected" text in src/components/TerminalPane.tsx
-- [ ] Change from `Press {formatLeaderKeybind(...)} to add one.`
-- [ ] Change to `No app selected. Press 't' to add one.`
+- [x] Change from `Press {formatLeaderKeybind(...)} to add one.`
+- [x] Change to `No app selected. Press 't' to add one.`
 
 ---
 
@@ -342,23 +342,23 @@
 ## Phase 11: Update Tests
 
 ### 11.1 Remove deleted function tests from src/lib/keybinds.test.ts
-- [ ] Delete `describe("matchesLeaderKey", ...)` block
-- [ ] Delete `describe("matchesSingleKey", ...)` block
-- [ ] Delete `describe("formatLeaderKeybind", ...)` block
-- [ ] Delete `describe("formatLeaderKey", ...)` block
-- [ ] Delete `describe("leaderKeyToSequence", ...)` block
-- [ ] Delete `describe("createLeaderBindingHandler", ...)` block
+- [x] Delete `describe("matchesLeaderKey", ...)` block
+- [x] Delete `describe("matchesSingleKey", ...)` block
+- [x] Delete `describe("formatLeaderKeybind", ...)` block
+- [x] Delete `describe("formatLeaderKey", ...)` block
+- [x] Delete `describe("leaderKeyToSequence", ...)` block
+- [x] Delete `describe("createLeaderBindingHandler", ...)` block
 
 ### 11.2 Remove key-capture tests from src/lib/keybinds.test.ts
-- [ ] Delete `describe("eventToKeybindString", ...)` block
-- [ ] Delete `describe("isValidLeaderKey", ...)` block
-- [ ] Remove `import { eventToKeybindString, isValidLeaderKey } from "./key-capture"`
+- [x] Delete `describe("eventToKeybindString", ...)` block
+- [x] Delete `describe("isValidLeaderKey", ...)` block
+- [x] Remove `import { eventToKeybindString, isValidLeaderKey } from "./key-capture"`
 
 ### 11.3 Verify remaining tests pass
-- [ ] Keep `describe("parseKeybind", ...)` tests
-- [ ] Keep `describe("matchesKeybind", ...)` tests
-- [ ] Keep `describe("formatKeybind", ...)` tests (if exists)
-- [ ] Run `bun test src/lib/keybinds.test.ts` to verify
+- [x] Keep `describe("parseKeybind", ...)` tests
+- [x] Keep `describe("matchesKeybind", ...)` tests
+- [x] Keep `describe("formatKeybind", ...)` tests (if exists)
+- [x] Run `bun test src/lib/keybinds.test.ts` to verify
 
 ---
 

@@ -1,6 +1,5 @@
 import { Component, Show } from "solid-js"
 import type { RunningApp, ThemeConfig } from "../types"
-import { formatLeaderKeybind } from "../lib/keybinds"
 
 export interface TerminalPaneProps {
   runningApp: RunningApp | undefined
@@ -8,8 +7,6 @@ export interface TerminalPaneProps {
   width: number
   height: number
   theme: ThemeConfig
-  leaderKey: string
-  newTabBinding: string
   onInput?: (data: string) => void
 }
 
@@ -30,7 +27,7 @@ export const TerminalPane: Component<TerminalPaneProps> = (props) => {
         fallback={
           <box flexGrow={1} justifyContent="center" alignItems="center">
             <text fg={props.theme.muted}>
-              No app selected. Press {formatLeaderKeybind(props.leaderKey, props.newTabBinding)} to add one.
+              No app selected. Press 't' to add one.
             </text>
           </box>
         }

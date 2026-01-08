@@ -6,16 +6,14 @@ import { StatusBar } from "./components/StatusBar"
 import { CommandPalette, type GlobalAction } from "./components/CommandPalette"
 import { AddTabModal } from "./components/AddTabModal"
 import { EditAppModal } from "./components/EditAppModal"
-import { OnboardingWizard } from "./components/onboarding"
-import { LeaderHints } from "./components/LeaderHints"
+
 import { createAppsStore } from "./stores/apps"
 import { createTabsStore } from "./stores/tabs"
 import { createUIStore } from "./stores/ui"
 import { spawnPty, killPty, resizePty } from "./lib/pty"
 import { initSessionPath, saveSession } from "./lib/session"
 import { saveConfig } from "./lib/config"
-import { matchesLeaderKey, matchesSingleKey, createLeaderBindingHandler, leaderKeyToSequence } from "./lib/keybinds"
-import type { KeybindAction } from "./lib/keybinds"
+import { matchesKeybind } from "./lib/keybinds"
 import { debugLog } from "./lib/debug"
 import { getThemeById } from "./lib/themes"
 import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp, ThemeConfig } from "./types"
@@ -34,11 +32,7 @@ export const App: Component<AppProps> = (props) => {
   const tabsStore = createTabsStore()
   const uiStore = createUIStore()
 
-  // First-run detection for onboarding wizard
-  const isFirstRun = () => !props.configFileFound && appsStore.store.entries.length === 0
-  const [wizardCompleted, setWizardCompleted] = createSignal(false)
-  const [forceOnboarding, setForceOnboarding] = createSignal(false)
-  const shouldShowWizard = () => (isFirstRun() || forceOnboarding()) && !wizardCompleted()
+
 
   // Get terminal dimensions from opentui
   const terminalDims = useTerminalDimensions()
@@ -54,9 +48,10 @@ export const App: Component<AppProps> = (props) => {
   const [isQuitting, setIsQuitting] = createSignal(false)
   const [editingEntryId, setEditingEntryId] = createSignal<string | null>(null)
   const [lastGTime, setLastGTime] = createSignal(0)
-  const [showHints, setShowHints] = createSignal(false)
   const [currentTheme, setCurrentTheme] = createSignal<ThemeConfig>(props.config.theme)
-  let hintsTimeout: ReturnType<typeof setTimeout> | null = null
+  
+  // Double-tap Ctrl+A detection for passthrough
+  let lastCtrlATime = 0
 
   const getPtyDimensions = () => {
     const dims = terminalDims()
@@ -221,7 +216,7 @@ export const App: Component<AppProps> = (props) => {
     }
   }
 
-  const persistAppsConfig = async (keybindsOverride?: Config["keybinds"]): Promise<boolean> => {
+  const persistAppsConfig = async (): Promise<boolean> => {
     const nextApps: AppEntryConfig[] = appsStore.store.entries.map((entry) => ({
       name: entry.name,
       command: entry.command,
@@ -235,12 +230,8 @@ export const App: Component<AppProps> = (props) => {
     const nextConfig: Config = {
       ...props.config,
       apps: nextApps,
-      keybinds: keybindsOverride ?? props.config.keybinds,
     }
     props.config.apps = nextApps
-    if (keybindsOverride) {
-      props.config.keybinds = keybindsOverride
-    }
 
     try {
       await saveConfig(nextConfig)
@@ -279,88 +270,6 @@ export const App: Component<AppProps> = (props) => {
     }
   }
 
-  // Trigger onboarding wizard manually
-  const triggerOnboarding = () => {
-    setForceOnboarding(true)
-    setWizardCompleted(false)
-    uiStore.closeModal()
-  }
-
-  // Handle wizard completion
-  const handleWizardComplete = async (apps: AppEntryConfig[], leaderKey: string) => {
-    // Add each app to the store
-    for (const appConfig of apps) {
-      appsStore.addEntry(appConfig)
-    }
-
-    // Construct keybinds config with selected leader key
-    const keybindsConfig: Config["keybinds"] = {
-      leader: {
-        key: leaderKey,
-        timeout: 1000,
-        show_hints: true,
-        hint_delay: 300,
-      },
-      bindings: {
-        next_tab: "n",
-        prev_tab: "p",
-        close_tab: "w",
-        new_tab: "t",
-        toggle_focus: "a",
-        edit_app: "e",
-        restart_app: "r",
-        command_palette: "space",
-        stop_app: "x",
-        kill_all: "K",
-        quit: "q",
-        rerun_onboarding: "O",
-      },
-      direct: {
-        navigate_up: "k",
-        navigate_down: "j",
-        select: "enter",
-        go_top: "g",
-        go_bottom: "G",
-      },
-    }
-
-    // Persist to config file with keybinds
-    const success = await persistAppsConfig(keybindsConfig)
-    if (success) {
-      // Mark wizard as completed only on success
-      setWizardCompleted(true)
-      setForceOnboarding(false)
-      // Show success message
-      uiStore.showTemporaryMessage(`Added ${apps.length} app(s)`)
-    } else {
-      // Remove the apps we just added since save failed
-      for (const appConfig of apps) {
-        const entry = appsStore.store.entries.find((e) => e.name === appConfig.name)
-        if (entry) {
-          appsStore.removeEntry(entry.id)
-        }
-      }
-      // Show error and allow retry (don't mark wizard as completed)
-      uiStore.showTemporaryMessage("Failed to save config - please try again")
-    }
-  }
-
-  // Handle wizard skip
-  const handleWizardSkip = async () => {
-    // Save empty config to prevent wizard showing again
-    const success = await persistAppsConfig()
-    if (success) {
-      // Mark wizard as completed only on success
-      setWizardCompleted(true)
-      setForceOnboarding(false)
-      // Show hint message
-      uiStore.showTemporaryMessage("Add apps with Ctrl+T")
-    } else {
-      // Show error and allow retry (don't mark wizard as completed)
-      uiStore.showTemporaryMessage("Failed to save config - please try again")
-    }
-  }
-
   // Add a new app
   const openEditModal = (id: string) => {
     setEditingEntryId(id)
@@ -390,109 +299,36 @@ export const App: Component<AppProps> = (props) => {
     void persistAppsConfig()
   }
 
-  // Leader key config
-  const leaderConfig = props.config.keybinds.leader
-  const leaderBindings = props.config.keybinds.bindings
-
-  // Action handlers for leader bindings
-  const actionHandlers: Partial<Record<KeybindAction, () => void>> = {
-    next_tab: () => handleTabNavigation("down"),
-    prev_tab: () => handleTabNavigation("up"),
-    toggle_focus: () => tabsStore.toggleFocus(),
-    new_tab: () => uiStore.openModal("add-tab"),
-    edit_app: () => {
-      if (tabsStore.store.focusMode !== "tabs") {
-        uiStore.showTemporaryMessage("Switch to tabs to edit")
-        return
-      }
-      const entry = appsStore.store.entries[selectedIndex()]
-      if (!entry) {
-        uiStore.showTemporaryMessage("No app selected")
-        return
-      }
-      openEditModal(entry.id)
-    },
-    command_palette: () => uiStore.openModal("command-palette"),
-    close_tab: () => {
-      const activeId = tabsStore.store.activeTabId
-      if (activeId) stopApp(activeId)
-    },
-    stop_app: () => {
-      if (tabsStore.store.focusMode === "tabs") {
-        const entries = appsStore.store.entries
-        const entry = entries[selectedIndex()]
-        if (!entry) {
-          uiStore.showTemporaryMessage("No app selected")
-          return
-        }
-        if (tabsStore.store.runningApps.has(entry.id)) {
-          stopApp(entry.id)
-        } else {
-          uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
-        }
-        return
-      }
-
-      const activeId = tabsStore.store.activeTabId
-      if (activeId) {
-        stopApp(activeId)
-      } else {
-        uiStore.showTemporaryMessage("No active app")
-      }
-    },
-    kill_all: () => stopAllApps({ showMessage: true }),
-    restart_app: () => {
-      const activeId = tabsStore.store.activeTabId
-      if (activeId) restartApp(activeId)
-    },
-    quit: () => {
-      if (isQuitting()) {
-        return
-      }
-      setIsQuitting(true)
-
-      // Save session and exit
-      if (props.config.session.persist) {
-        const runningIds = Array.from(tabsStore.store.runningApps.keys())
-        saveSession({
-          runningApps: runningIds,
-          activeTab: tabsStore.store.activeTabId,
-          timestamp: Date.now(),
-        })
-      }
-
-      // Kill all running apps
-      stopAllApps({ showMessage: false })
-
-      renderer.destroy()
-      setTimeout(() => process.exit(0), 50)
-    },
-    rerun_onboarding: () => triggerOnboarding(),
-  }
-
-  // Create the leader binding handler
-  const handleLeaderBinding = createLeaderBindingHandler(leaderBindings, actionHandlers)
-
-  // Helper to cancel leader state and hints together
-  const cancelLeader = () => {
-    uiStore.setLeaderActive(false)
-    if (hintsTimeout) {
-      clearTimeout(hintsTimeout)
-      hintsTimeout = null
+  // Quit handler
+  const handleQuit = () => {
+    if (isQuitting()) {
+      return
     }
-    setShowHints(false)
+    setIsQuitting(true)
+
+    // Save session and exit
+    if (props.config.session.persist) {
+      const runningIds = Array.from(tabsStore.store.runningApps.keys())
+      saveSession({
+        runningApps: runningIds,
+        activeTab: tabsStore.store.activeTabId,
+        timestamp: Date.now(),
+      })
+    }
+
+    // Kill all running apps
+    stopAllApps({ showMessage: false })
+
+    renderer.destroy()
+    setTimeout(() => process.exit(0), 50)
   }
 
   // Hook up keyboard events from opentui
   useKeyboard((event) => {
-    debugLog(`[App] key: ${event.name} modal: ${uiStore.store.activeModal} leader: ${uiStore.store.leaderActive} prevented: ${event.defaultPrevented}`)
+    debugLog(`[App] key: ${event.name} modal: ${uiStore.store.activeModal} prevented: ${event.defaultPrevented}`)
 
-    // If a modal is open, clear leader state and let modal handle keys (except Escape)
+    // If a modal is open, let modal handle keys (except Escape)
     if (uiStore.store.activeModal) {
-      // Clear leader state when modal is open
-      if (uiStore.store.leaderActive) {
-        cancelLeader()
-      }
       if (event.name === "escape") {
         if (uiStore.store.activeModal === "edit-app") {
           setEditingEntryId(null)
@@ -509,70 +345,28 @@ export const App: Component<AppProps> = (props) => {
       ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
       : undefined
 
-    // Ctrl+C passthrough to PTY in terminal mode (BEFORE leader handling)
-    if (tabsStore.store.focusMode === "terminal" && activeApp) {
-      if (event.sequence === "\x03" || (event.ctrl && event.name === "c")) {
-        activeApp.pty.write("\x03")
-        event.preventDefault()
-        return
-      }
-    }
-
-    // === LEADER STATE MACHINE ===
-    if (uiStore.store.leaderActive) {
-      // Cancel leader on Escape
-      if (event.name === "escape") {
-        cancelLeader()
-        event.preventDefault()
-        return
-      }
-
-      // Double-tap leader key: send leader key sequence to PTY (terminal focus only)
-      if (matchesLeaderKey(event, leaderConfig.key)) {
-        if (tabsStore.store.focusMode === "terminal" && activeApp) {
-          const sequence = leaderKeyToSequence(leaderConfig.key)
-          if (sequence) {
-            activeApp.pty.write(sequence)
-          }
+    // === CTRL+A TOGGLE (works in both modes) ===
+    if (matchesKeybind(event, "ctrl+a")) {
+      const now = Date.now()
+      // Double-tap detection: if in terminal mode and within 500ms, send \x01 to PTY
+      if (tabsStore.store.focusMode === "terminal" && now - lastCtrlATime < 500) {
+        if (activeApp) {
+          activeApp.pty.write("\x01")
         }
-        cancelLeader()
+        lastCtrlATime = 0
         event.preventDefault()
         return
       }
-
-      // Check if event matches a leader binding
-      const action = handleLeaderBinding(event)
-      if (action !== null) {
-        cancelLeader()
-        event.preventDefault()
-        return
-      }
-
-      // Unknown key while leader active: cancel leader, do nothing else
-      cancelLeader()
-      event.preventDefault()
-      return
-    }
-
-    // Leader key pressed: activate leader state and start timeout
-    if (matchesLeaderKey(event, leaderConfig.key)) {
-      uiStore.setLeaderActive(true)
-      uiStore.startLeaderTimeout(() => {
-        cancelLeader()
-      }, leaderConfig.timeout)
-      // Start hints timeout if enabled
-      if (leaderConfig.show_hints) {
-        hintsTimeout = setTimeout(() => {
-          setShowHints(true)
-        }, leaderConfig.hint_delay)
-      }
+      // Otherwise toggle focus mode
+      lastCtrlATime = now
+      tabsStore.toggleFocus()
       event.preventDefault()
       return
     }
 
     // === TERMINAL FOCUS MODE ===
     if (tabsStore.store.focusMode === "terminal") {
-      // Pass raw input to terminal (leader key already handled above)
+      // Pass raw input to terminal
       if (activeApp && event.sequence) {
         activeApp.pty.write(event.sequence)
         event.preventDefault()
@@ -581,14 +375,14 @@ export const App: Component<AppProps> = (props) => {
     }
 
     // === TABS FOCUS MODE ===
-    // Ctrl+C in tabs mode shows quit hint instead of exiting
+    // Ctrl+C in tabs mode - just ignore silently
     if (event.sequence === "\x03" || (event.ctrl && event.name === "c")) {
-      uiStore.showTemporaryMessage("Press Leader+q to quit")
       event.preventDefault()
       return
     }
 
-    // Direct navigation keys (vim-style, no leader required)
+    // Direct navigation keys (vim-style)
+    // gg: go to top
     if (event.name === "g" && !event.ctrl && !event.option && !event.shift) {
       const now = Date.now()
       if (now - lastGTime() < 500) {
@@ -601,6 +395,7 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
+    // G: go to bottom
     if (event.name === "G" || (event.shift && event.name === "g")) {
       const entries = appsStore.store.entries
       if (entries.length > 0) {
@@ -611,37 +406,97 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
+    // Reset gg timer on other keys
     setLastGTime(0)
 
-    if (event.name === "j" || event.name === "down") {
-      handleTabNavigation("down")
-      event.preventDefault()
-      return
-    }
-
-    if (event.name === "k" || event.name === "up") {
-      handleTabNavigation("up")
-      event.preventDefault()
-      return
-    }
-
-    if (event.name === "return" || event.name === "enter") {
-      const entries = appsStore.store.entries
-      if (entries.length > 0 && selectedIndex() < entries.length) {
-        handleSelectApp(entries[selectedIndex()].id)
+    // Single-key commands in tabs mode
+    switch (event.name) {
+      case "j":
+      case "down":
+        handleTabNavigation("down")
         event.preventDefault()
+        return
+
+      case "k":
+      case "up":
+        handleTabNavigation("up")
+        event.preventDefault()
+        return
+
+      case "return":
+      case "enter": {
+        const entries = appsStore.store.entries
+        if (entries.length > 0 && selectedIndex() < entries.length) {
+          handleSelectApp(entries[selectedIndex()].id)
+        }
+        event.preventDefault()
+        return
       }
+
+      case "space":
+      case " ":
+        uiStore.openModal("command-palette")
+        event.preventDefault()
+        return
+
+      case "t":
+        uiStore.openModal("add-tab")
+        event.preventDefault()
+        return
+
+      case "e": {
+        const entry = appsStore.store.entries[selectedIndex()]
+        if (entry) {
+          openEditModal(entry.id)
+        } else {
+          uiStore.showTemporaryMessage("No app selected")
+        }
+        event.preventDefault()
+        return
+      }
+
+      case "x": {
+        const entry = appsStore.store.entries[selectedIndex()]
+        if (!entry) {
+          uiStore.showTemporaryMessage("No app selected")
+        } else if (tabsStore.store.runningApps.has(entry.id)) {
+          stopApp(entry.id)
+        } else {
+          uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
+        }
+        event.preventDefault()
+        return
+      }
+
+      case "r": {
+        const entry = appsStore.store.entries[selectedIndex()]
+        if (!entry) {
+          uiStore.showTemporaryMessage("No app selected")
+        } else if (tabsStore.store.runningApps.has(entry.id)) {
+          restartApp(entry.id)
+        } else {
+          uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
+        }
+        event.preventDefault()
+        return
+      }
+
+      case "q":
+        handleQuit()
+        event.preventDefault()
+        return
+    }
+
+    // K (shift+k): kill all apps
+    if (event.name === "K" || (event.shift && event.name === "k")) {
+      stopAllApps({ showMessage: true })
+      event.preventDefault()
       return
     }
   })
 
   // Auto-start apps and restore session once dimensions are valid
   createEffect(() => {
-    // Don't autostart apps during wizard
-    if (shouldShowWizard()) {
-      return
-    }
-
     const { cols, rows } = getPtyDimensions()
 
     // Wait for valid dimensions
@@ -721,126 +576,96 @@ export const App: Component<AppProps> = (props) => {
   })
 
   return (
-    <Show
-      when={!shouldShowWizard()}
-      fallback={
-        <OnboardingWizard
+    <box flexDirection="column" width="100%" height="100%">
+      {/* Main content area */}
+      <box flexDirection="row" flexGrow={1}>
+        {/* Tab list sidebar */}
+        <TabList
+          entries={appsStore.store.entries}
+          activeTabId={tabsStore.store.activeTabId}
+          selectedIndex={selectedIndex()}
+          getStatus={getAppStatus}
+          isFocused={tabsStore.store.focusMode === "tabs"}
+          width={props.config.tab_width}
+          height={terminalDims().height - 1}
+          scrollOffset={tabsStore.store.scrollOffset}
           theme={currentTheme()}
-          onComplete={handleWizardComplete}
-          onSkip={handleWizardSkip}
-        />
-      }
-    >
-      <box flexDirection="column" width="100%" height="100%">
-        {/* Main content area */}
-        <box flexDirection="row" flexGrow={1}>
-          {/* Tab list sidebar */}
-          <TabList
-            entries={appsStore.store.entries}
-            activeTabId={tabsStore.store.activeTabId}
-            selectedIndex={selectedIndex()}
-            getStatus={getAppStatus}
-            isFocused={tabsStore.store.focusMode === "tabs"}
-            width={props.config.tab_width}
-            height={terminalDims().height - 1}
-            scrollOffset={tabsStore.store.scrollOffset}
-            theme={currentTheme()}
-            onSelect={handleSelectApp}
-            onAddClick={() => uiStore.openModal("add-tab")}
-          />
-
-          {/* Terminal pane */}
-          <TerminalPane
-            runningApp={activeRunningApp()}
-            isFocused={tabsStore.store.focusMode === "terminal"}
-            width={terminalDims().width - props.config.tab_width}
-            height={terminalDims().height - 1}
-            theme={currentTheme()}
-            leaderKey={props.config.keybinds.leader.key}
-            newTabBinding={props.config.keybinds.bindings.new_tab}
-            onInput={handleTerminalInput}
-          />
-        </box>
-
-        {/* Status bar */}
-        <StatusBar
-          appName={activeRunningApp()?.entry.name ?? null}
-          appStatus={activeRunningApp()?.status ?? null}
-          focusMode={tabsStore.store.focusMode}
-          message={uiStore.store.statusMessage}
-          theme={currentTheme()}
-          leader={props.config.keybinds.leader}
-          bindings={props.config.keybinds.bindings}
-          leaderActive={uiStore.store.leaderActive}
+          onSelect={handleSelectApp}
+          onAddClick={() => uiStore.openModal("add-tab")}
         />
 
-        {/* Modals */}
-        <Show when={uiStore.store.activeModal === "command-palette"}>
-          <CommandPalette
-            entries={appsStore.store.entries}
-            theme={currentTheme()}
-            onSelect={(entry, action) => {
-              if (action === "edit") {
-                openEditModal(entry.id)
-                return
-              }
-
-              uiStore.closeModal()
-              if (action === "switch") {
-                handleSelectApp(entry.id)
-              } else if (action === "stop") {
-                if (tabsStore.store.runningApps.has(entry.id)) {
-                  stopApp(entry.id)
-                } else {
-                  uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
-                }
-              }
-            }}
-            onGlobalAction={(action: GlobalAction) => {
-              // Handle string actions (existing)
-              if (action === "rerun_onboarding") {
-                triggerOnboarding()
-                return
-              }
-              // Handle object actions (new theme selection)
-              if (typeof action === "object" && action.type === "set_theme") {
-                handleThemeChange(action.themeId)
-                return
-              }
-            }}
-            onClose={() => uiStore.closeModal()}
-          />
-        </Show>
-
-        <Show when={uiStore.store.activeModal === "add-tab"}>
-          <AddTabModal
-            theme={currentTheme()}
-            onAdd={handleAddApp}
-            onClose={() => uiStore.closeModal()}
-          />
-        </Show>
-
-        <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()}>
-          <EditAppModal
-            theme={currentTheme()}
-            entry={editingEntry()!}
-            onSave={(updates) => handleEditApp(editingEntry()!.id, updates)}
-            onClose={() => {
-              uiStore.closeModal()
-              setEditingEntryId(null)
-            }}
-          />
-        </Show>
-
-        {/* Leader hints popup - shown after delay when leader is active */}
-        <Show when={uiStore.store.leaderActive && showHints()}>
-          <LeaderHints
-            bindings={props.config.keybinds.bindings}
-            leaderKey={props.config.keybinds.leader.key}
-            theme={currentTheme()}
-          />
-        </Show>
+        {/* Terminal pane */}
+        <TerminalPane
+          runningApp={activeRunningApp()}
+          isFocused={tabsStore.store.focusMode === "terminal"}
+          width={terminalDims().width - props.config.tab_width}
+          height={terminalDims().height - 1}
+          theme={currentTheme()}
+          onInput={handleTerminalInput}
+        />
       </box>
-    </Show>
+
+      {/* Status bar */}
+      <StatusBar
+        appName={activeRunningApp()?.entry.name ?? null}
+        appStatus={activeRunningApp()?.status ?? null}
+        focusMode={tabsStore.store.focusMode}
+        message={uiStore.store.statusMessage}
+        theme={currentTheme()}
+      />
+
+      {/* Modals */}
+      <Show when={uiStore.store.activeModal === "command-palette"}>
+        <CommandPalette
+          entries={appsStore.store.entries}
+          theme={currentTheme()}
+          onSelect={(entry, action) => {
+            if (action === "edit") {
+              openEditModal(entry.id)
+              return
+            }
+
+            uiStore.closeModal()
+            if (action === "switch") {
+              handleSelectApp(entry.id)
+            } else if (action === "stop") {
+              if (tabsStore.store.runningApps.has(entry.id)) {
+                stopApp(entry.id)
+              } else {
+                uiStore.showTemporaryMessage(`Not running: ${entry.name}`)
+              }
+            }
+          }}
+          onGlobalAction={(action: GlobalAction) => {
+            // Handle theme selection
+            if (typeof action === "object" && action.type === "set_theme") {
+              handleThemeChange(action.themeId)
+              return
+            }
+          }}
+          onClose={() => uiStore.closeModal()}
+        />
+      </Show>
+
+      <Show when={uiStore.store.activeModal === "add-tab"}>
+        <AddTabModal
+          theme={currentTheme()}
+          onAdd={handleAddApp}
+          onClose={() => uiStore.closeModal()}
+        />
+      </Show>
+
+      <Show when={uiStore.store.activeModal === "edit-app" && editingEntry()}>
+        <EditAppModal
+          theme={currentTheme()}
+          entry={editingEntry()!}
+          onSave={(updates) => handleEditApp(editingEntry()!.id, updates)}
+          onClose={() => {
+            uiStore.closeModal()
+            setEditingEntryId(null)
+          }}
+        />
+      </Show>
+    </box>
   )
 }
