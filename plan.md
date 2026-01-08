@@ -317,9 +317,9 @@
 - [ ] Adjust width if needed for longer preset names
 
 ### 10.10 Update JSX layout in src/components/AddTabModal.tsx - Mode tabs
-- [ ] Add mode tabs row at top: `[Presets] [Custom]`
-- [ ] Highlight active mode tab with `props.theme.primary` background
-- [ ] Style inactive mode tab with `props.theme.muted` color
+- [x] Add mode tabs row at top: `[Presets] [Custom]`
+- [x] Highlight active mode tab with `props.theme.primary` background
+- [x] Style inactive mode tab with `props.theme.muted` color
 
 ### 10.11 Update JSX layout in src/components/AddTabModal.tsx - Preset list
 - [ ] Add preset list section (show when `mode() === "preset"`)

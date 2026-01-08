@@ -179,6 +179,22 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
         </text>
       </box>
 
+      {/* Mode tabs */}
+      <box height={1} flexDirection="row">
+        <text
+          fg={mode() === "preset" ? props.theme.background : props.theme.muted}
+          bg={mode() === "preset" ? props.theme.primary : undefined}
+        >
+          {" [Presets] "}
+        </text>
+        <text
+          fg={mode() === "custom" ? props.theme.background : props.theme.muted}
+          bg={mode() === "custom" ? props.theme.primary : undefined}
+        >
+          {" [Custom] "}
+        </text>
+      </box>
+
       {/* Fields */}
       {fields.map((field) => {
         const isFocused = () => focusedField() === field.key
