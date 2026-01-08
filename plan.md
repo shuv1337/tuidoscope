@@ -314,7 +314,7 @@
 
 ### 10.9 Update JSX layout in src/components/AddTabModal.tsx - Modal size
 - [x] Increase modal height from 11 to ~20 lines to accommodate preset list
-- [ ] Adjust width if needed for longer preset names
+- [x] Adjust width if needed for longer preset names
 
 ### 10.10 Update JSX layout in src/components/AddTabModal.tsx - Mode tabs
 - [x] Add mode tabs row at top: `[Presets] [Custom]`
@@ -322,20 +322,20 @@
 - [x] Style inactive mode tab with `props.theme.muted` color
 
 ### 10.11 Update JSX layout in src/components/AddTabModal.tsx - Preset list
-- [ ] Add preset list section (show when `mode() === "preset"`)
-- [ ] Render each preset as a row with name and command
-- [ ] Show availability indicator: `[*]` prefix for available, grayed out for unavailable
-- [ ] Highlight selected preset row with `props.theme.primary` background
-- [ ] Add scrolling if preset list exceeds available height
+- [x] Add preset list section (show when `mode() === "preset"`)
+- [x] Render each preset as a row with name and command
+- [x] Show availability indicator: `[*]` prefix for available, grayed out for unavailable
+- [x] Highlight selected preset row with `props.theme.primary` background
+- [x] Add scrolling if preset list exceeds available height
 
 ### 10.12 Update JSX layout in src/components/AddTabModal.tsx - Custom form
-- [ ] Wrap existing form fields in `<Show when={mode() === "custom"}>` conditional
-- [ ] Keep all existing form field rendering logic
+- [x] Wrap existing form fields in `<Show when={mode() === "custom"}>` conditional
+- [x] Keep all existing form field rendering logic
 
 ### 10.13 Update JSX layout in src/components/AddTabModal.tsx - Footer
-- [ ] Update footer hints based on mode
-- [ ] Preset mode: `Enter:Select | Tab:Custom | Esc:Cancel | j/k:Navigate`
-- [ ] Custom mode: `Enter:Add | Tab:Presets | Esc:Cancel | Tab:Next field`
+- [x] Update footer hints based on mode
+- [x] Preset mode: `Enter:Select | Tab:Custom | Esc:Cancel | j/k:Navigate`
+- [x] Custom mode: `Enter:Add | Tab:Presets | Esc:Cancel | Tab:Next field`
 
 ---
 

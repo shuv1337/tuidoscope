@@ -160,12 +160,25 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
     }
   })
 
+  // Calculate scroll offset for preset list
+  const VISIBLE_PRESETS = 12
+  const scrollOffset = createMemo(() => {
+    const idx = selectedPresetIndex()
+    const presets = presetsWithAvailability()
+    if (presets.length <= VISIBLE_PRESETS) return 0
+    // Keep selected item in view
+    const maxOffset = presets.length - VISIBLE_PRESETS
+    if (idx < 3) return 0
+    if (idx > presets.length - 4) return maxOffset
+    return Math.min(idx - 3, maxOffset)
+  })
+
   return (
     <box
       position="absolute"
-      top="30%"
-      left="25%"
-      width="50%"
+      top="20%"
+      left="20%"
+      width="60%"
       height={20}
       flexDirection="column"
       borderStyle="double"
@@ -195,28 +208,75 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
         </text>
       </box>
 
-      {/* Fields */}
-      {fields.map((field) => {
-        const isFocused = () => focusedField() === field.key
-        return (
-          <box height={1} flexDirection="row">
-            <box width={12}>
-              <text fg={isFocused() ? props.theme.accent : props.theme.muted}>{field.label}:</text>
+      {/* Preset list - show when mode is preset */}
+      {mode() === "preset" && (
+        <box flexDirection="column" flexGrow={1}>
+          {presetsWithAvailability()
+            .slice(scrollOffset(), scrollOffset() + VISIBLE_PRESETS)
+            .map((preset, index) => {
+              const actualIndex = () => scrollOffset() + index
+              const isSelected = () => selectedPresetIndex() === actualIndex()
+              return (
+                <box height={1} flexDirection="row">
+                  <text
+                    fg={
+                      !preset.available
+                        ? props.theme.muted
+                        : isSelected()
+                          ? props.theme.background
+                          : props.theme.foreground
+                    }
+                    bg={isSelected() ? props.theme.primary : undefined}
+                  >
+                    {preset.available ? " [*] " : " [ ] "}
+                    {preset.name.padEnd(18)}
+                    {preset.command.padEnd(20)}
+                    {preset.description}
+                  </text>
+                </box>
+              )
+            })}
+          {/* Scroll indicator */}
+          {presetsWithAvailability().length > VISIBLE_PRESETS && (
+            <box height={1}>
+              <text fg={props.theme.muted}>
+                {scrollOffset() > 0 ? "↑ " : "  "}
+                {selectedPresetIndex() + 1}/{presetsWithAvailability().length}
+                {scrollOffset() + VISIBLE_PRESETS < presetsWithAvailability().length ? " ↓" : ""}
+              </text>
             </box>
-            <text
-              fg={isFocused() ? props.theme.foreground : props.theme.muted}
-              bg={isFocused() ? props.theme.primary : undefined}
-            >
-              {" "}{field.value()}{isFocused() ? "█" : " "}
-            </text>
-          </box>
-        )
-      })}
+          )}
+        </box>
+      )}
 
-      {/* Footer */}
+      {/* Custom form fields - show when mode is custom */}
+      {mode() === "custom" && (
+        <box flexDirection="column" flexGrow={1}>
+          {fields.map((field) => {
+            const isFocused = () => focusedField() === field.key
+            return (
+              <box height={1} flexDirection="row">
+                <box width={12}>
+                  <text fg={isFocused() ? props.theme.accent : props.theme.muted}>{field.label}:</text>
+                </box>
+                <text
+                  fg={isFocused() ? props.theme.foreground : props.theme.muted}
+                  bg={isFocused() ? props.theme.primary : undefined}
+                >
+                  {" "}{field.value()}{isFocused() ? "█" : " "}
+                </text>
+              </box>
+            )
+          })}
+        </box>
+      )}
+
+      {/* Footer - different hints based on mode */}
       <box height={1}>
         <text fg={props.theme.muted}>
-          Enter:Add | Esc:Cancel | Tab:Next field
+          {mode() === "preset"
+            ? "Enter:Select | Tab:Custom | Esc:Cancel | j/k:Navigate"
+            : "Enter:Add | Tab:Presets | Esc:Cancel | ↑/↓:Field"}
         </text>
       </box>
     </box>
