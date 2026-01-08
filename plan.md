@@ -282,9 +282,9 @@
 - [x] Add `createMemo` to solid-js imports
 
 ### 10.2 Add preset availability check in src/components/AddTabModal.tsx
-- [ ] Add `checkAvailability(command: string): boolean` function
-- [ ] Use `execSync(\`which ${command.split(" ")[0]}\`, { stdio: "ignore" })` in try/catch
-- [ ] Return true if successful, false if throws
+- [x] Add `checkAvailability(command: string): boolean` function
+- [x] Use `execSync(\`which ${command.split(" ")[0]}\`, { stdio: "ignore" })` in try/catch
+- [x] Return true if successful, false if throws
 
 ### 10.3 Add preset state in src/components/AddTabModal.tsx
 - [ ] Add `const [mode, setMode] = createSignal<"preset" | "custom">("preset")`

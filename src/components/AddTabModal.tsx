@@ -4,6 +4,18 @@ import { execSync } from "child_process"
 import type { ThemeConfig, AppEntryConfig } from "../types"
 import { APP_PRESETS, type AppPreset } from "../lib/presets"
 
+/**
+ * Check if a command is available in the system PATH
+ */
+function checkAvailability(command: string): boolean {
+  try {
+    execSync(`which ${command.split(" ")[0]}`, { stdio: "ignore" })
+    return true
+  } catch {
+    return false
+  }
+}
+
 export interface AddTabModalProps {
   theme: ThemeConfig
   onAdd: (entry: AppEntryConfig) => void
