@@ -171,6 +171,7 @@ apps:
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
+| `id` | string | auto | Stable app identifier (auto-generated if omitted) |
 | `name` | string | required | Display name in tab list |
 | `command` | string | required | Executable to run |
 | `args` | string | `""` | Arguments passed to command |

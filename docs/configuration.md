@@ -79,6 +79,7 @@ For reference, these are the base colors used in the default theme:
 
 ### `apps`
 Each app entry defines a TUI application to be managed.
+- `id`: (Optional) Stable identifier; auto-generated if omitted.
 - `name`: Display name in the tab list.
 - `command`: The executable to run.
 - `args`: (Optional) String of arguments to pass to the command.
