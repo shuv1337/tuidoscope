@@ -166,7 +166,7 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
       top="30%"
       left="25%"
       width="50%"
-      height={11}
+      height={20}
       flexDirection="column"
       borderStyle="double"
       borderColor={props.theme.primary}

@@ -313,7 +313,7 @@
 - [x] In custom mode: Enter submits custom app form
 
 ### 10.9 Update JSX layout in src/components/AddTabModal.tsx - Modal size
-- [ ] Increase modal height from 11 to ~20 lines to accommodate preset list
+- [x] Increase modal height from 11 to ~20 lines to accommodate preset list
 - [ ] Adjust width if needed for longer preset names
 
 ### 10.10 Update JSX layout in src/components/AddTabModal.tsx - Mode tabs
