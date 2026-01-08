@@ -416,8 +416,8 @@
 - [x] Fix any TypeScript errors
 
 ### 14.2 Run tests
-- [ ] Run `bun test`
-- [ ] Fix any failing tests
+- [x] Run `bun test`
+- [x] Fix any failing tests
 
 ### 14.3 Manual testing - Basic navigation
 - [ ] Start app with `bun run dev`
