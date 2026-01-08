@@ -1,13 +1,10 @@
 import { createStore } from "solid-js/store"
+import { generateId } from "../lib/id"
 import type { AppEntry, AppEntryConfig } from "../types"
-
-function generateId(): string {
-  return Math.random().toString(36).substring(2, 11)
-}
 
 function configToEntry(config: AppEntryConfig): AppEntry {
   return {
-    id: generateId(),
+    id: config.id ?? generateId(),
     name: config.name,
     command: config.command,
     args: config.args,
