@@ -277,9 +277,9 @@
 ## Phase 10: Enhance AddTabModal
 
 ### 10.1 Add imports to src/components/AddTabModal.tsx
-- [ ] Add `import { APP_PRESETS, type AppPreset } from "../lib/presets"`
-- [ ] Add `import { execSync } from "child_process"`
-- [ ] Add `createMemo` to solid-js imports
+- [x] Add `import { APP_PRESETS, type AppPreset } from "../lib/presets"`
+- [x] Add `import { execSync } from "child_process"`
+- [x] Add `createMemo` to solid-js imports
 
 ### 10.2 Add preset availability check in src/components/AddTabModal.tsx
 - [ ] Add `checkAvailability(command: string): boolean` function

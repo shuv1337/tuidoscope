@@ -1,6 +1,8 @@
-import { Component, createSignal } from "solid-js"
+import { Component, createSignal, createMemo } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
+import { execSync } from "child_process"
 import type { ThemeConfig, AppEntryConfig } from "../types"
+import { APP_PRESETS, type AppPreset } from "../lib/presets"
 
 export interface AddTabModalProps {
   theme: ThemeConfig
