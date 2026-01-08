@@ -6,6 +6,7 @@ import { homedir } from "os"
 import { dirname, resolve } from "path"
 import { getConfigDir as getXdgConfigDir, paths, getStateDir } from "./xdg"
 import { debugLog } from "./debug"
+import { generateId } from "./id"
 import type { Config } from "../types"
 
 /**
@@ -31,6 +32,7 @@ const ThemeSchema = z.object({
 })
 
 const AppEntrySchema = z.object({
+  id: z.string().optional(),
   name: z.string(),
   command: z.string(),
   args: z.string().optional(),
@@ -90,6 +92,34 @@ export function expandPath(path: string): string {
  * 2. $XDG_CONFIG_HOME/tuidoscope/tuidoscope.yaml
  * 3. Default values
  */
+export function ensureAppEntryIds(config: Config): { config: Config; updated: boolean } {
+  if (!config.apps.length) {
+    return { config, updated: false }
+  }
+
+  const seen = new Set<string>()
+  let updated = false
+
+  const apps = config.apps.map((entry) => {
+    let id = entry.id
+    if (!id || seen.has(id)) {
+      id = generateId()
+      updated = true
+    }
+    seen.add(id)
+    return { ...entry, id }
+  })
+
+  if (!updated) {
+    return { config, updated: false }
+  }
+
+  return {
+    config: { ...config, apps },
+    updated: true,
+  }
+}
+
 export async function loadConfig(): Promise<LoadConfigResult> {
   debugLog(`[config] Checking local config: ${LOCAL_CONFIG_PATH}`)
   debugLog(`[config] Checking XDG config: ${paths.config}`)
@@ -119,9 +149,20 @@ export async function loadConfig(): Promise<LoadConfigResult> {
   try {
     const content = await readFile(configPath, "utf-8")
     const parsed = parse(content)
-    const validated = ConfigSchema.parse(parsed)
-    debugLog(`[config] Loaded ${validated.apps.length} apps from config`)
-    return { config: validated as Config, configFileFound }
+    const validated = ConfigSchema.parse(parsed) as Config
+    const ensured = ensureAppEntryIds(validated)
+    debugLog(`[config] Loaded ${ensured.config.apps.length} apps from config`)
+
+    if (configFileFound && ensured.updated) {
+      try {
+        await saveConfig(ensured.config)
+        debugLog(`[config] Updated config with stable app ids`)
+      } catch (error) {
+        debugLog(`[config] Failed to update config ids: ${error}`)
+      }
+    }
+
+    return { config: ensured.config, configFileFound }
   } catch (error) {
     debugLog(`[config] Error loading config: ${error}`)
     console.error(`Error loading config from ${configPath}:`, error)
