@@ -1,216 +1,467 @@
-# Onboarding UX Improvements - Implementation Backlog
+# Simplify Keyboard System - Implementation Backlog
 
-## Phase 0: Type Refactoring
+**Goal:** Replace tmux-style leader key system with simple focus-toggle model.
 
-- [x] 0.1 Open `src/components/onboarding/types.ts` and add import for `AppPreset` type from `./presets`
-- [x] 0.2 Add `ListRow` type definition to `types.ts` with two variants: `header` (category, label) and `preset` (preset, originalIndex)
-- [x] 0.3 Export `ListRow` type from `types.ts`
-- [x] 0.4 Open `src/components/onboarding/PresetSelectionStep.tsx` and find local `ListRow` type definition
-- [x] 0.5 Remove local `ListRow` type definition from `PresetSelectionStep.tsx`
-- [x] 0.6 Add import for `ListRow` from `./types` in `PresetSelectionStep.tsx`
-- [x] 0.7 Run `bun run typecheck` to verify no type errors
+**Key behavior:**
+- `Ctrl+A` toggles between TABS and TERMINAL mode
+- TABS mode: single keystrokes (j/k/gg/G/Enter/Space/t/e/x/r/K/q)
+- TERMINAL mode: all input to PTY, double-tap Ctrl+A passes through
 
-## Phase 1: Confirmation Screen Bug Verification
+---
 
-- [x] 1.1 Run `bun run dev` and complete onboarding wizard to reach ConfirmationStep (REQUIRES INTERACTIVE TESTING - skipped, code review done)
-- [x] 1.2 Test ConfirmationStep rendering in Ghostty terminal at 80x24 (REQUIRES INTERACTIVE TESTING - skipped)
-- [x] 1.3 Test ConfirmationStep rendering in default terminal at 80x24 (REQUIRES INTERACTIVE TESTING - skipped)
-- [x] 1.4 Document findings: Code review shows multiple `<text>` elements in single-line `<box>` which could cause rendering issues. Bug is plausible but unverified due to non-interactive environment.
-- [x] 1.5 If bug IS reproducible: open `src/components/onboarding/ConfirmationStep.tsx` (skipped - cannot verify bug)
-- [x] 1.6 If bug IS reproducible: combine name and command into single `<text>` template string (skipped - cannot verify bug)
-- [x] 1.7 If bug IS reproducible: apply same fix to both preset list (lines ~98-108) and custom app list (lines ~121-131) (skipped - cannot verify bug)
-- [x] 1.8 If bug IS reproducible: verify fix in multiple terminals (skipped - cannot verify bug)
+## Phase 1: Move and Delete Files
 
-## Phase 2: Leader Key Tooltip Data
+### 1.1 Move presets.ts
+- [ ] Copy `src/components/onboarding/presets.ts` to `src/lib/presets.ts`
+- [ ] Verify the new file has all exports: `AppPreset`, `CATEGORY_LABELS`, `CATEGORY_TAB_LABELS`, `APP_PRESETS`
+- [ ] Delete `src/components/onboarding/presets.ts`
 
-- [x] 2.1 Open `src/components/onboarding/keybindingPresets.ts`
-- [x] 2.2 Add optional `tooltip` property to `LeaderPreset` interface with shape: `{ origin: string, example: string, conflicts?: string[] }`
-- [x] 2.3 Add tooltip data to "tmux" preset (ctrl+a): origin about GNU Screen, example usage, readline/emacs conflicts
-- [x] 2.4 Add tooltip data to "tmux-alt" preset (ctrl+b): origin about tmux default, example usage, tmux/readline conflicts
-- [x] 2.5 Add tooltip data to "screen" preset (ctrl+\): origin about Screen alternative, example usage, SIGQUIT conflict
-- [x] 2.6 Add tooltip data to "desktop" preset (alt+space): origin about desktop apps, example usage, GNOME/macOS/Windows conflicts
-- [x] 2.7 Add tooltip data to "custom" preset: generic origin/example, no conflicts array
-- [x] 2.8 Run `bun run typecheck` to verify tooltip types are correct
+### 1.2 Delete onboarding wizard files
+- [ ] Delete `src/components/onboarding/OnboardingWizard.tsx`
+- [ ] Delete `src/components/onboarding/WelcomeStep.tsx`
+- [ ] Delete `src/components/onboarding/KeybindingStep.tsx`
+- [ ] Delete `src/components/onboarding/PresetSelectionStep.tsx`
+- [ ] Delete `src/components/onboarding/CustomAppStep.tsx`
+- [ ] Delete `src/components/onboarding/ConfirmationStep.tsx`
+- [ ] Delete `src/components/onboarding/types.ts`
+- [ ] Delete `src/components/onboarding/keybindingPresets.ts`
+- [ ] Delete `src/components/onboarding/presetFilter.ts`
+- [ ] Delete `src/components/onboarding/presetFilter.test.ts`
+- [ ] Delete `src/components/onboarding/index.ts`
+- [ ] Delete the empty `src/components/onboarding/` directory
 
-## Phase 2: Leader Key Tooltip UI
+### 1.3 Delete leader hints component
+- [ ] Delete `src/components/LeaderHints.tsx`
 
-- [x] 2.9 Open `src/components/onboarding/KeybindingStep.tsx`
-- [x] 2.10 Add `showHelp` signal: `const [showHelp, setShowHelp] = createSignal(false)`
-- [x] 2.11 Find the `useKeyboard` hook call and add handler for `?` key to toggle `showHelp`
-- [x] 2.12 Create tooltip panel JSX that renders when `showHelp()` is true
-- [x] 2.13 In tooltip panel: display "Origin:" label with `props.theme.muted` color
-- [x] 2.14 In tooltip panel: display origin value from focused preset's tooltip
-- [x] 2.15 In tooltip panel: display "Example:" label with `props.theme.muted` color
-- [x] 2.16 In tooltip panel: display example value from focused preset's tooltip
-- [x] 2.17 In tooltip panel: display "Conflicts:" label with `props.theme.muted` color (only if conflicts exist)
-- [x] 2.18 In tooltip panel: display each conflict as bulleted list item
-- [x] 2.19 Position tooltip panel below preset list, above footer hints
-- [x] 2.20 Add `?: Help` to footer hints line
-- [x] 2.21 Test: `?` toggles tooltip visibility
-- [x] 2.22 Test: tooltip content updates when focus changes via j/k
+### 1.4 Delete key-capture utility
+- [ ] Delete `src/lib/key-capture.ts`
 
-## Phase 3: Filter Helper Module
+### 1.5 Delete config migration tests
+- [ ] Delete `src/lib/config.test.ts`
 
-- [x] 3.1 Create new file `src/components/onboarding/presetFilter.ts`
-- [x] 3.2 Add imports: `AppPreset` from `./presets`, `ListRow` from `./types`, `CATEGORY_LABELS` from `./presets`
-- [x] 3.3 Implement `buildFilteredRows` function signature: `(presets: AppPreset[], category: string | "all", query: string) => ListRow[]`
-- [x] 3.4 In `buildFilteredRows`: normalize query to lowercase and trim whitespace
-- [x] 3.5 In `buildFilteredRows`: iterate over presets with forEach, tracking originalIndex
-- [x] 3.6 In `buildFilteredRows`: skip preset if category filter is active and doesn't match
-- [x] 3.7 In `buildFilteredRows`: build searchable text from name, description, command, category label
-- [x] 3.8 In `buildFilteredRows`: skip preset if normalized query doesn't match searchable text
-- [x] 3.9 In `buildFilteredRows`: insert category header row when category changes
-- [x] 3.10 In `buildFilteredRows`: push preset row with originalIndex for selection tracking
-- [x] 3.11 Implement `getPresetIndices` function: extract indices of preset rows (skip headers)
-- [x] 3.12 Export both functions from `presetFilter.ts`
-- [x] 3.13 Run `bun run typecheck` to verify module compiles
+---
 
-## Phase 3: Search State in PresetSelectionStep
+## Phase 2: Simplify Types
 
-- [x] 3.14 Open `src/components/onboarding/PresetSelectionStep.tsx`
-- [x] 3.15 Add import for `buildFilteredRows` and `getPresetIndices` from `./presetFilter`
-- [x] 3.16 Add `searchQuery` signal: `const [searchQuery, setSearchQuery] = createSignal("")`
-- [x] 3.17 Add `isSearchFocused` signal: `const [isSearchFocused, setIsSearchFocused] = createSignal(false)`
-- [x] 3.18 Add `activeCategory` signal: `const [activeCategory, setActiveCategory] = createSignal<string>("all")`
-- [x] 3.19 Define category order array: `["all", "shell", "productivity", "monitor", "files", "git", "dev", "editor", "ai", "utility"]`
+### 2.1 Remove keybind types from src/types/index.ts
+- [ ] Delete `KeybindConfigV1` interface (lines ~12-25)
+- [ ] Delete `LeaderConfig` interface (lines ~27-33)
+- [ ] Delete `LeaderBindings` interface (lines ~35-49)
+- [ ] Delete `DirectBindings` interface (lines ~51-58)
+- [ ] Delete `KeybindConfigV2` interface (lines ~60-65)
+- [ ] Delete `KeybindConfig` type alias
+- [ ] Delete `isV2KeybindConfig()` type guard function
+- [ ] Remove `keybinds: KeybindConfigV2` from `Config` interface
 
-## Phase 3: Filtered List Integration
+---
 
-- [x] 3.20 Find existing `listRows` memo in PresetSelectionStep
-- [x] 3.21 Replace `listRows` computation to use `buildFilteredRows(APP_PRESETS, activeCategory(), searchQuery())`
-- [x] 3.22 Add `presetIndices` memo using `getPresetIndices(filteredRows())`
-- [x] 3.23 Add `createEffect` to reset `focusedIndex` to 0 when `filteredRows` changes
-- [x] 3.24 Update navigation logic to use `presetIndices()` for j/k/arrow navigation
-- [x] 3.25 Update selection toggle to use `originalIndex` from ListRow for correct selection state
+## Phase 3: Simplify Config
 
-## Phase 3: Keyboard Mode State Machine
+### 3.1 Remove keybind schemas from src/lib/config.ts
+- [ ] Delete `LeaderSchema` zod object
+- [ ] Delete `LeaderBindingsSchema` zod object
+- [ ] Delete `DirectBindingsSchema` zod object
+- [ ] Delete `KeybindSchemaV2` zod object
+- [ ] Delete `KeybindSchemaV1` zod object
 
-- [x] 3.26 Find `useKeyboard` hook in PresetSelectionStep
-- [x] 3.27 Add `/` key handler: set `isSearchFocused(true)` to enter search mode
-- [x] 3.28 In search mode: capture printable characters and append to `searchQuery`
-- [x] 3.29 In search mode: `Backspace` deletes last character from query (not go back)
-- [x] 3.30 In search mode: `Enter` exits search mode by setting `isSearchFocused(false)`
-- [x] 3.31 In search mode: arrow keys (↑/↓) navigate filtered results
-- [x] 3.32 In search mode: j/k type characters into query (not navigate)
-- [x] 3.33 In search mode: Space appends space to query (not toggle selection)
-- [x] 3.34 Implement Esc priority chain: (1) if search focused, blur search
-- [x] 3.35 Implement Esc priority chain: (2) if query non-empty, clear query and reset focus
-- [x] 3.36 Implement Esc priority chain: (3) if no search state, call `props.onBack()`
-- [x] 3.37 In navigation mode: ensure j/k/gg/G navigate as before
-- [x] 3.38 In navigation mode: ensure Backspace calls `props.onBack()` as before
+### 3.2 Remove migration functions from src/lib/config.ts
+- [ ] Delete `isV1Config()` function
+- [ ] Delete `stripModifierPrefix()` function
+- [ ] Delete `migrateV1ToV2()` function
+- [ ] Delete `migrateConfig()` function
 
-## Phase 3: Search Input Rendering
+### 3.3 Update ConfigSchema in src/lib/config.ts
+- [ ] Remove `keybinds: KeybindSchemaV2.default({})` from ConfigSchema
 
-- [x] 3.39 Add search input row to JSX, positioned below category tabs (Phase 4) or at top
-- [x] 3.40 When `isSearchFocused()`: render `Search: ` prefix with `props.theme.primary` background
-- [x] 3.41 When `isSearchFocused()`: render query text followed by cursor block `█`
-- [x] 3.42 When `!isSearchFocused() && searchQuery()`: render dimmed `Filter: {query}`
-- [x] 3.43 When `!isSearchFocused() && !searchQuery()`: hide search input row or show placeholder
-- [x] 3.44 Update footer hints to show `/: Search` when not in search mode
-- [x] 3.45 Update footer hints to show `Enter: Done` and `Esc: Cancel` when in search mode
+### 3.4 Update loadConfig() in src/lib/config.ts
+- [ ] Remove `migrateConfig()` call (line ~304: `const migrated = migrateConfig(parsed)`)
+- [ ] Change to parse directly: `const validated = ConfigSchema.parse(parsed)`
 
-## Phase 3: Empty Results Handling
+---
 
-- [x] 3.46 Add conditional rendering when `presetIndices().length === 0`
-- [x] 3.47 Display "No matching apps" message centered with `props.theme.muted` color
-- [x] 3.48 Disable j/k/↑/↓ navigation when results are empty (no-op)
-- [x] 3.49 Disable Space key when results are empty (no-op)
-- [x] 3.50 Ensure Enter key still advances to next step when results are empty
+## Phase 4: Simplify Keybinds Library
 
-## Phase 3: Layout Adjustments
+### 4.1 Remove unused exports from src/lib/keybinds.ts
+- [ ] Delete `KeybindAction` type
+- [ ] Delete `matchesLeaderKey()` function
+- [ ] Delete `matchesSingleKey()` function
+- [ ] Delete `createLeaderBindingHandler()` function
+- [ ] Delete `formatLeaderKeybind()` function
+- [ ] Delete `formatLeaderKey()` function
+- [ ] Delete `leaderKeyToSequence()` function
 
-- [x] 3.51 Find `justifyContent="center"` in PresetSelectionStep outer box
-- [x] 3.52 Change `justifyContent="center"` to `justifyContent="flex-start"`
-- [x] 3.53 Find spacer `<box height={1} />` elements and reduce or remove them
-- [x] 3.54 Add `maxHeight` or `flexGrow={1}` to preset list container to fill available space
-- [x] 3.55 Test layout at 80x24 terminal size to verify no overflow (added overflow="hidden" to preset list container)
+### 4.2 Clean up imports in src/lib/keybinds.ts
+- [ ] Remove `import type { LeaderBindings } from "../types"` (no longer exists)
 
-## Phase 4: Category Tabs Data
+### 4.3 Verify remaining exports
+- [ ] Confirm `parseKeybind()` is exported
+- [ ] Confirm `matchesKeybind()` is exported
+- [ ] Confirm `formatKeybind()` is exported (may be useful)
 
-- [x] 4.1 Define display labels for category tabs (can use existing `CATEGORY_LABELS` or define new short labels)
-- [x] 4.2 Ensure "All" is first in category order array
+---
 
-## Phase 4: Category Tabs Rendering
+## Phase 5: Clean Up UI Store
 
-- [x] 4.3 Add category tabs row to JSX, positioned above search input
-- [x] 4.4 Render each category as text with spacing between them
-- [x] 4.5 When category is "all": render as `[All]` with brackets
-- [x] 4.6 When category is active (not "all"): render with accent color or underline
-- [x] 4.7 When category is inactive: render with `props.theme.muted` color
-- [x] 4.8 Handle overflow: truncate or wrap if too many categories for terminal width
+### 5.1 Remove leader state from src/stores/ui.ts
+- [ ] Remove `leaderActive: boolean` from `UIStore` interface
+- [ ] Remove `leaderTimeout: ReturnType<typeof setTimeout> | null` from `UIStore` interface
+- [ ] Remove `leaderActivatedAt: number | null` from `UIStore` interface
+- [ ] Remove `leaderActive: false` from initial store state
+- [ ] Remove `leaderTimeout: null` from initial store state
+- [ ] Remove `leaderActivatedAt: null` from initial store state
 
-## Phase 4: Category Keyboard Navigation
+### 5.2 Remove leader functions from src/stores/ui.ts
+- [ ] Delete `clearLeaderTimeout()` function
+- [ ] Delete `setLeaderActive()` function
+- [ ] Delete `startLeaderTimeout()` function
+- [ ] Remove `setLeaderActive` from return object
+- [ ] Remove `clearLeaderTimeout` from return object
+- [ ] Remove `startLeaderTimeout` from return object
 
-- [x] 4.9 Add `[` key handler: cycle to previous category in order array
-- [x] 4.10 Add `]` key handler: cycle to next category in order array
-- [x] 4.11 Ensure category cycling wraps around (last -> first, first -> last)
-- [x] 4.12 Ensure `[` and `]` work in both navigation mode and search mode
-- [x] 4.13 Update footer hints to show `[/]: Category`
+---
 
-## Phase 4: Category Filter Integration
+## Phase 6: Rewrite App.tsx
 
-- [x] 4.14 Verify `buildFilteredRows` correctly filters by `activeCategory()`
-- [x] 4.15 Verify category headers only appear for categories with matching presets
-- [x] 4.16 Test: category + search query filters combine with AND logic
-- [x] 4.17 Test: switching category resets focus to first result
+### 6.1 Remove imports from src/app.tsx
+- [ ] Remove `OnboardingWizard` import from `./components/onboarding`
+- [ ] Remove `LeaderHints` import from `./components/LeaderHints`
+- [ ] Remove `matchesLeaderKey` from `./lib/keybinds` import
+- [ ] Remove `matchesSingleKey` from `./lib/keybinds` import
+- [ ] Remove `createLeaderBindingHandler` from `./lib/keybinds` import
+- [ ] Remove `leaderKeyToSequence` from `./lib/keybinds` import
+- [ ] Remove `KeybindAction` type import from `./lib/keybinds`
+- [ ] Keep only `matchesKeybind` import from `./lib/keybinds`
 
-## Phase 5: Selection Polish (Optional)
+### 6.2 Remove wizard state signals from src/app.tsx
+- [ ] Delete `isFirstRun` memo
+- [ ] Delete `wizardCompleted` signal
+- [ ] Delete `forceOnboarding` signal
+- [ ] Delete `shouldShowWizard` memo
+- [ ] Delete `showHints` signal
+- [ ] Delete `hintsTimeout` variable
 
-- [x] 5.1 Assess remaining vertical space at 80x24 after Phase 3-4 changes
-- [x] 5.2 If space allows: add subtle background highlight to selected rows
-- [x] 5.3 Selected row background: use dim version of accent color (distinct from focus)
-- [x] 5.4 If space allows: add selection summary header above preset list
-- [x] 5.5 Selection summary format: `3 selected: htop, lazygit, nvim...`
-- [x] 5.6 Truncate selection summary at ~40 characters with ellipsis
-- [x] 5.7 Only show selection summary when 1+ apps selected
-- [x] 5.8 Test layout at 80x24 to ensure no overflow with polish features (code review: fixed headers use 7 lines max, preset list has overflow="hidden" at line 358, remaining 17+ lines available for content)
+### 6.3 Remove wizard handlers from src/app.tsx
+- [ ] Delete `triggerOnboarding()` function
+- [ ] Delete `handleWizardComplete()` function
+- [ ] Delete `handleWizardSkip()` function
 
-## Phase 6: Layout Verification (REQUIRES MANUAL TESTING)
+### 6.4 Simplify persistAppsConfig() in src/app.tsx
+- [ ] Remove `keybindsOverride` parameter
+- [ ] Remove keybinds from `nextConfig` object
+- [ ] Remove `if (keybindsOverride)` block
 
-- [x] 6.1 Set terminal to exactly 80 columns x 24 rows (manual)
-- [x] 6.2 Run `bun run dev` and navigate to PresetSelectionStep (manual)
-- [x] 6.3 Verify category tabs row fits without wrapping (manual)
-- [x] 6.4 Verify search input row renders correctly (manual)
-- [x] 6.5 Verify preset list fills remaining space (manual)
-- [x] 6.6 Verify footer hints and selected count are visible (manual)
-- [x] 6.7 Test with search query active at 80x24 (manual)
-- [x] 6.8 Test with 10+ presets selected at 80x24 (manual)
-- [x] 6.9 Set terminal to 120 columns x 40 rows (manual)
-- [x] 6.10 Verify UI scales gracefully without excessive whitespace (manual)
-- [x] 6.11 Test KeybindingStep tooltip panel at 80x24 (manual)
+### 6.5 Remove leader config extraction from src/app.tsx
+- [ ] Delete `const leaderConfig = props.config.keybinds.leader`
+- [ ] Delete `const leaderBindings = props.config.keybinds.bindings`
 
-## Phase 7: Unit Tests
+### 6.6 Remove action handlers object from src/app.tsx
+- [ ] Delete entire `actionHandlers` object (Partial<Record<KeybindAction, () => void>>)
+- [ ] Delete `handleLeaderBinding` creation (createLeaderBindingHandler call)
+- [ ] Delete `cancelLeader()` helper function
 
-- [x] 7.1 Create new file `src/components/onboarding/presetFilter.test.ts`
-- [x] 7.2 Add imports: `describe`, `it`, `expect` from bun test, filter functions, test data
-- [x] 7.3 Test: `buildFilteredRows` returns all presets when category="all" and query=""
-- [x] 7.4 Test: `buildFilteredRows` filters by category correctly
-- [x] 7.5 Test: `buildFilteredRows` query match is case-insensitive
-- [x] 7.6 Test: `buildFilteredRows` query matches partial strings
-- [x] 7.7 Test: `buildFilteredRows` query matches against name, description, command
-- [x] 7.8 Test: `buildFilteredRows` combined category + query uses AND logic
-- [x] 7.9 Test: `buildFilteredRows` returns empty array when no matches
-- [x] 7.10 Test: `buildFilteredRows` only inserts headers for categories with matches
-- [x] 7.11 Test: `getPresetIndices` returns only indices of preset rows
-- [x] 7.12 Test: `getPresetIndices` skips header rows
-- [x] 7.13 Run `bun test` to verify all tests pass
+### 6.7 Add double-tap state variable in src/app.tsx
+- [ ] Add `let lastCtrlATime = 0` near other state variables (after `lastGTime` signal)
 
-## Phase 7: Manual QA Checklist (REQUIRES MANUAL TESTING)
+### 6.8 Rewrite keyboard handler in src/app.tsx - Modal handling
+- [ ] Keep existing modal escape handling logic
+- [ ] Remove `if (uiStore.store.leaderActive) { cancelLeader() }` block
 
-- [x] 7.14 QA: Press `/` to focus search input, verify cursor appears (manual)
-- [x] 7.15 QA: Type query, verify results filter in real-time (manual)
-- [x] 7.16 QA: In search mode, press `j` and `k`, verify they type characters (manual)
-- [x] 7.17 QA: In search mode, press ↑/↓ arrows, verify they navigate results (manual)
-- [x] 7.18 QA: In search mode, press `Enter`, verify search blurs but query persists (manual)
-- [x] 7.19 QA: Press `Esc` once (search focused), verify search blurs (manual)
-- [x] 7.20 QA: Press `Esc` again (query exists), verify query clears (manual)
-- [x] 7.21 QA: Press `Esc` again (no search state), verify goes back to previous step (manual)
-- [x] 7.22 QA: Press `[` and `]`, verify category cycles (manual)
-- [x] 7.23 QA: Select category + type query, verify combined filtering (manual)
-- [x] 7.24 QA: Filter to zero results, verify "No matching apps" message (manual)
-- [x] 7.25 QA: With zero results, press `Enter`, verify advances to next step (manual)
-- [x] 7.26 QA: On KeybindingStep, press `?`, verify tooltip panel appears (manual)
-- [x] 7.27 QA: With tooltip visible, press j/k, verify tooltip content updates (manual)
-- [x] 7.28 QA: Verify all UI fits in 80x24 terminal without scrolling (manual)
-- [x] 7.29 Run `bun run typecheck` one final time
-- [x] 7.30 Run `bun test` one final time
+### 6.9 Rewrite keyboard handler in src/app.tsx - Ctrl+A toggle
+- [ ] Replace leader key detection with `if (matchesKeybind(event, "ctrl+a"))`
+- [ ] Add double-tap detection: check `lastCtrlATime` within 500ms
+- [ ] If double-tap in terminal mode: write `"\x01"` to PTY, reset timer, return
+- [ ] Otherwise: update `lastCtrlATime`, call `tabsStore.toggleFocus()`, return
+
+### 6.10 Rewrite keyboard handler in src/app.tsx - Terminal mode
+- [ ] Remove all leader state machine code
+- [ ] In terminal mode: pass `event.sequence` directly to PTY
+- [ ] Return early after terminal mode handling
+
+### 6.11 Rewrite keyboard handler in src/app.tsx - Tabs mode Ctrl+C
+- [ ] Keep Ctrl+C ignore logic in tabs mode
+- [ ] Remove "Press Leader+q to quit" message, just ignore silently
+
+### 6.12 Rewrite keyboard handler in src/app.tsx - gg/G navigation
+- [ ] Keep existing `g` double-tap logic for go-to-top
+- [ ] Keep existing `G` (shift+g) logic for go-to-bottom
+- [ ] Keep `lastGTime` reset for other keys
+
+### 6.13 Rewrite keyboard handler in src/app.tsx - Switch statement
+- [ ] Add case `"j"` / `"down"`: call `handleTabNavigation("down")`
+- [ ] Add case `"k"` / `"up"`: call `handleTabNavigation("up")`
+- [ ] Add case `"return"` / `"enter"`: call `handleSelectApp()` for selected entry
+- [ ] Add case `"space"` / `" "`: call `uiStore.openModal("command-palette")`
+- [ ] Add case `"t"`: call `uiStore.openModal("add-tab")`
+- [ ] Add case `"e"`: call `openEditModal()` for selected entry
+- [ ] Add case `"x"`: call `stopApp()` for selected entry if running
+- [ ] Add case `"r"`: call `restartApp()` for selected entry if running
+- [ ] Add case `"q"`: keep existing quit logic
+- [ ] Add default case for `K` (shift+k): call `stopAllApps({ showMessage: true })`
+
+### 6.14 Remove wizard JSX from src/app.tsx
+- [ ] Remove `<Show when={!shouldShowWizard()} fallback={<OnboardingWizard ... />}>` wrapper
+- [ ] Keep inner content, remove the Show wrapper entirely
+
+### 6.15 Update StatusBar props in src/app.tsx
+- [ ] Remove `leader={props.config.keybinds.leader}` prop
+- [ ] Remove `bindings={props.config.keybinds.bindings}` prop
+- [ ] Remove `leaderActive={uiStore.store.leaderActive}` prop
+
+### 6.16 Update TerminalPane props in src/app.tsx
+- [ ] Remove `leaderKey={props.config.keybinds.leader.key}` prop
+- [ ] Remove `newTabBinding={props.config.keybinds.bindings.new_tab}` prop
+
+### 6.17 Remove LeaderHints JSX from src/app.tsx
+- [ ] Delete `<Show when={uiStore.store.leaderActive && showHints()}>` block
+- [ ] Delete `<LeaderHints ... />` component
+
+### 6.18 Update CommandPalette onGlobalAction in src/app.tsx
+- [ ] Remove `if (action === "rerun_onboarding")` block
+- [ ] Keep theme selection handling
+
+---
+
+## Phase 7: Rewrite StatusBar
+
+### 7.1 Update imports in src/components/StatusBar.tsx
+- [ ] Remove `LeaderConfig, LeaderBindings` from types import
+- [ ] Remove `formatLeaderKeybind` from keybinds import
+- [ ] Keep `ThemeConfig, FocusMode` imports
+
+### 7.2 Update props interface in src/components/StatusBar.tsx
+- [ ] Remove `leader: LeaderConfig` from StatusBarProps
+- [ ] Remove `bindings: LeaderBindings` from StatusBarProps
+- [ ] Remove `leaderActive?: boolean` from StatusBarProps
+
+### 7.3 Rewrite left section in src/components/StatusBar.tsx
+- [ ] Remove `<Show when={props.leaderActive} ...>` conditional
+- [ ] Add `<Show when={props.focusMode === "tabs"} ...>` conditional
+- [ ] Tabs mode text: `" j/k:Nav  gg/G:Jump  Enter:Select  Space:Palette  t:New  e:Edit  x:Stop  r:Restart  K:KillAll  q:Quit  Ctrl+A:Terminal"`
+- [ ] Terminal mode fallback text: `" Ctrl+A:Switch to Tabs"`
+
+### 7.4 Remove formatLeaderKey function from src/components/StatusBar.tsx
+- [ ] Delete the local `formatLeaderKey()` helper function (no longer needed)
+
+---
+
+## Phase 8: Update TerminalPane
+
+### 8.1 Update imports in src/components/TerminalPane.tsx
+- [ ] Remove `formatLeaderKeybind` import from `../lib/keybinds`
+
+### 8.2 Update props interface in src/components/TerminalPane.tsx
+- [ ] Remove `leaderKey: string` from TerminalPaneProps
+- [ ] Remove `newTabBinding: string` from TerminalPaneProps
+
+### 8.3 Update "no app selected" text in src/components/TerminalPane.tsx
+- [ ] Change from `Press {formatLeaderKeybind(...)} to add one.`
+- [ ] Change to `No app selected. Press 't' to add one.`
+
+---
+
+## Phase 9: Update CommandPalette
+
+### 9.1 Update GlobalAction type in src/components/CommandPalette.tsx
+- [ ] Remove `"rerun_onboarding"` from GlobalAction union type
+- [ ] Keep `{ type: "set_theme"; themeId: string }` variant
+
+### 9.2 Update GlobalCommand interface in src/components/CommandPalette.tsx
+- [ ] Change `id` type from `"rerun_onboarding"` to `string` (or remove if no other global commands)
+
+### 9.3 Remove rerun_onboarding from GLOBAL_COMMANDS in src/components/CommandPalette.tsx
+- [ ] Delete the `rerun_onboarding` entry from GLOBAL_COMMANDS array
+- [ ] If array is now empty, consider removing GLOBAL_COMMANDS entirely or leave empty
+
+---
+
+## Phase 10: Enhance AddTabModal
+
+### 10.1 Add imports to src/components/AddTabModal.tsx
+- [ ] Add `import { APP_PRESETS, type AppPreset } from "../lib/presets"`
+- [ ] Add `import { execSync } from "child_process"`
+- [ ] Add `createMemo` to solid-js imports
+
+### 10.2 Add preset availability check in src/components/AddTabModal.tsx
+- [ ] Add `checkAvailability(command: string): boolean` function
+- [ ] Use `execSync(\`which ${command.split(" ")[0]}\`, { stdio: "ignore" })` in try/catch
+- [ ] Return true if successful, false if throws
+
+### 10.3 Add preset state in src/components/AddTabModal.tsx
+- [ ] Add `const [mode, setMode] = createSignal<"preset" | "custom">("preset")`
+- [ ] Add `const [selectedPresetIndex, setSelectedPresetIndex] = createSignal(0)`
+
+### 10.4 Add presets with availability memo in src/components/AddTabModal.tsx
+- [ ] Create `presetsWithAvailability` memo that maps APP_PRESETS with availability
+- [ ] Sort available presets first, unavailable last
+
+### 10.5 Add preset selection handler in src/components/AddTabModal.tsx
+- [ ] Add `handlePresetSelect(preset: AppPreset)` function
+- [ ] Call `props.onAdd({ name: preset.name, command: preset.command, cwd: "~", autostart: false })`
+
+### 10.6 Update keyboard handler in src/components/AddTabModal.tsx - Mode switching
+- [ ] Add Tab key handling to toggle between preset/custom mode
+- [ ] Update `setMode()` when Tab is pressed
+
+### 10.7 Update keyboard handler in src/components/AddTabModal.tsx - Preset mode navigation
+- [ ] In preset mode: j/k or up/down navigates `selectedPresetIndex`
+- [ ] In preset mode: Enter selects current preset and calls `handlePresetSelect()`
+- [ ] In preset mode: Escape closes modal
+
+### 10.8 Update keyboard handler in src/components/AddTabModal.tsx - Custom mode
+- [ ] In custom mode: keep existing field navigation with Tab
+- [ ] In custom mode: keep existing character input handling
+- [ ] In custom mode: Enter submits custom app form
+
+### 10.9 Update JSX layout in src/components/AddTabModal.tsx - Modal size
+- [ ] Increase modal height from 11 to ~20 lines to accommodate preset list
+- [ ] Adjust width if needed for longer preset names
+
+### 10.10 Update JSX layout in src/components/AddTabModal.tsx - Mode tabs
+- [ ] Add mode tabs row at top: `[Presets] [Custom]`
+- [ ] Highlight active mode tab with `props.theme.primary` background
+- [ ] Style inactive mode tab with `props.theme.muted` color
+
+### 10.11 Update JSX layout in src/components/AddTabModal.tsx - Preset list
+- [ ] Add preset list section (show when `mode() === "preset"`)
+- [ ] Render each preset as a row with name and command
+- [ ] Show availability indicator: `[*]` prefix for available, grayed out for unavailable
+- [ ] Highlight selected preset row with `props.theme.primary` background
+- [ ] Add scrolling if preset list exceeds available height
+
+### 10.12 Update JSX layout in src/components/AddTabModal.tsx - Custom form
+- [ ] Wrap existing form fields in `<Show when={mode() === "custom"}>` conditional
+- [ ] Keep all existing form field rendering logic
+
+### 10.13 Update JSX layout in src/components/AddTabModal.tsx - Footer
+- [ ] Update footer hints based on mode
+- [ ] Preset mode: `Enter:Select | Tab:Custom | Esc:Cancel | j/k:Navigate`
+- [ ] Custom mode: `Enter:Add | Tab:Presets | Esc:Cancel | Tab:Next field`
+
+---
+
+## Phase 11: Update Tests
+
+### 11.1 Remove deleted function tests from src/lib/keybinds.test.ts
+- [ ] Delete `describe("matchesLeaderKey", ...)` block
+- [ ] Delete `describe("matchesSingleKey", ...)` block
+- [ ] Delete `describe("formatLeaderKeybind", ...)` block
+- [ ] Delete `describe("formatLeaderKey", ...)` block
+- [ ] Delete `describe("leaderKeyToSequence", ...)` block
+- [ ] Delete `describe("createLeaderBindingHandler", ...)` block
+
+### 11.2 Remove key-capture tests from src/lib/keybinds.test.ts
+- [ ] Delete `describe("eventToKeybindString", ...)` block
+- [ ] Delete `describe("isValidLeaderKey", ...)` block
+- [ ] Remove `import { eventToKeybindString, isValidLeaderKey } from "./key-capture"`
+
+### 11.3 Verify remaining tests pass
+- [ ] Keep `describe("parseKeybind", ...)` tests
+- [ ] Keep `describe("matchesKeybind", ...)` tests
+- [ ] Keep `describe("formatKeybind", ...)` tests (if exists)
+- [ ] Run `bun test src/lib/keybinds.test.ts` to verify
+
+---
+
+## Phase 12: Update Documentation
+
+### 12.1 Delete obsolete docs
+- [ ] Delete `docs/keybindings.md`
+
+### 12.2 Update docs/getting-started.md
+- [ ] Remove "Onboarding Wizard Flow" section
+- [ ] Remove wizard step descriptions
+- [ ] Update "First Run" to explain empty app list
+- [ ] Add instruction to press 't' to add apps
+- [ ] Update "Quick Start Example" config (remove keybinds)
+
+### 12.3 Update docs/configuration.md
+- [ ] Remove any `keybinds:` section examples
+- [ ] Remove leader key configuration references
+- [ ] Update example configs to not include keybinds
+
+### 12.4 Update docs/troubleshooting.md
+- [ ] Remove leader key conflict troubleshooting
+- [ ] Remove "keys not registering" leader-related section
+- [ ] Add new section for Ctrl+A conflicts if needed
+
+### 12.5 Update CONFIG.md
+- [ ] Remove keybinds configuration section
+- [ ] Update keyboard shortcuts documentation
+- [ ] Document new fixed bindings (Ctrl+A toggle, j/k/gg/G, etc.)
+
+### 12.6 Update README.md
+- [ ] Remove leader key system description
+- [ ] Update keyboard shortcuts section
+- [ ] Remove onboarding wizard references
+- [ ] Update screenshots if they show leader hints
+
+---
+
+## Phase 13: Update Config Files
+
+### 13.1 Update config/default.yaml
+- [ ] Remove entire `keybinds:` section
+- [ ] Keep version, theme, tab_width, apps, session
+
+### 13.2 Update examples/config.yaml (if exists)
+- [ ] Remove entire `keybinds:` section
+- [ ] Update any comments about keyboard shortcuts
+
+---
+
+## Phase 14: Final Verification
+
+### 14.1 Run type checking
+- [ ] Run `bun run typecheck`
+- [ ] Fix any TypeScript errors
+
+### 14.2 Run tests
+- [ ] Run `bun test`
+- [ ] Fix any failing tests
+
+### 14.3 Manual testing - Basic navigation
+- [ ] Start app with `bun run dev`
+- [ ] Verify j/k moves selection in tabs list
+- [ ] Verify gg goes to top of list
+- [ ] Verify G goes to bottom of list
+- [ ] Verify Enter starts/focuses selected app
+
+### 14.4 Manual testing - App management
+- [ ] Verify t opens Add Tab modal
+- [ ] Verify preset selection works in Add Tab modal
+- [ ] Verify custom app entry works
+- [ ] Verify e opens Edit modal for selected app
+- [ ] Verify x stops selected running app
+- [ ] Verify r restarts selected running app
+- [ ] Verify K (shift+k) kills all apps
+
+### 14.5 Manual testing - Focus toggle
+- [ ] Verify Ctrl+A switches from tabs to terminal mode
+- [ ] Verify Ctrl+A switches from terminal to tabs mode
+- [ ] Verify double-tap Ctrl+A sends \x01 to PTY in terminal mode
+- [ ] Verify all keys pass through in terminal mode
+
+### 14.6 Manual testing - Other shortcuts
+- [ ] Verify Space opens command palette
+- [ ] Verify q quits the application
+- [ ] Verify Ctrl+C is ignored in tabs mode
+- [ ] Verify Ctrl+C passes through in terminal mode
+
+### 14.7 Manual testing - StatusBar
+- [ ] Verify tabs mode shows full keybind hints
+- [ ] Verify terminal mode shows "Ctrl+A:Switch to Tabs"
+- [ ] Verify [TABS] / [TERMINAL] indicator updates
+
+### 14.8 Build verification
+- [ ] Run `bun run build`
+- [ ] Verify build succeeds without errors
+- [ ] Test built version works correctly
+
+---
+
+## Summary
+
+**Total tasks:** ~150 checkboxes
+**Estimated LOC removed:** ~2,400 lines
+**Files deleted:** 16 files
+**Files modified:** ~15 files
