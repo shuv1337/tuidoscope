@@ -1,8 +1,10 @@
-import { exec } from "child_process"
-import { promisify } from "util"
+import { access } from "fs/promises"
+import { constants } from "fs"
+import { delimiter, extname, isAbsolute, join, resolve } from "path"
 import type { AppEntry } from "../types"
+import { expandPath } from "./config"
 
-const execAsync = promisify(exec)
+const accessMode = process.platform === "win32" ? constants.F_OK : constants.X_OK
 
 export function buildCommand(command: string, args?: string): string {
   const trimmedArgs = args?.trim()
@@ -35,8 +37,37 @@ export async function commandExists(command: string): Promise<boolean> {
     baseCommand = resolved
   }
 
+  if (!baseCommand) {
+    return false
+  }
+
+  const expanded = baseCommand.startsWith("~") ? expandPath(baseCommand) : baseCommand
+  if (expanded.includes("/") || expanded.includes("\\") || isAbsolute(expanded)) {
+    return await isExecutable(expanded)
+  }
+
+  const pathEntries = (process.env.PATH || "").split(delimiter).filter(Boolean)
+  const baseHasExt = Boolean(extname(expanded))
+  const extensions =
+    process.platform === "win32" && !baseHasExt
+      ? (process.env.PATHEXT || ".EXE;.CMD;.BAT;.COM").split(";")
+      : [""]
+
+  for (const entry of pathEntries) {
+    for (const ext of extensions) {
+      const candidate = resolve(join(entry, baseHasExt ? expanded : `${expanded}${ext}`))
+      if (await isExecutable(candidate)) {
+        return true
+      }
+    }
+  }
+
+  return false
+}
+
+async function isExecutable(path: string): Promise<boolean> {
   try {
-    await execAsync(`which ${baseCommand}`)
+    await access(path, accessMode)
     return true
   } catch {
     return false
