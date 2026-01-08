@@ -10,39 +10,6 @@ theme:
   accent: "#7fdbca"       # Cyan/teal - active indicators
   muted: "#637777"        # Gray-blue for inactive elements
 
-# Keybindings - tmux-style leader key system
-# Press the leader key, then press a binding key to execute an action.
-# For example: Ctrl+A then 'n' to go to the next tab.
-keybinds:
-  # Leader key configuration
-  leader:
-    key: "ctrl+a"         # The leader key to activate command mode
-    timeout: 1000         # ms before leader mode auto-cancels
-    show_hints: true      # Show available bindings after delay
-    hint_delay: 300       # ms before showing hint popup
-
-  # Leader bindings - press Leader + key to execute
-  bindings:
-    next_tab: "n"         # Leader + n: Next tab
-    prev_tab: "p"         # Leader + p: Previous tab
-    close_tab: "w"        # Leader + w: Close current tab
-    new_tab: "t"          # Leader + t: Open new tab
-    toggle_focus: "a"     # Leader + a: Toggle focus between tabs/terminal
-    edit_app: "e"         # Leader + e: Edit current app
-    restart_app: "r"      # Leader + r: Restart current app
-    command_palette: "space"  # Leader + Space: Open command palette
-    stop_app: "x"         # Leader + x: Stop current app
-    kill_all: "K"         # Leader + Shift+K: Kill all apps
-    quit: "q"             # Leader + q: Quit tuidoscope
-
-  # Direct bindings - navigation keys that work without leader (tabs mode only)
-  direct:
-    navigate_up: "k"      # Previous tab (vim style)
-    navigate_down: "j"    # Next tab (vim style)
-    select: "enter"       # Select/focus current tab
-    go_top: "g"           # Go to first tab (press twice: gg)
-    go_bottom: "G"        # Go to last tab (Shift+G)
-
 # Tab width (characters)
 tab_width: 20
 

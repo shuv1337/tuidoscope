@@ -400,8 +400,8 @@
 ## Phase 13: Update Config Files
 
 ### 13.1 Update config/default.yaml
-- [ ] Remove entire `keybinds:` section
-- [ ] Keep version, theme, tab_width, apps, session
+- [x] Remove entire `keybinds:` section
+- [x] Keep version, theme, tab_width, apps, session
 
 ### 13.2 Update examples/config.yaml (if exists)
 - [ ] Remove entire `keybinds:` section
