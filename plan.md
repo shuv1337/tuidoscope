@@ -287,8 +287,8 @@
 - [x] Return true if successful, false if throws
 
 ### 10.3 Add preset state in src/components/AddTabModal.tsx
-- [ ] Add `const [mode, setMode] = createSignal<"preset" | "custom">("preset")`
-- [ ] Add `const [selectedPresetIndex, setSelectedPresetIndex] = createSignal(0)`
+- [x] Add `const [mode, setMode] = createSignal<"preset" | "custom">("preset")`
+- [x] Add `const [selectedPresetIndex, setSelectedPresetIndex] = createSignal(0)`
 
 ### 10.4 Add presets with availability memo in src/components/AddTabModal.tsx
 - [ ] Create `presetsWithAvailability` memo that maps APP_PRESETS with availability

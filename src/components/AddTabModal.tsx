@@ -25,6 +25,8 @@ export interface AddTabModalProps {
 type Field = "name" | "command" | "args" | "cwd"
 
 export const AddTabModal: Component<AddTabModalProps> = (props) => {
+  const [mode, setMode] = createSignal<"preset" | "custom">("preset")
+  const [selectedPresetIndex, setSelectedPresetIndex] = createSignal(0)
   const [name, setName] = createSignal("")
   const [command, setCommand] = createSignal("")
   const [args, setArgs] = createSignal("")
