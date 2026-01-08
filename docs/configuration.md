@@ -27,37 +27,6 @@ theme:
 # UI settings
 tab_width: 20
 
-# Keyboard shortcuts - tmux-style leader key system
-keybinds:
-  # Leader key configuration
-  leader:
-    key: "ctrl+a"         # The leader key combination
-    timeout: 1000         # ms before leader mode auto-cancels
-    show_hints: true      # Show available bindings after delay
-    hint_delay: 300       # ms before showing hint popup
-
-  # Leader bindings - press Leader + key to execute
-  bindings:
-    next_tab: "n"
-    prev_tab: "p"
-    close_tab: "w"
-    new_tab: "t"
-    toggle_focus: "a"
-    edit_app: "e"
-    restart_app: "r"
-    command_palette: "space"
-    stop_app: "x"
-    kill_all: "K"
-    quit: "q"
-
-  # Direct bindings - work without leader in Tabs Mode
-  direct:
-    navigate_up: "k"
-    navigate_down: "j"
-    select: "enter"
-    go_top: "g"
-    go_bottom: "G"
-
 # Session management
 session:
   persist: true
@@ -84,8 +53,6 @@ apps:
 ### `version`
 The schema version for the configuration file. Current version is `2`.
 
-**Note:** V1 configs are automatically migrated to V2 on load.
-
 ### `theme`
 Tuidoscope uses a 5-color palette inspired by the **Night Owl** theme.
 
@@ -110,48 +77,6 @@ For reference, these are the base colors used in the default theme:
 ### `tab_width`
 (Default: `20`) The width of the tab list in the UI.
 
-### `keybinds`
-
-Tuidoscope uses a tmux-style leader key system. See [Keybindings](./keybindings.md) for full details.
-
-#### `keybinds.leader`
-Configuration for the leader key:
-
-| Property | Default | Description |
-|----------|---------|-------------|
-| `key` | `"ctrl+a"` | The leader key combination |
-| `timeout` | `1000` | Ms before leader mode auto-cancels |
-| `show_hints` | `true` | Show binding hints after delay |
-| `hint_delay` | `300` | Ms before showing hints popup |
-
-#### `keybinds.bindings`
-Actions triggered by Leader + key:
-
-| Action | Default | Description |
-|--------|---------|-------------|
-| `next_tab` | `n` | Switch to next tab |
-| `prev_tab` | `p` | Switch to previous tab |
-| `close_tab` | `w` | Close current tab |
-| `new_tab` | `t` | Open new tab dialog |
-| `toggle_focus` | `a` | Switch Terminal/Tabs mode |
-| `edit_app` | `e` | Edit current app |
-| `restart_app` | `r` | Restart current app |
-| `command_palette` | `space` | Open command palette |
-| `stop_app` | `x` | Stop current app |
-| `kill_all` | `K` | Kill all apps (Shift+K) |
-| `quit` | `q` | Exit tuidoscope |
-
-#### `keybinds.direct`
-Navigation keys that work in Tabs Mode without the leader key:
-
-| Action | Default | Description |
-|--------|---------|-------------|
-| `navigate_up` | `k` | Previous tab (vim style) |
-| `navigate_down` | `j` | Next tab (vim style) |
-| `select` | `enter` | Focus selected tab |
-| `go_top` | `g` | First tab (press twice: gg) |
-| `go_bottom` | `G` | Last tab (Shift+G) |
-
 ### `apps`
 Each app entry defines a TUI application to be managed.
 - `name`: Display name in the tab list.
@@ -175,5 +100,4 @@ The following placeholders can be used in `cwd`, `args`, and `session.file`:
 ## See Also
 
 - [CONFIG.md](../CONFIG.md) - Comprehensive configuration reference
-- [Keybindings](./keybindings.md) - Leader key system documentation
 - [Apps](./apps.md) - App configuration examples

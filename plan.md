@@ -375,9 +375,9 @@
 - [x] Update "Quick Start Example" config (remove keybinds)
 
 ### 12.3 Update docs/configuration.md
-- [ ] Remove any `keybinds:` section examples
-- [ ] Remove leader key configuration references
-- [ ] Update example configs to not include keybinds
+- [x] Remove any `keybinds:` section examples
+- [x] Remove leader key configuration references
+- [x] Update example configs to not include keybinds
 
 ### 12.4 Update docs/troubleshooting.md
 - [ ] Remove leader key conflict troubleshooting
