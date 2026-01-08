@@ -4,7 +4,7 @@ import { existsSync } from "fs"
 import { dirname } from "path"
 import { expandPath } from "./config"
 import { paths } from "./xdg"
-import type { SessionData, Config } from "../types"
+import type { SessionAppRef, SessionData, Config } from "../types"
 
 let sessionPath: string = paths.session
 
@@ -54,19 +54,51 @@ export async function restoreSession(): Promise<SessionData | null> {
     const parsed = parse(content) as SessionData
 
     // Validate basic structure
-    if (
-      typeof parsed === "object" &&
-      parsed !== null &&
-      Array.isArray(parsed.runningApps) &&
-      typeof parsed.timestamp === "number"
-    ) {
-      return parsed
+    if (typeof parsed === "object" && parsed !== null) {
+      const runningApps = Array.isArray(parsed.runningApps)
+        ? parsed.runningApps.filter(isSessionRef)
+        : []
+      const activeTab = isSessionRef(parsed.activeTab) ? parsed.activeTab : null
+
+      if (typeof parsed.timestamp === "number" && runningApps.length > 0) {
+        return {
+          runningApps,
+          activeTab,
+          timestamp: parsed.timestamp,
+        }
+      }
+
+      if (typeof parsed.timestamp === "number" && Array.isArray(parsed.runningApps)) {
+        return {
+          runningApps,
+          activeTab,
+          timestamp: parsed.timestamp,
+        }
+      }
     }
 
     return null
   } catch {
     return null
   }
+}
+
+function isSessionAppRef(value: unknown): value is SessionAppRef {
+  if (!value || typeof value !== "object") {
+    return false
+  }
+
+  const candidate = value as SessionAppRef
+  if (typeof candidate.id !== "string") return false
+  if (typeof candidate.name !== "string") return false
+  if (typeof candidate.command !== "string") return false
+  if (typeof candidate.cwd !== "string") return false
+  if (candidate.args !== undefined && typeof candidate.args !== "string") return false
+  return true
+}
+
+function isSessionRef(value: unknown): value is string | SessionAppRef {
+  return typeof value === "string" || isSessionAppRef(value)
 }
 
 /**
