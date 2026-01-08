@@ -27,6 +27,22 @@ type Field = "name" | "command" | "args" | "cwd"
 export const AddTabModal: Component<AddTabModalProps> = (props) => {
   const [mode, setMode] = createSignal<"preset" | "custom">("preset")
   const [selectedPresetIndex, setSelectedPresetIndex] = createSignal(0)
+
+  // Create memoized presets with availability, sorted: available first, unavailable last
+  const presetsWithAvailability = createMemo(() => {
+    const presets = APP_PRESETS.map((preset) => ({
+      ...preset,
+      available: checkAvailability(preset.command),
+    }))
+    // Sort: available first, then by name within each group
+    return presets.sort((a, b) => {
+      if (a.available !== b.available) {
+        return a.available ? -1 : 1
+      }
+      return a.name.localeCompare(b.name)
+    })
+  })
+
   const [name, setName] = createSignal("")
   const [command, setCommand] = createSignal("")
   const [args, setArgs] = createSignal("")

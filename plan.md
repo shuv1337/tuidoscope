@@ -291,8 +291,8 @@
 - [x] Add `const [selectedPresetIndex, setSelectedPresetIndex] = createSignal(0)`
 
 ### 10.4 Add presets with availability memo in src/components/AddTabModal.tsx
-- [ ] Create `presetsWithAvailability` memo that maps APP_PRESETS with availability
-- [ ] Sort available presets first, unavailable last
+- [x] Create `presetsWithAvailability` memo that maps APP_PRESETS with availability
+- [x] Sort available presets first, unavailable last
 
 ### 10.5 Add preset selection handler in src/components/AddTabModal.tsx
 - [ ] Add `handlePresetSelect(preset: AppPreset)` function
