@@ -31,7 +31,7 @@
 - [x] Delete the empty `src/components/onboarding/` directory
 
 ### 1.3 Delete leader hints component
-- [ ] Delete `src/components/LeaderHints.tsx`
+- [x] Delete `src/components/LeaderHints.tsx`
 
 ### 1.4 Delete key-capture utility
 - [ ] Delete `src/lib/key-capture.ts`
