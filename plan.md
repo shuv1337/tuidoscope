@@ -44,14 +44,14 @@
 ## Phase 2: Simplify Types
 
 ### 2.1 Remove keybind types from src/types/index.ts
-- [ ] Delete `KeybindConfigV1` interface (lines ~12-25)
-- [ ] Delete `LeaderConfig` interface (lines ~27-33)
-- [ ] Delete `LeaderBindings` interface (lines ~35-49)
-- [ ] Delete `DirectBindings` interface (lines ~51-58)
-- [ ] Delete `KeybindConfigV2` interface (lines ~60-65)
-- [ ] Delete `KeybindConfig` type alias
-- [ ] Delete `isV2KeybindConfig()` type guard function
-- [ ] Remove `keybinds: KeybindConfigV2` from `Config` interface
+- [x] Delete `KeybindConfigV1` interface (lines ~12-25)
+- [x] Delete `LeaderConfig` interface (lines ~27-33)
+- [x] Delete `LeaderBindings` interface (lines ~35-49)
+- [x] Delete `DirectBindings` interface (lines ~51-58)
+- [x] Delete `KeybindConfigV2` interface (lines ~60-65)
+- [x] Delete `KeybindConfig` type alias
+- [x] Delete `isV2KeybindConfig()` type guard function
+- [x] Remove `keybinds: KeybindConfigV2` from `Config` interface
 
 ---
 
