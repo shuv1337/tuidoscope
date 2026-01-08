@@ -34,7 +34,7 @@
 - [x] Delete `src/components/LeaderHints.tsx`
 
 ### 1.4 Delete key-capture utility
-- [ ] Delete `src/lib/key-capture.ts`
+- [x] Delete `src/lib/key-capture.ts`
 
 ### 1.5 Delete config migration tests
 - [ ] Delete `src/lib/config.test.ts`
