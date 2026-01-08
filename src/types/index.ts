@@ -10,6 +10,7 @@ export interface ThemeConfig {
 }
 
 export interface AppEntryConfig {
+  id?: string
   name: string
   command: string
   args?: string
@@ -51,12 +52,21 @@ export interface RunningApp {
   pty: PtyProcess
   status: AppStatus
   buffer: string
+  runId: number
 }
 
 export interface SessionData {
-  runningApps: string[]
-  activeTab: string | null
+  runningApps: Array<string | SessionAppRef>
+  activeTab: string | SessionAppRef | null
   timestamp: number
+}
+
+export interface SessionAppRef {
+  id: string
+  name: string
+  command: string
+  args?: string
+  cwd: string
 }
 
 export type FocusMode = "tabs" | "terminal"
