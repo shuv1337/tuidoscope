@@ -419,14 +419,14 @@
 - [x] Run `bun test`
 - [x] Fix any failing tests
 
-### 14.3 Manual testing - Basic navigation
+### 14.3 Manual testing - Basic navigation (REQUIRES HUMAN)
 - [ ] Start app with `bun run dev`
 - [ ] Verify j/k moves selection in tabs list
 - [ ] Verify gg goes to top of list
 - [ ] Verify G goes to bottom of list
 - [ ] Verify Enter starts/focuses selected app
 
-### 14.4 Manual testing - App management
+### 14.4 Manual testing - App management (REQUIRES HUMAN)
 - [ ] Verify t opens Add Tab modal
 - [ ] Verify preset selection works in Add Tab modal
 - [ ] Verify custom app entry works
@@ -435,19 +435,19 @@
 - [ ] Verify r restarts selected running app
 - [ ] Verify K (shift+k) kills all apps
 
-### 14.5 Manual testing - Focus toggle
+### 14.5 Manual testing - Focus toggle (REQUIRES HUMAN)
 - [ ] Verify Ctrl+A switches from tabs to terminal mode
 - [ ] Verify Ctrl+A switches from terminal to tabs mode
 - [ ] Verify double-tap Ctrl+A sends \x01 to PTY in terminal mode
 - [ ] Verify all keys pass through in terminal mode
 
-### 14.6 Manual testing - Other shortcuts
+### 14.6 Manual testing - Other shortcuts (REQUIRES HUMAN)
 - [ ] Verify Space opens command palette
 - [ ] Verify q quits the application
 - [ ] Verify Ctrl+C is ignored in tabs mode
 - [ ] Verify Ctrl+C passes through in terminal mode
 
-### 14.7 Manual testing - StatusBar
+### 14.7 Manual testing - StatusBar (REQUIRES HUMAN)
 - [ ] Verify tabs mode shows full keybind hints
 - [ ] Verify terminal mode shows "Ctrl+A:Switch to Tabs"
 - [ ] Verify [TABS] / [TERMINAL] indicator updates
