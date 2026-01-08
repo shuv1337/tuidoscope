@@ -380,9 +380,9 @@
 - [x] Update example configs to not include keybinds
 
 ### 12.4 Update docs/troubleshooting.md
-- [ ] Remove leader key conflict troubleshooting
-- [ ] Remove "keys not registering" leader-related section
-- [ ] Add new section for Ctrl+A conflicts if needed
+- [x] Remove leader key conflict troubleshooting
+- [x] Remove "keys not registering" leader-related section
+- [x] Add new section for Ctrl+A conflicts if needed
 
 ### 12.5 Update CONFIG.md
 - [ ] Remove keybinds configuration section

@@ -20,9 +20,9 @@ bun install -g tuidoscope@latest
 
 In current versions:
 - **Terminal Mode:** `Ctrl+C` is passed directly to the PTY and interrupts the running process (expected behavior)
-- **Tabs Mode:** `Ctrl+C` displays a hint: "Press Leader+q to quit" - it does **not** exit the app
+- **Tabs Mode:** `Ctrl+C` is ignored - it does **not** exit the app
 
-If you need to quit tuidoscope, use `Leader + q` (default: `Ctrl+A` then `q`).
+If you need to quit tuidoscope, press `q` in Tabs Mode.
 
 ---
 
@@ -52,7 +52,7 @@ If you need to quit tuidoscope, use `Leader + q` (default: `Ctrl+A` then `q`).
 
 2. **Resize your terminal:** Some rendering issues resolve after resizing the window.
 
-3. **Restart the app:** Use `Leader + r` to restart the current application.
+3. **Restart the app:** Press `r` in Tabs Mode to restart the current application.
 
 ### TUI apps not displaying correctly
 
@@ -186,39 +186,29 @@ session:
 
 ---
 
-## Keybind Conflicts
+## Ctrl+A Conflicts
 
-### Leader key conflicts with terminal emulator
+### Ctrl+A conflicts with terminal emulator
 
-**Symptom:** Pressing the leader key (e.g., `Ctrl+A`) triggers a terminal emulator action instead of tuidoscope.
+**Symptom:** Pressing `Ctrl+A` triggers a terminal emulator action (e.g., "Select All") instead of toggling focus in tuidoscope.
 
-**Solutions:**
+**Solution:** Disable or rebind the conflicting shortcut in your terminal emulator settings. Most terminal emulators allow customizing keyboard shortcuts.
 
-1. **Change tuidoscope's leader key:**
-   ```yaml
-   keybinds:
-     leader:
-       key: "ctrl+b"  # Or alt+space, ctrl+\, etc.
-   ```
+### Using tuidoscope with tmux/screen
 
-2. **Disable the conflicting shortcut** in your terminal emulator settings.
+**Symptom:** `Ctrl+A` is captured by tuidoscope instead of being sent to tmux (which also uses `Ctrl+A` as prefix).
 
-### Leader key conflicts with nested tmux/screen
-
-**Symptom:** Can't send leader key to nested tmux session.
-
-**Solution:** Double-tap the leader key. The first press activates leader mode, the second sends the actual key to the terminal.
-
-For example, if both tuidoscope and tmux use `Ctrl+A`:
-- `Ctrl+A` `Ctrl+A` → Sends `Ctrl+A` to the nested tmux
+**Solution:** Double-tap `Ctrl+A` in Terminal Mode to send the literal `Ctrl+A` character to the terminal:
+- First `Ctrl+A` → Captured by tuidoscope (but you're already in terminal mode)
+- Second `Ctrl+A` within 500ms → Sends `Ctrl+A` to tmux
 
 ### Keys not working in Terminal Mode
 
 **Symptom:** Navigation keys like `j`/`k` don't work.
 
-**Explanation:** In Terminal Mode, all keys (except the leader key) are passed to the terminal application. This is by design.
+**Explanation:** In Terminal Mode, all keys (except `Ctrl+A`) are passed directly to the terminal application. This is by design.
 
-**Solution:** Press `Leader + a` to switch to Tabs Mode, where navigation keys work directly.
+**Solution:** Press `Ctrl+A` to switch to Tabs Mode, where navigation keys work directly.
 
 ---
 
@@ -226,15 +216,15 @@ For example, if both tuidoscope and tmux use `Ctrl+A`:
 
 ### How do I quit tuidoscope?
 
-Press `Leader + q` (default: `Ctrl+A` then `q`).
+Press `q` in Tabs Mode.
 
 ### How do I add a new tab?
 
-Press `Leader + t` (default: `Ctrl+A` then `t`) to open the Add Tab dialog.
+Press `t` in Tabs Mode to open the Add Tab dialog.
 
 ### How do I switch between Terminal and Tabs mode?
 
-Press `Leader + a` (default: `Ctrl+A` then `a`).
+Press `Ctrl+A` to toggle between modes.
 
 ### How do I interrupt a running process?
 
@@ -242,7 +232,7 @@ In Terminal Mode, press `Ctrl+C` - it's passed directly to the terminal and send
 
 ### Can I use tuidoscope inside tmux?
 
-Yes! If both use `Ctrl+A` as the prefix/leader, double-tap `Ctrl+A` to send it to tmux. Or configure different keys for each.
+Yes! Both use `Ctrl+A`, so double-tap `Ctrl+A` in Terminal Mode to send it to the nested tmux session.
 
 ### Where is my config file?
 
@@ -261,7 +251,7 @@ Delete or rename your config file:
 mv ~/.config/tuidoscope/tuidoscope.yaml ~/.config/tuidoscope/tuidoscope.yaml.bak
 ```
 
-Then restart tuidoscope - the onboarding wizard will run again.
+Then restart tuidoscope - it will start with an empty app list. Press `t` to add apps.
 
 ---
 
