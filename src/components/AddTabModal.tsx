@@ -1,20 +1,8 @@
-import { Component, createSignal, createMemo } from "solid-js"
+import { Component, createSignal, createMemo, createEffect, onCleanup } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
-import { execSync } from "child_process"
 import type { ThemeConfig, AppEntryConfig } from "../types"
 import { APP_PRESETS, type AppPreset } from "../lib/presets"
-
-/**
- * Check if a command is available in the system PATH
- */
-function checkAvailability(command: string): boolean {
-  try {
-    execSync(`which ${command.split(" ")[0]}`, { stdio: "ignore" })
-    return true
-  } catch {
-    return false
-  }
-}
+import { commandExists } from "../lib/command"
 
 export interface AddTabModalProps {
   theme: ThemeConfig
@@ -28,18 +16,34 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
   const [mode, setMode] = createSignal<"preset" | "custom">("preset")
   const [selectedPresetIndex, setSelectedPresetIndex] = createSignal(0)
 
-  // Create memoized presets with availability, sorted: available first, unavailable last
-  const presetsWithAvailability = createMemo(() => {
-    const presets = APP_PRESETS.map((preset) => ({
-      ...preset,
-      available: checkAvailability(preset.command),
-    }))
-    // Sort: available first, then by name within each group
-    return presets.sort((a, b) => {
-      if (a.available !== b.available) {
-        return a.available ? -1 : 1
+  const [presetsWithAvailability, setPresetsWithAvailability] = createSignal<AppPreset[]>(APP_PRESETS)
+
+  createEffect(() => {
+    let cancelled = false
+
+    const loadAvailability = async () => {
+      const presets = await Promise.all(
+        APP_PRESETS.map(async (preset) => ({
+          ...preset,
+          available: await commandExists(preset.command),
+        }))
+      )
+      presets.sort((a, b) => {
+        if (a.available !== b.available) {
+          return a.available ? -1 : 1
+        }
+        return a.name.localeCompare(b.name)
+      })
+
+      if (!cancelled) {
+        setPresetsWithAvailability(presets)
       }
-      return a.name.localeCompare(b.name)
+    }
+
+    void loadAvailability()
+
+    onCleanup(() => {
+      cancelled = true
     })
   })
 
@@ -102,7 +106,7 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
       const presets = presetsWithAvailability()
       if (event.name === "return" || event.name === "enter") {
         const selectedPreset = presets[selectedPresetIndex()]
-        if (selectedPreset && selectedPreset.available) {
+        if (selectedPreset && selectedPreset.available !== false) {
           handlePresetSelect(selectedPreset)
         }
         event.preventDefault()
@@ -220,7 +224,7 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
                 <box height={1} flexDirection="row">
                   <text
                     fg={
-                      !preset.available
+                      preset.available === false
                         ? props.theme.muted
                         : isSelected()
                           ? props.theme.background
@@ -228,7 +232,7 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
                     }
                     bg={isSelected() ? props.theme.primary : undefined}
                   >
-                    {preset.available ? " [*] " : " [ ] "}
+                    {preset.available === true ? " [*] " : preset.available === false ? " [ ] " : " [?] "}
                     {preset.name.padEnd(18)}
                     {preset.command.padEnd(20)}
                     {preset.description}
