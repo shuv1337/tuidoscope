@@ -58,24 +58,24 @@
 ## Phase 3: Simplify Config
 
 ### 3.1 Remove keybind schemas from src/lib/config.ts
-- [ ] Delete `LeaderSchema` zod object
-- [ ] Delete `LeaderBindingsSchema` zod object
-- [ ] Delete `DirectBindingsSchema` zod object
-- [ ] Delete `KeybindSchemaV2` zod object
-- [ ] Delete `KeybindSchemaV1` zod object
+- [x] Delete `LeaderSchema` zod object
+- [x] Delete `LeaderBindingsSchema` zod object
+- [x] Delete `DirectBindingsSchema` zod object
+- [x] Delete `KeybindSchemaV2` zod object
+- [x] Delete `KeybindSchemaV1` zod object
 
 ### 3.2 Remove migration functions from src/lib/config.ts
-- [ ] Delete `isV1Config()` function
-- [ ] Delete `stripModifierPrefix()` function
-- [ ] Delete `migrateV1ToV2()` function
-- [ ] Delete `migrateConfig()` function
+- [x] Delete `isV1Config()` function
+- [x] Delete `stripModifierPrefix()` function
+- [x] Delete `migrateV1ToV2()` function
+- [x] Delete `migrateConfig()` function
 
 ### 3.3 Update ConfigSchema in src/lib/config.ts
-- [ ] Remove `keybinds: KeybindSchemaV2.default({})` from ConfigSchema
+- [x] Remove `keybinds: KeybindSchemaV2.default({})` from ConfigSchema
 
 ### 3.4 Update loadConfig() in src/lib/config.ts
-- [ ] Remove `migrateConfig()` call (line ~304: `const migrated = migrateConfig(parsed)`)
-- [ ] Change to parse directly: `const validated = ConfigSchema.parse(parsed)`
+- [x] Remove `migrateConfig()` call (line ~304: `const migrated = migrateConfig(parsed)`)
+- [x] Change to parse directly: `const validated = ConfigSchema.parse(parsed)`
 
 ---
 
