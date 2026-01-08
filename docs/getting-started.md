@@ -48,20 +48,35 @@ tuidoscope
 
 ## First Run
 
-When you launch tuidoscope for the first time, it detects the absence of a configuration file and automatically starts the **Onboarding Wizard**. This interactive setup helps you configure your workspace in just a few steps.
+When you launch tuidoscope for the first time without an existing configuration file, you'll see an empty app list. Getting started is simple:
 
-### Onboarding Wizard Flow
+1. Press **`t`** to open the Add Tab modal
+2. Choose from a list of detected TUI application presets, or switch to Custom mode to add your own
+3. Select an app with **`Enter`** to add it to your workspace
 
-The wizard consists of four main steps:
+Tuidoscope will save your configuration to `~/.config/tuidoscope/tuidoscope.yaml` (or your system's equivalent XDG config directory).
 
-1.  **Welcome**: A brief introduction to tuidoscope.
-2.  **Select Apps**: Choose from a curated list of common TUI application presets (e.g., `htop`, `btop`, `lazygit`, `yazi`). Tuidoscope will check if these tools are installed on your system and grey out any that are missing.
-3.  **Custom Apps**: Add your own specific applications by providing a name, command, and optional arguments.
-4.  **Review**: A final summary of the applications you've selected. Confirming this step will generate your initial `tuidoscope.yaml` file.
+### Keyboard Navigation
 
-You can also choose to **Skip** the wizard at any point. This will create a basic configuration with no pre-configured apps, allowing you to add them manually later using `Ctrl+T` (New Tab) or by editing the configuration file directly.
+Tuidoscope uses a simple two-mode keyboard system:
 
-Once the wizard is complete, tuidoscope will save your settings to `~/.config/tuidoscope/tuidoscope.yaml` (or your system's equivalent XDG config directory) and launch into the main interface.
+- **Tabs Mode** (default): Single keystrokes control navigation and app management
+  - `j`/`k` - Navigate up/down through the app list
+  - `gg`/`G` - Jump to top/bottom of list
+  - `Enter` - Start or focus the selected app
+  - `t` - Add a new app
+  - `e` - Edit selected app
+  - `x` - Stop selected app
+  - `r` - Restart selected app
+  - `K` (Shift+K) - Kill all running apps
+  - `Space` - Open command palette
+  - `q` - Quit tuidoscope
+
+- **Terminal Mode**: All input goes to the focused terminal
+  - `Ctrl+A` - Switch back to Tabs mode
+  - `Ctrl+A Ctrl+A` (double-tap) - Send literal Ctrl+A to the terminal
+
+Press **`Ctrl+A`** to toggle between Tabs and Terminal mode.
 
 ## Quick Start Example
 
@@ -78,7 +93,7 @@ apps:
     autostart: true
 ```
 
-This creates a single shell tab using your default shell (bash, zsh, fish, etc.). You can add more apps later using `Ctrl+T` to open the "Add Tab" modal.
+This creates a single shell tab using your default shell (bash, zsh, fish, etc.). You can add more apps later by pressing `t` to open the "Add Tab" modal.
 
 For a more feature-rich setup, you might include common TUI tools:
 

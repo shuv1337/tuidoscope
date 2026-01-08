@@ -368,11 +368,11 @@
 - [x] Delete `docs/keybindings.md`
 
 ### 12.2 Update docs/getting-started.md
-- [ ] Remove "Onboarding Wizard Flow" section
-- [ ] Remove wizard step descriptions
-- [ ] Update "First Run" to explain empty app list
-- [ ] Add instruction to press 't' to add apps
-- [ ] Update "Quick Start Example" config (remove keybinds)
+- [x] Remove "Onboarding Wizard Flow" section
+- [x] Remove wizard step descriptions
+- [x] Update "First Run" to explain empty app list
+- [x] Add instruction to press 't' to add apps
+- [x] Update "Quick Start Example" config (remove keybinds)
 
 ### 12.3 Update docs/configuration.md
 - [ ] Remove any `keybinds:` section examples
