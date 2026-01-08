@@ -16,7 +16,7 @@ import { saveConfig } from "./lib/config"
 import { matchesKeybind } from "./lib/keybinds"
 import { debugLog } from "./lib/debug"
 import { getThemeById } from "./lib/themes"
-import type { Config, AppEntry, AppEntryConfig, SessionData, RunningApp, ThemeConfig } from "./types"
+import type { Config, AppEntry, AppEntryConfig, SessionData, SessionAppRef, RunningApp, ThemeConfig } from "./types"
 
 export interface AppProps {
   config: Config
@@ -49,7 +49,41 @@ export const App: Component<AppProps> = (props) => {
   const [editingEntryId, setEditingEntryId] = createSignal<string | null>(null)
   const [lastGTime, setLastGTime] = createSignal(0)
   const [currentTheme, setCurrentTheme] = createSignal<ThemeConfig>(props.config.theme)
+
+  const manualStopRuns = new Set<number>()
+  let nextRunId = 1
   
+  const buildSessionRef = (entry: AppEntry): SessionAppRef => ({
+    id: entry.id,
+    name: entry.name,
+    command: entry.command,
+    args: entry.args,
+    cwd: entry.cwd,
+  })
+
+  const resolveSessionEntry = (ref: string | SessionAppRef): AppEntry | undefined => {
+    const id = typeof ref === "string" ? ref : ref.id
+    const direct = appsStore.getEntry(id)
+    if (direct) {
+      return direct
+    }
+
+    if (typeof ref === "string") {
+      return undefined
+    }
+
+    const matchesArgs = (candidate?: string, incoming?: string) =>
+      (candidate ?? "") === (incoming ?? "")
+
+    return appsStore.store.entries.find(
+      (entry) =>
+        entry.name === ref.name &&
+        entry.command === ref.command &&
+        matchesArgs(entry.args, ref.args) &&
+        entry.cwd === ref.cwd
+    )
+  }
+
   // Double-tap Ctrl+A detection for passthrough
   let lastCtrlATime = 0
 
@@ -67,7 +101,6 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
-    const dims = terminalDims()
     const { cols, rows } = getPtyDimensions()
 
     // Don't spawn with invalid dimensions
@@ -78,11 +111,13 @@ export const App: Component<AppProps> = (props) => {
 
     const ptyProcess = spawnPty(entry, { cols, rows })
 
+    const runId = nextRunId++
     const runningApp: RunningApp = {
       entry,
       pty: ptyProcess,
       status: "running",
       buffer: "",
+      runId,
     }
 
     let pendingOutput = ""
@@ -109,6 +144,11 @@ export const App: Component<AppProps> = (props) => {
     // Handle PTY exit
     ptyProcess.onExit(({ exitCode }) => {
       flushOutput()
+      const wasManualStop = manualStopRuns.has(runId)
+      if (wasManualStop) {
+        manualStopRuns.delete(runId)
+      }
+
       if (exitCode === 0) {
         tabsStore.updateAppStatus(entry.id, "stopped")
       } else {
@@ -116,7 +156,7 @@ export const App: Component<AppProps> = (props) => {
       }
 
       // Auto-restart if configured
-      if (entry.restartOnExit && exitCode !== 0) {
+      if (!wasManualStop && entry.restartOnExit && exitCode !== 0) {
         setTimeout(() => startApp(entry), 1000)
       }
     })
@@ -130,6 +170,7 @@ export const App: Component<AppProps> = (props) => {
   const stopApp = (id: string, options: { silent?: boolean } = {}) => {
     const app = tabsStore.getRunningApp(id)
     if (app) {
+      manualStopRuns.add(app.runId)
       killPty(app.pty)
       tabsStore.removeRunningApp(id)
       if (!options.silent) {
@@ -192,7 +233,8 @@ export const App: Component<AppProps> = (props) => {
     })
 
     // Update scroll offset if needed
-    const visibleHeight = 20 // Approximate visible height
+    const tabListHeight = terminalDims().height - 1
+    const visibleHeight = Math.max(1, tabListHeight - 2)
     const currentOffset = tabsStore.store.scrollOffset
     const newIndex = selectedIndex()
 
@@ -218,6 +260,7 @@ export const App: Component<AppProps> = (props) => {
 
   const persistAppsConfig = async (): Promise<boolean> => {
     const nextApps: AppEntryConfig[] = appsStore.store.entries.map((entry) => ({
+      id: entry.id,
       name: entry.name,
       command: entry.command,
       args: entry.args?.trim() || undefined,
@@ -300,7 +343,7 @@ export const App: Component<AppProps> = (props) => {
   }
 
   // Quit handler
-  const handleQuit = () => {
+  const handleQuit = async () => {
     if (isQuitting()) {
       return
     }
@@ -308,12 +351,23 @@ export const App: Component<AppProps> = (props) => {
 
     // Save session and exit
     if (props.config.session.persist) {
-      const runningIds = Array.from(tabsStore.store.runningApps.keys())
-      saveSession({
-        runningApps: runningIds,
-        activeTab: tabsStore.store.activeTabId,
-        timestamp: Date.now(),
-      })
+      const runningRefs = Array.from(tabsStore.store.runningApps.values()).map((app) =>
+        buildSessionRef(app.entry)
+      )
+      const activeApp = tabsStore.store.activeTabId
+        ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
+        : undefined
+      const activeRef = activeApp ? buildSessionRef(activeApp.entry) : null
+
+      try {
+        await saveSession({
+          runningApps: runningRefs,
+          activeTab: activeRef,
+          timestamp: Date.now(),
+        })
+      } catch (error) {
+        debugLog(`[App] Failed to save session: ${error}`)
+      }
     }
 
     // Kill all running apps
@@ -482,7 +536,7 @@ export const App: Component<AppProps> = (props) => {
       }
 
       case "q":
-        handleQuit()
+        void handleQuit()
         event.preventDefault()
         return
     }
@@ -515,15 +569,18 @@ export const App: Component<AppProps> = (props) => {
 
     // Restore session
     if (props.session) {
-      for (const id of props.session.runningApps) {
-        const entry = appsStore.getEntry(id)
+      for (const ref of props.session.runningApps) {
+        const entry = resolveSessionEntry(ref)
         if (entry && !entry.autostart) {
           startApp(entry)
         }
       }
 
       if (props.session.activeTab) {
-        tabsStore.setActiveTab(props.session.activeTab)
+        const entry = resolveSessionEntry(props.session.activeTab)
+        if (entry) {
+          tabsStore.setActiveTab(entry.id)
+        }
       }
     }
   })
