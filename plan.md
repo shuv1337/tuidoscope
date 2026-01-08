@@ -295,8 +295,8 @@
 - [x] Sort available presets first, unavailable last
 
 ### 10.5 Add preset selection handler in src/components/AddTabModal.tsx
-- [ ] Add `handlePresetSelect(preset: AppPreset)` function
-- [ ] Call `props.onAdd({ name: preset.name, command: preset.command, cwd: "~", autostart: false })`
+- [x] Add `handlePresetSelect(preset: AppPreset)` function
+- [x] Call `props.onAdd({ name: preset.name, command: preset.command, cwd: "~", autostart: false })`
 
 ### 10.6 Update keyboard handler in src/components/AddTabModal.tsx - Mode switching
 - [ ] Add Tab key handling to toggle between preset/custom mode

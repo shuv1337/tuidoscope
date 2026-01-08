@@ -74,6 +74,15 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
     }
   }
 
+  const handlePresetSelect = (preset: AppPreset) => {
+    props.onAdd({
+      name: preset.name,
+      command: preset.command,
+      cwd: "~",
+      autostart: false,
+    })
+  }
+
   useKeyboard((event) => {
     if (event.name === "escape") {
       props.onClose()
