@@ -13,22 +13,22 @@
 
 ### 1.1 Move presets.ts
 - [x] Copy `src/components/onboarding/presets.ts` to `src/lib/presets.ts`
-- [ ] Verify the new file has all exports: `AppPreset`, `CATEGORY_LABELS`, `CATEGORY_TAB_LABELS`, `APP_PRESETS`
-- [ ] Delete `src/components/onboarding/presets.ts`
+- [x] Verify the new file has all exports: `AppPreset`, `CATEGORY_LABELS`, `CATEGORY_TAB_LABELS`, `APP_PRESETS`
+- [x] Delete `src/components/onboarding/presets.ts`
 
 ### 1.2 Delete onboarding wizard files
-- [ ] Delete `src/components/onboarding/OnboardingWizard.tsx`
-- [ ] Delete `src/components/onboarding/WelcomeStep.tsx`
-- [ ] Delete `src/components/onboarding/KeybindingStep.tsx`
-- [ ] Delete `src/components/onboarding/PresetSelectionStep.tsx`
-- [ ] Delete `src/components/onboarding/CustomAppStep.tsx`
-- [ ] Delete `src/components/onboarding/ConfirmationStep.tsx`
-- [ ] Delete `src/components/onboarding/types.ts`
-- [ ] Delete `src/components/onboarding/keybindingPresets.ts`
-- [ ] Delete `src/components/onboarding/presetFilter.ts`
-- [ ] Delete `src/components/onboarding/presetFilter.test.ts`
-- [ ] Delete `src/components/onboarding/index.ts`
-- [ ] Delete the empty `src/components/onboarding/` directory
+- [x] Delete `src/components/onboarding/OnboardingWizard.tsx`
+- [x] Delete `src/components/onboarding/WelcomeStep.tsx`
+- [x] Delete `src/components/onboarding/KeybindingStep.tsx`
+- [x] Delete `src/components/onboarding/PresetSelectionStep.tsx`
+- [x] Delete `src/components/onboarding/CustomAppStep.tsx`
+- [x] Delete `src/components/onboarding/ConfirmationStep.tsx`
+- [x] Delete `src/components/onboarding/types.ts`
+- [x] Delete `src/components/onboarding/keybindingPresets.ts`
+- [x] Delete `src/components/onboarding/presetFilter.ts`
+- [x] Delete `src/components/onboarding/presetFilter.test.ts`
+- [x] Delete `src/components/onboarding/index.ts`
+- [x] Delete the empty `src/components/onboarding/` directory
 
 ### 1.3 Delete leader hints component
 - [ ] Delete `src/components/LeaderHints.tsx`
