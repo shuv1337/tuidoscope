@@ -6,9 +6,7 @@ import { buildEntryCommand } from "../lib/command"
 import { THEME_PRESETS, getCurrentThemeId, type ThemePreset } from "../lib/themes"
 
 export type CommandAction = "switch" | "start" | "stop" | "restart" | "edit"
-export type GlobalAction = 
-  | "rerun_onboarding" 
-  | { type: "set_theme"; themeId: string }
+export type GlobalAction = { type: "set_theme"; themeId: string }
 
 export interface CommandPaletteProps {
   entries: AppEntry[]
@@ -16,13 +14,6 @@ export interface CommandPaletteProps {
   onSelect: (entry: AppEntry, action: CommandAction) => void
   onGlobalAction?: (action: GlobalAction) => void
   onClose: () => void
-}
-
-interface GlobalCommand {
-  id: "rerun_onboarding"
-  name: string
-  description: string
-  keywords: string[]
 }
 
 interface ThemeCommand {
@@ -33,16 +24,6 @@ interface ThemeCommand {
   keywords: string[]
   isCurrent: boolean
 }
-
-// Global commands that appear based on search query
-const GLOBAL_COMMANDS: GlobalCommand[] = [
-  {
-    id: "rerun_onboarding",
-    name: "Add Apps (Onboarding)",
-    description: "Rerun the onboarding wizard to add preset apps",
-    keywords: ["onboarding", "wizard", "add", "apps", "presets", "setup"],
-  },
-]
 
 /**
  * Check if query matches theme filtering criteria.
@@ -65,7 +46,6 @@ function matchesThemeQuery(q: string, theme: ThemePreset): boolean {
 
 type ResultItem = 
   | { type: "app"; item: AppEntry }
-  | { type: "global"; command: GlobalCommand }
   | { type: "theme"; command: ThemeCommand }
 
 export const CommandPalette: Component<CommandPaletteProps> = (props) => {
@@ -74,20 +54,10 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
 
   const search = createMemo(() => createAppSearch(props.entries))
 
-  // Combined results: apps + matching global commands + theme commands
+  // Combined results: apps + theme commands
   const results = createMemo((): ResultItem[] => {
     const q = query().toLowerCase()
     const appResults = search().search(query())
-    
-    // Find matching global commands
-    const matchingGlobalCommands = GLOBAL_COMMANDS.filter((cmd) => {
-      if (q.length === 0) return true // Show all global commands when no query
-      return (
-        cmd.name.toLowerCase().includes(q) ||
-        cmd.description.toLowerCase().includes(q) ||
-        cmd.keywords.some((kw) => kw.includes(q))
-      )
-    })
     
     // Find matching theme commands (only when query is 3+ chars)
     const currentThemeId = getCurrentThemeId(props.theme)
@@ -102,9 +72,8 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
         isCurrent: theme.id === currentThemeId,
       }))
     
-    // Combine results: global commands first, then themes, then apps
+    // Combine results: themes first, then apps
     const combined: ResultItem[] = [
-      ...matchingGlobalCommands.map((cmd): ResultItem => ({ type: "global", command: cmd })),
       ...themeCommands.map((cmd): ResultItem => ({ type: "theme", command: cmd })),
       ...appResults.map((r): ResultItem => ({ type: "app", item: r.item })),
     ]
@@ -113,9 +82,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   })
 
   const handleSelect = (result: ResultItem, action: CommandAction) => {
-    if (result.type === "global") {
-      props.onGlobalAction?.(result.command.id)
-    } else if (result.type === "theme") {
+    if (result.type === "theme") {
       // Dispatch theme selection through onGlobalAction
       props.onGlobalAction?.({ type: "set_theme", themeId: result.command.themeId })
     } else {
@@ -215,16 +182,13 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
           {(result, index) => {
             const isSelected = () => index() === selectedIndex()
             const displayText = () => {
-              if (result.type === "global") {
-                return `[*] ${result.command.name}`
-              }
               if (result.type === "theme") {
                 const suffix = result.command.isCurrent ? " (current)" : ""
                 return `[T] ${result.command.name}${suffix}`
               }
               return `${result.item.name} - ${buildEntryCommand(result.item)}`
             }
-            const isThemeOrGlobal = () => result.type === "global" || result.type === "theme"
+            const isTheme = () => result.type === "theme"
             
             return (
               <box
@@ -236,7 +200,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
               >
                 <text
                   width="100%"
-                  fg={isSelected() ? props.theme.background : (isThemeOrGlobal() ? props.theme.accent : props.theme.foreground)}
+                  fg={isSelected() ? props.theme.background : (isTheme() ? props.theme.accent : props.theme.foreground)}
                   bg={isSelected() ? props.theme.primary : props.theme.background}
                 >
                   {" "}{displayText()}

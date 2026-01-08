@@ -262,15 +262,15 @@
 ## Phase 9: Update CommandPalette
 
 ### 9.1 Update GlobalAction type in src/components/CommandPalette.tsx
-- [ ] Remove `"rerun_onboarding"` from GlobalAction union type
-- [ ] Keep `{ type: "set_theme"; themeId: string }` variant
+- [x] Remove `"rerun_onboarding"` from GlobalAction union type
+- [x] Keep `{ type: "set_theme"; themeId: string }` variant
 
 ### 9.2 Update GlobalCommand interface in src/components/CommandPalette.tsx
-- [ ] Change `id` type from `"rerun_onboarding"` to `string` (or remove if no other global commands)
+- [x] Change `id` type from `"rerun_onboarding"` to `string` (or remove if no other global commands)
 
 ### 9.3 Remove rerun_onboarding from GLOBAL_COMMANDS in src/components/CommandPalette.tsx
-- [ ] Delete the `rerun_onboarding` entry from GLOBAL_COMMANDS array
-- [ ] If array is now empty, consider removing GLOBAL_COMMANDS entirely or leave empty
+- [x] Delete the `rerun_onboarding` entry from GLOBAL_COMMANDS array
+- [x] If array is now empty, consider removing GLOBAL_COMMANDS entirely or leave empty
 
 ---
 
