@@ -82,21 +82,21 @@
 ## Phase 4: Simplify Keybinds Library
 
 ### 4.1 Remove unused exports from src/lib/keybinds.ts
-- [ ] Delete `KeybindAction` type
-- [ ] Delete `matchesLeaderKey()` function
-- [ ] Delete `matchesSingleKey()` function
-- [ ] Delete `createLeaderBindingHandler()` function
-- [ ] Delete `formatLeaderKeybind()` function
-- [ ] Delete `formatLeaderKey()` function
-- [ ] Delete `leaderKeyToSequence()` function
+- [x] Delete `KeybindAction` type
+- [x] Delete `matchesLeaderKey()` function
+- [x] Delete `matchesSingleKey()` function
+- [x] Delete `createLeaderBindingHandler()` function
+- [x] Delete `formatLeaderKeybind()` function
+- [x] Delete `formatLeaderKey()` function
+- [x] Delete `leaderKeyToSequence()` function
 
 ### 4.2 Clean up imports in src/lib/keybinds.ts
-- [ ] Remove `import type { LeaderBindings } from "../types"` (no longer exists)
+- [x] Remove `import type { LeaderBindings } from "../types"` (no longer exists)
 
 ### 4.3 Verify remaining exports
-- [ ] Confirm `parseKeybind()` is exported
-- [ ] Confirm `matchesKeybind()` is exported
-- [ ] Confirm `formatKeybind()` is exported (may be useful)
+- [x] Confirm `parseKeybind()` is exported
+- [x] Confirm `matchesKeybind()` is exported
+- [x] Confirm `formatKeybind()` is exported (may be useful)
 
 ---
 
