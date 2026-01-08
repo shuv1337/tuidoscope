@@ -453,9 +453,9 @@
 - [ ] Verify [TABS] / [TERMINAL] indicator updates
 
 ### 14.8 Build verification
-- [ ] Run `bun run build`
-- [ ] Verify build succeeds without errors
-- [ ] Test built version works correctly
+- [x] Run `bun run build`
+- [x] Verify build succeeds without errors
+- [x] Test built version works correctly
 
 ---
 
