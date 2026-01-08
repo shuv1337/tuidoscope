@@ -103,20 +103,20 @@
 ## Phase 5: Clean Up UI Store
 
 ### 5.1 Remove leader state from src/stores/ui.ts
-- [ ] Remove `leaderActive: boolean` from `UIStore` interface
-- [ ] Remove `leaderTimeout: ReturnType<typeof setTimeout> | null` from `UIStore` interface
-- [ ] Remove `leaderActivatedAt: number | null` from `UIStore` interface
-- [ ] Remove `leaderActive: false` from initial store state
-- [ ] Remove `leaderTimeout: null` from initial store state
-- [ ] Remove `leaderActivatedAt: null` from initial store state
+- [x] Remove `leaderActive: boolean` from `UIStore` interface
+- [x] Remove `leaderTimeout: ReturnType<typeof setTimeout> | null` from `UIStore` interface
+- [x] Remove `leaderActivatedAt: number | null` from `UIStore` interface
+- [x] Remove `leaderActive: false` from initial store state
+- [x] Remove `leaderTimeout: null` from initial store state
+- [x] Remove `leaderActivatedAt: null` from initial store state
 
 ### 5.2 Remove leader functions from src/stores/ui.ts
-- [ ] Delete `clearLeaderTimeout()` function
-- [ ] Delete `setLeaderActive()` function
-- [ ] Delete `startLeaderTimeout()` function
-- [ ] Remove `setLeaderActive` from return object
-- [ ] Remove `clearLeaderTimeout` from return object
-- [ ] Remove `startLeaderTimeout` from return object
+- [x] Delete `clearLeaderTimeout()` function
+- [x] Delete `setLeaderActive()` function
+- [x] Delete `startLeaderTimeout()` function
+- [x] Remove `setLeaderActive` from return object
+- [x] Remove `clearLeaderTimeout` from return object
+- [x] Remove `startLeaderTimeout` from return object
 
 ---
 
