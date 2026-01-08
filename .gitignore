@@ -26,3 +26,6 @@ Thumbs.db
 
 # Session state (generated at runtime)
 .tuidiscope-session.yaml
+
+# Ralph
+.ralph/
