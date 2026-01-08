@@ -390,10 +390,10 @@
 - [x] Document new fixed bindings (Ctrl+A toggle, j/k/gg/G, etc.)
 
 ### 12.6 Update README.md
-- [ ] Remove leader key system description
-- [ ] Update keyboard shortcuts section
-- [ ] Remove onboarding wizard references
-- [ ] Update screenshots if they show leader hints
+- [x] Remove leader key system description
+- [x] Update keyboard shortcuts section
+- [x] Remove onboarding wizard references
+- [x] Update screenshots if they show leader hints
 
 ---
 

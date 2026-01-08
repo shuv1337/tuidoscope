@@ -20,13 +20,13 @@ A centralized TUI management application for running multiple TUI applications i
 
 - **Embedded Terminals**: Run multiple TUIs in a single window using Ghostty's high-performance terminal emulator.
 - **Tab Management**: Organize and switch between different applications using a vertical sidebar.
-- **Leader Key System**: tmux-style keybindings with a configurable leader key (default: `Ctrl+A`). Press leader + action key for commands.
-- **Command Palette**: Quickly search and switch between apps with a fuzzy-search palette (`Leader+Space`).
+- **Simple Modal Keyboard**: Two modes - TABS mode for navigation and TERMINAL mode for PTY input. Toggle with `Ctrl+A`.
+- **Command Palette**: Quickly search and switch between apps with a fuzzy-search palette (`Space`).
 - **Runtime Management**: Add, edit, and remove application entries directly within the app without restarting.
 - **Session Persistence**: Automatically remembers and restores your running applications and active tab between restarts.
-- **Highly Configurable**: Customize themes, keybinds, and application lists via YAML.
+- **Highly Configurable**: Customize themes and application lists via YAML.
 - **Path Expansion**: Supports `~`, `<CONFIG_DIR>`, and `<STATE_DIR>` tokens in paths.
-- **App Availability Detection**: The onboarding wizard automatically detects which TUI apps are installed on your system.
+- **App Availability Detection**: Add Tab modal shows which TUI apps are installed on your system.
 
 ## Documentation
 
@@ -34,7 +34,6 @@ For detailed guides, see the [`docs/`](./docs/) directory:
 
 - [Getting Started](./docs/getting-started.md) - Installation and first run
 - [Configuration](./docs/configuration.md) - YAML config reference
-- [Keybindings](./docs/keybindings.md) - Leader key system and shortcuts
 - [Apps](./docs/apps.md) - App configuration examples
 - [Troubleshooting](./docs/troubleshooting.md) - Common issues and solutions
 
@@ -109,30 +108,30 @@ bun run typecheck
 
 Tuidoscope looks for a configuration file at `~/.config/tuidoscope/tuidoscope.yaml`. It also supports a local `tuidoscope.yaml` in the current working directory for project-specific setups.
 
-### Leader Key System
+### Keyboard Shortcuts
 
-Tuidoscope uses a tmux-style leader key system. Press the leader key (default: `Ctrl+A`), then press an action key:
+Tuidoscope uses a simple two-mode system:
 
-| Action | Leader + Key | Description |
-|--------|--------------|-------------|
-| Next Tab | `Leader + n` | Switch to next tab |
-| Previous Tab | `Leader + p` | Switch to previous tab |
-| Toggle Focus | `Leader + a` | Switch between Terminal/Tabs mode |
-| New Tab | `Leader + t` | Open new tab dialog |
-| Edit App | `Leader + e` | Edit current app |
-| Command Palette | `Leader + Space` | Open command palette |
-| Stop App | `Leader + x` | Stop current app |
-| Close Tab | `Leader + w` | Close current tab |
-| Restart App | `Leader + r` | Restart current app |
-| Kill All | `Leader + K` | Kill all running apps |
-| Quit | `Leader + q` | Exit tuidoscope |
+- **`Ctrl+A`** - Toggle between TABS and TERMINAL mode
+- **Double-tap `Ctrl+A`** - Send `Ctrl+A` to the terminal (useful for nested tmux/screen)
 
-**Direct navigation** (Tabs Mode only, no leader required):
-- `j`/`k` - Navigate up/down
-- `gg`/`G` - Jump to first/last tab
-- `Enter` - Select tab
+**TABS Mode** (single keystrokes):
 
-**Double-tap leader** to send it to the terminal (useful for nested tmux).
+| Key | Action |
+|-----|--------|
+| `j` / `k` | Navigate down/up in tab list |
+| `gg` | Jump to first tab |
+| `G` | Jump to last tab |
+| `Enter` | Select/start app |
+| `Space` | Open command palette |
+| `t` | Add new tab |
+| `e` | Edit selected app |
+| `x` | Stop selected app |
+| `r` | Restart selected app |
+| `K` | Kill all running apps |
+| `q` | Quit tuidoscope |
+
+**TERMINAL Mode**: All keystrokes pass through to the embedded terminal.
 
 ### Theme Customization
 
@@ -149,13 +148,16 @@ theme:
 
 ## Change Log
 
+### v0.3.0
+- **Simplified Keyboard System**: Replaced tmux-style leader key with simple focus-toggle model using `Ctrl+A`.
+- **Two-Mode Interface**: TABS mode for navigation (single keystrokes) and TERMINAL mode for PTY input.
+- **Enhanced Add Tab Modal**: Now shows app presets with availability detection directly in the modal.
+- **Streamlined Config**: Removed keybinds configuration - keyboard shortcuts are now fixed for consistency.
+
 ### v0.2.0
-- **Leader Key System**: tmux-style configurable leader key (default `Ctrl+A`) replaces hardcoded `Ctrl+` keybinds.
-- **Onboarding Wizard**: New first-run experience with leader key selection and app preset picker.
+- **Leader Key System**: tmux-style configurable leader key (default `Ctrl+A`).
 - **App Availability Detection**: Preset list shows which apps are installed on your system.
 - **Expanded Presets**: 30+ TUI apps including AI coding agents (Claude, OpenCode, Aider, Gemini, Codex).
-- **V2 Config Schema**: New nested keybind format with automatic migration from V1.
-- **Leader Hints**: Visual indicator and hint popup when leader key is active.
 - **Night Owl Theme**: Updated default theme to Night Owl color scheme.
 
 ### v0.1.0
