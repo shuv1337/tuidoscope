@@ -6,13 +6,11 @@ This document provides comprehensive documentation for all tuidoscope configurat
 
 - [Configuration File Location](#configuration-file-location)
 - [Configuration Schema](#configuration-schema)
-- [Leader Key System](#leader-key-system)
-- [Keybind Configuration](#keybind-configuration)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Theme Configuration](#theme-configuration)
 - [App Configuration](#app-configuration)
 - [Session Configuration](#session-configuration)
 - [Path Placeholders](#path-placeholders)
-- [Migration from V1](#migration-from-v1)
 - [Complete Example](#complete-example)
 
 ---
@@ -25,7 +23,7 @@ Tuidoscope searches for configuration in this order:
 2. **XDG Config**: `~/.config/tuidoscope/tuidoscope.yaml`
 3. **Defaults**: Built-in defaults if no file found
 
-On first run without a config file, the onboarding wizard helps you create one.
+On first run without a config file, tuidoscope starts with an empty app list. Press `t` to add apps.
 
 ---
 
@@ -34,7 +32,6 @@ On first run without a config file, the onboarding wizard helps you create one.
 ```yaml
 version: 2                    # Config schema version (required)
 theme: { ... }                # Color theme
-keybinds: { ... }             # Leader key and bindings
 tab_width: 20                 # Tab sidebar width
 apps: [ ... ]                 # Application entries
 session: { ... }              # Session persistence
@@ -42,139 +39,58 @@ session: { ... }              # Session persistence
 
 ---
 
-## Leader Key System
+## Keyboard Shortcuts
 
-Tuidoscope uses a **tmux-style leader key system**. Instead of reserving multiple `Ctrl+` combinations that might conflict with terminal apps, tuidoscope only needs one key combination: the leader key.
-
-### How It Works
-
-1. Press the **leader key** (default: `Ctrl+A`)
-2. A visual indicator appears: `[^A...]`
-3. Press an **action key** (e.g., `n` for next tab)
-4. The action executes immediately
-
-### Leader Key Options
-
-| Preset | Key | Best For |
-|--------|-----|----------|
-| tmux-style | `ctrl+a` | tmux users (default) |
-| tmux alternate | `ctrl+b` | Original tmux users |
-| GNU Screen | `ctrl+\` | screen users |
-| Desktop-style | `alt+space` | Avoiding Ctrl conflicts |
-
-### Leader Configuration
-
-```yaml
-keybinds:
-  leader:
-    key: "ctrl+a"       # The leader key combination
-    timeout: 1000       # Auto-cancel after this many ms
-    show_hints: true    # Show binding hints after delay
-    hint_delay: 300     # Delay before showing hints (ms)
-```
-
-#### `key` (string)
-The key combination to activate command mode. Format: `modifier+key`
-
-Supported modifiers:
-- `ctrl` - Control key
-- `alt` - Alt/Option key
-- `shift` - Shift key
-- `meta` - Meta/Command key
-
-Examples: `ctrl+a`, `ctrl+b`, `alt+space`, `ctrl+\`
-
-#### `timeout` (number, default: 1000)
-Milliseconds before leader mode automatically cancels. If you press the leader key but don't follow up with an action, it will cancel after this time.
-
-#### `show_hints` (boolean, default: true)
-Whether to show a popup with available keybindings after the hint delay.
-
-#### `hint_delay` (number, default: 300)
-Milliseconds after leader activation before showing the hints popup. Set to 0 for immediate hints, or increase if hints appear too quickly.
-
-### Double-Tap Passthrough
-
-Press the leader key twice to send it to the terminal. This is essential for:
-- Nested tmux sessions using the same prefix
-- Applications that use `Ctrl+A` (like readline's beginning-of-line)
-
----
-
-## Keybind Configuration
-
-### Leader Bindings
-
-These require pressing the leader key first:
-
-```yaml
-keybinds:
-  bindings:
-    next_tab: "n"           # Leader + n
-    prev_tab: "p"           # Leader + p
-    close_tab: "w"          # Leader + w
-    new_tab: "t"            # Leader + t
-    toggle_focus: "a"       # Leader + a
-    edit_app: "e"           # Leader + e
-    restart_app: "r"        # Leader + r
-    command_palette: "space" # Leader + Space
-    stop_app: "x"           # Leader + x
-    kill_all: "K"           # Leader + Shift+K
-    quit: "q"               # Leader + q
-```
-
-#### Binding Reference
-
-| Binding | Default | Description |
-|---------|---------|-------------|
-| `next_tab` | `n` | Switch to the next tab |
-| `prev_tab` | `p` | Switch to the previous tab |
-| `close_tab` | `w` | Close the current tab |
-| `new_tab` | `t` | Open the new tab dialog |
-| `toggle_focus` | `a` | Switch between Terminal and Tabs mode |
-| `edit_app` | `e` | Edit the current app's configuration |
-| `restart_app` | `r` | Restart the current application |
-| `command_palette` | `space` | Open the fuzzy-search command palette |
-| `stop_app` | `x` | Stop the current application |
-| `kill_all` | `K` | Kill all running applications (Shift+K) |
-| `quit` | `q` | Exit tuidoscope |
-
-### Direct Bindings
-
-These work in **Tabs Mode only** without requiring the leader key:
-
-```yaml
-keybinds:
-  direct:
-    navigate_up: "k"        # Previous tab (vim style)
-    navigate_down: "j"      # Next tab (vim style)
-    select: "enter"         # Focus selected tab
-    go_top: "g"             # First tab (press twice: gg)
-    go_bottom: "G"          # Last tab (Shift+G)
-```
-
-#### Direct Binding Reference
-
-| Binding | Default | Description |
-|---------|---------|-------------|
-| `navigate_up` | `k` | Move selection to previous tab |
-| `navigate_down` | `j` | Move selection to next tab |
-| `select` | `enter` | Focus the selected tab (switch to Terminal mode) |
-| `go_top` | `g` | Jump to first tab (requires double-press: `gg`) |
-| `go_bottom` | `G` | Jump to last tab (Shift+G) |
+Tuidoscope uses a simple focus-toggle model with fixed keybindings. There are no customizable keybinds.
 
 ### Focus Modes
 
-Tuidoscope has two focus modes:
+**TABS Mode** - For navigation and app management:
+- Single keystrokes control the UI
+- StatusBar shows available shortcuts
 
-**Terminal Mode** (default when app is running):
-- All keyboard input goes to the terminal
-- Only the leader key is intercepted
-- `Ctrl+C` always passes through (never intercepted)
+**TERMINAL Mode** - For interacting with apps:
+- All keyboard input passes through to the PTY
+- Only `Ctrl+A` is intercepted for mode switching
 
-**Tabs Mode** (for navigation):
-- Direct bindings (`j`, `k`, `gg`, `G`, `Enter`) work
-- Use `Leader + a` to switch between modes
+### Mode Toggle
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+A` | Toggle between TABS and TERMINAL mode |
+| `Ctrl+A` `Ctrl+A` | In terminal mode, double-tap sends `Ctrl+A` to the PTY |
+
+The double-tap is useful for:
+- Applications that use `Ctrl+A` (like readline's beginning-of-line)
+- Nested tmux sessions using the same prefix
+
+### TABS Mode Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `j` / `Down` | Navigate to next tab |
+| `k` / `Up` | Navigate to previous tab |
+| `gg` | Jump to first tab (double-press `g`) |
+| `G` | Jump to last tab (Shift+G) |
+| `Enter` | Select/focus the current tab |
+| `Space` | Open command palette |
+| `t` | Open Add Tab modal |
+| `e` | Edit selected app |
+| `x` | Stop selected running app |
+| `r` | Restart selected running app |
+| `K` | Kill all running apps (Shift+K) |
+| `q` | Quit tuidoscope |
+
+### TERMINAL Mode Shortcuts
+
+In terminal mode, all keys pass through to the application except:
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+A` | Switch to TABS mode |
+| `Ctrl+A` `Ctrl+A` | Send literal `Ctrl+A` to terminal |
+
+`Ctrl+C` always passes through to the terminal (never intercepted by tuidoscope).
 
 ---
 
@@ -405,53 +321,6 @@ session:
 
 ---
 
-## Migration from V1
-
-If you have an older V1 configuration:
-
-```yaml
-# V1 format (deprecated)
-version: 1
-keybinds:
-  next_tab: "ctrl+n"
-  prev_tab: "ctrl+p"
-  toggle_focus: "ctrl+a"
-  command_palette: "ctrl+p"
-```
-
-Tuidoscope automatically migrates to V2 on load:
-- Leader key extracted from `toggle_focus` (e.g., `ctrl+a`)
-- `ctrl+` prefixes stripped from bindings
-- `command_palette` changed to `space` (resolves conflict with `prev_tab`)
-- Direct navigation bindings added with vim defaults
-
-### Manual Migration
-
-To manually convert V1 to V2:
-
-1. Change `version: 1` to `version: 2`
-2. Restructure `keybinds` to nested format:
-
-```yaml
-version: 2
-keybinds:
-  leader:
-    key: "ctrl+a"           # Was toggle_focus value
-    timeout: 1000
-    show_hints: true
-    hint_delay: 300
-  bindings:
-    next_tab: "n"           # Strip ctrl+ prefix
-    prev_tab: "p"
-    # ... etc
-  direct:
-    navigate_up: "k"
-    navigate_down: "j"
-    # ... etc
-```
-
----
-
 ## Complete Example
 
 ```yaml
@@ -467,34 +336,6 @@ theme:
   foreground: "#d6deeb"
   accent: "#7fdbca"
   muted: "#637777"
-
-# Keybindings
-keybinds:
-  leader:
-    key: "ctrl+a"
-    timeout: 1000
-    show_hints: true
-    hint_delay: 300
-
-  bindings:
-    next_tab: "n"
-    prev_tab: "p"
-    close_tab: "w"
-    new_tab: "t"
-    toggle_focus: "a"
-    edit_app: "e"
-    restart_app: "r"
-    command_palette: "space"
-    stop_app: "x"
-    kill_all: "K"
-    quit: "q"
-
-  direct:
-    navigate_up: "k"
-    navigate_down: "j"
-    select: "enter"
-    go_top: "g"
-    go_bottom: "G"
 
 # Tab sidebar width
 tab_width: 20
@@ -530,22 +371,24 @@ session:
 
 ## Troubleshooting
 
-### Leader key conflicts with terminal emulator
+### Ctrl+A conflicts with terminal emulator
 
 Some terminals (like GNOME Terminal) use `Ctrl+A` for select-all. Solutions:
-1. Change tuidoscope's leader to `ctrl+b` or `alt+space`
-2. Disable the conflicting shortcut in your terminal
+1. Disable the conflicting shortcut in your terminal emulator settings
+2. Use an alternative terminal emulator
 
-### Leader key conflicts with nested tmux
+### Ctrl+A conflicts with applications
 
-If running tmux inside tuidoscope with the same prefix:
-- Double-tap the leader to send it through
-- Or use different prefixes (e.g., tuidoscope: `ctrl+a`, tmux: `ctrl+b`)
+Applications that use `Ctrl+A` (like bash/readline for beginning-of-line):
+- Double-tap `Ctrl+A` to send the literal `Ctrl+A` to the terminal
+- The second tap must be within 500ms of the first
+
+### Ctrl+A conflicts with nested tmux
+
+If running tmux inside tuidoscope with the `Ctrl+A` prefix:
+- Double-tap `Ctrl+A` to send it to tmux
+- Or configure tmux to use a different prefix (e.g., `Ctrl+B`)
 
 ### Keys not working in Terminal Mode
 
-In Terminal Mode, only the leader key is intercepted. Navigation keys like `j`/`k` go directly to the terminal app. Use `Leader + a` to switch to Tabs Mode for navigation.
-
-### Ctrl+C exits tuidoscope
-
-This was fixed in v0.2.0. `Ctrl+C` now always passes through to the terminal. Use `Leader + q` to quit.
+In Terminal Mode, all keys except `Ctrl+A` pass directly to the terminal app. Press `Ctrl+A` to switch to TABS mode for navigation.

@@ -385,9 +385,9 @@
 - [x] Add new section for Ctrl+A conflicts if needed
 
 ### 12.5 Update CONFIG.md
-- [ ] Remove keybinds configuration section
-- [ ] Update keyboard shortcuts documentation
-- [ ] Document new fixed bindings (Ctrl+A toggle, j/k/gg/G, etc.)
+- [x] Remove keybinds configuration section
+- [x] Update keyboard shortcuts documentation
+- [x] Document new fixed bindings (Ctrl+A toggle, j/k/gg/G, etc.)
 
 ### 12.6 Update README.md
 - [ ] Remove leader key system description
