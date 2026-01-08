@@ -37,7 +37,7 @@
 - [x] Delete `src/lib/key-capture.ts`
 
 ### 1.5 Delete config migration tests
-- [ ] Delete `src/lib/config.test.ts`
+- [x] Delete `src/lib/config.test.ts`
 
 ---
 
