@@ -404,8 +404,8 @@
 - [x] Keep version, theme, tab_width, apps, session
 
 ### 13.2 Update examples/config.yaml (if exists)
-- [ ] Remove entire `keybinds:` section
-- [ ] Update any comments about keyboard shortcuts
+- [x] Remove entire `keybinds:` section
+- [x] Update any comments about keyboard shortcuts
 
 ---
 
