@@ -299,18 +299,18 @@
 - [x] Call `props.onAdd({ name: preset.name, command: preset.command, cwd: "~", autostart: false })`
 
 ### 10.6 Update keyboard handler in src/components/AddTabModal.tsx - Mode switching
-- [ ] Add Tab key handling to toggle between preset/custom mode
-- [ ] Update `setMode()` when Tab is pressed
+- [x] Add Tab key handling to toggle between preset/custom mode
+- [x] Update `setMode()` when Tab is pressed
 
 ### 10.7 Update keyboard handler in src/components/AddTabModal.tsx - Preset mode navigation
-- [ ] In preset mode: j/k or up/down navigates `selectedPresetIndex`
-- [ ] In preset mode: Enter selects current preset and calls `handlePresetSelect()`
-- [ ] In preset mode: Escape closes modal
+- [x] In preset mode: j/k or up/down navigates `selectedPresetIndex`
+- [x] In preset mode: Enter selects current preset and calls `handlePresetSelect()`
+- [x] In preset mode: Escape closes modal
 
 ### 10.8 Update keyboard handler in src/components/AddTabModal.tsx - Custom mode
-- [ ] In custom mode: keep existing field navigation with Tab
-- [ ] In custom mode: keep existing character input handling
-- [ ] In custom mode: Enter submits custom app form
+- [x] In custom mode: use up/down for field navigation (Tab now toggles mode)
+- [x] In custom mode: keep existing character input handling
+- [x] In custom mode: Enter submits custom app form
 
 ### 10.9 Update JSX layout in src/components/AddTabModal.tsx - Modal size
 - [ ] Increase modal height from 11 to ~20 lines to accommodate preset list

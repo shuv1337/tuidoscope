@@ -90,13 +90,40 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
       return
     }
 
+    // Tab key toggles between preset and custom mode
     if (event.name === "tab") {
-      const direction = event.shift ? -1 : 1
-      setFocusByIndex(focusIndex() + direction)
+      setMode(mode() === "preset" ? "custom" : "preset")
       event.preventDefault()
       return
     }
 
+    // Handle preset mode navigation
+    if (mode() === "preset") {
+      const presets = presetsWithAvailability()
+      if (event.name === "return" || event.name === "enter") {
+        const selectedPreset = presets[selectedPresetIndex()]
+        if (selectedPreset && selectedPreset.available) {
+          handlePresetSelect(selectedPreset)
+        }
+        event.preventDefault()
+        return
+      }
+
+      if (event.sequence === "j" || event.name === "down") {
+        setSelectedPresetIndex(Math.min(selectedPresetIndex() + 1, presets.length - 1))
+        event.preventDefault()
+        return
+      }
+
+      if (event.sequence === "k" || event.name === "up") {
+        setSelectedPresetIndex(Math.max(selectedPresetIndex() - 1, 0))
+        event.preventDefault()
+        return
+      }
+      return
+    }
+
+    // Handle custom mode
     if (event.name === "return" || event.name === "enter") {
       handleSubmit()
       event.preventDefault()
@@ -105,6 +132,19 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
 
     const focused = fields[focusIndex()]
     if (!focused) {
+      return
+    }
+
+    // Up/Down for field navigation in custom mode
+    if (event.name === "down") {
+      setFocusByIndex(focusIndex() + 1)
+      event.preventDefault()
+      return
+    }
+
+    if (event.name === "up") {
+      setFocusByIndex(focusIndex() - 1)
+      event.preventDefault()
       return
     }
 
