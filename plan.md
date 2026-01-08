@@ -365,7 +365,7 @@
 ## Phase 12: Update Documentation
 
 ### 12.1 Delete obsolete docs
-- [ ] Delete `docs/keybindings.md`
+- [x] Delete `docs/keybindings.md`
 
 ### 12.2 Update docs/getting-started.md
 - [ ] Remove "Onboarding Wizard Flow" section
