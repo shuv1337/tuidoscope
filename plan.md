@@ -12,7 +12,7 @@
 ## Phase 1: Move and Delete Files
 
 ### 1.1 Move presets.ts
-- [ ] Copy `src/components/onboarding/presets.ts` to `src/lib/presets.ts`
+- [x] Copy `src/components/onboarding/presets.ts` to `src/lib/presets.ts`
 - [ ] Verify the new file has all exports: `AppPreset`, `CATEGORY_LABELS`, `CATEGORY_TAB_LABELS`, `APP_PRESETS`
 - [ ] Delete `src/components/onboarding/presets.ts`
 
