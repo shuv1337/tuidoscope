@@ -1,6 +1,7 @@
 import { Component, createSignal } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntry } from "../types"
+import { DialogBox } from "./DialogBox"
 
 export interface EditAppModalProps {
   theme: ThemeConfig
@@ -81,16 +82,12 @@ export const EditAppModal: Component<EditAppModalProps> = (props) => {
   })
 
   return (
-    <box
-      position="absolute"
+    <DialogBox
+      theme={props.theme}
       top="30%"
       left="25%"
       width="50%"
       height={12}
-      flexDirection="column"
-      borderStyle="double"
-      borderColor={props.theme.primary}
-      backgroundColor={props.theme.background}
     >
       {/* Title */}
       <box height={1}>
@@ -123,6 +120,6 @@ export const EditAppModal: Component<EditAppModalProps> = (props) => {
           Enter:Save | Esc:Cancel | Tab:Next field
         </text>
       </box>
-    </box>
+    </DialogBox>
   )
 }

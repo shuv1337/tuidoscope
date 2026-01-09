@@ -6,6 +6,7 @@ import { StatusBar } from "./components/StatusBar"
 import { CommandPalette, type GlobalAction } from "./components/CommandPalette"
 import { AddTabModal } from "./components/AddTabModal"
 import { EditAppModal } from "./components/EditAppModal"
+import { ThemePicker } from "./components/ThemePicker"
 
 import { createAppsStore } from "./stores/apps"
 import { createTabsStore } from "./stores/tabs"
@@ -694,10 +695,8 @@ export const App: Component<AppProps> = (props) => {
             }
           }}
           onGlobalAction={(action: GlobalAction) => {
-            // Handle theme selection
-            if (typeof action === "object" && action.type === "set_theme") {
-              handleThemeChange(action.themeId)
-              return
+            if (action.type === "open_theme_picker") {
+              uiStore.openModal("theme-picker")
             }
           }}
           onClose={() => uiStore.closeModal()}
@@ -721,6 +720,16 @@ export const App: Component<AppProps> = (props) => {
             uiStore.closeModal()
             setEditingEntryId(null)
           }}
+        />
+      </Show>
+
+      <Show when={uiStore.store.activeModal === "theme-picker"}>
+        <ThemePicker
+          theme={currentTheme()}
+          onSelect={(themeId) => {
+            void handleThemeChange(themeId)
+          }}
+          onClose={() => uiStore.closeModal()}
         />
       </Show>
     </box>

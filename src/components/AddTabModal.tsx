@@ -3,6 +3,7 @@ import { useKeyboard } from "@opentui/solid"
 import type { ThemeConfig, AppEntryConfig } from "../types"
 import { APP_PRESETS, type AppPreset } from "../lib/presets"
 import { commandExists } from "../lib/command"
+import { DialogBox } from "./DialogBox"
 
 export interface AddTabModalProps {
   theme: ThemeConfig
@@ -178,16 +179,12 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
   })
 
   return (
-    <box
-      position="absolute"
+    <DialogBox
+      theme={props.theme}
       top="20%"
       left="20%"
       width="60%"
       height={20}
-      flexDirection="column"
-      borderStyle="double"
-      borderColor={props.theme.primary}
-      backgroundColor={props.theme.background}
     >
       {/* Title */}
       <box height={1}>
@@ -283,6 +280,6 @@ export const AddTabModal: Component<AddTabModalProps> = (props) => {
             : "Enter:Add | Tab:Presets | Esc:Cancel | ↑/↓:Field"}
         </text>
       </box>
-    </box>
+    </DialogBox>
   )
 }

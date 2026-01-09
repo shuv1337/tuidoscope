@@ -1,12 +1,12 @@
-import { Component, For, Show, createSignal, createMemo, createEffect } from "solid-js"
+import { Component, For, createSignal, createMemo, createEffect } from "solid-js"
 import { useKeyboard } from "@opentui/solid"
 import type { AppEntry, ThemeConfig } from "../types"
 import { createAppSearch } from "../lib/fuzzy"
 import { buildEntryCommand } from "../lib/command"
-import { THEME_PRESETS, getCurrentThemeId, type ThemePreset } from "../lib/themes"
+import { DialogBox } from "./DialogBox"
 
 export type CommandAction = "switch" | "start" | "stop" | "restart" | "edit"
-export type GlobalAction = { type: "set_theme"; themeId: string }
+export type GlobalAction = { type: "open_theme_picker" }
 
 export interface CommandPaletteProps {
   entries: AppEntry[]
@@ -16,37 +16,30 @@ export interface CommandPaletteProps {
   onClose: () => void
 }
 
-interface ThemeCommand {
+interface CommandEntry {
   id: string
-  themeId: string
   name: string
-  description: string
+  description?: string
   keywords: string[]
-  isCurrent: boolean
+  action: GlobalAction
 }
 
-/**
- * Check if query matches theme filtering criteria.
- * Requires 3+ characters to avoid "t" matching all themes.
- */
-function matchesThemeQuery(q: string, theme: ThemePreset): boolean {
-  if (q.length < 3) return false  // IMPORTANT: Prevent single-char matches
-  
-  // Match if query starts with "the" (prefix of "theme")
-  if ("theme".startsWith(q)) return true
-  
-  // Match if theme name contains query
-  if (theme.name.toLowerCase().includes(q)) return true
-  
-  // Match if theme id contains query
-  if (theme.id.includes(q)) return true
-  
-  return false
+function matchesCommandQuery(query: string, command: CommandEntry): boolean {
+  if (!query.trim()) return false
+  const haystack = [
+    command.name,
+    command.description ?? "",
+    command.id,
+    ...command.keywords,
+  ]
+    .join(" ")
+    .toLowerCase()
+  return haystack.includes(query.toLowerCase())
 }
 
 type ResultItem = 
   | { type: "app"; item: AppEntry }
-  | { type: "theme"; command: ThemeCommand }
+  | { type: "command"; command: CommandEntry }
 
 export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   const [query, setQuery] = createSignal("")
@@ -54,27 +47,27 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
 
   const search = createMemo(() => createAppSearch(props.entries))
 
-  // Combined results: apps + theme commands
+  const commands: CommandEntry[] = [
+    {
+      id: "theme-picker",
+      name: "Themes...",
+      description: "Pick a color theme",
+      keywords: ["theme", "color", "scheme", "palette"],
+      action: { type: "open_theme_picker" },
+    },
+  ]
+
+  // Combined results: commands + apps
   const results = createMemo((): ResultItem[] => {
-    const q = query().toLowerCase()
+    const trimmedQuery = query().trim()
     const appResults = search().search(query())
-    
-    // Find matching theme commands (only when query is 3+ chars)
-    const currentThemeId = getCurrentThemeId(props.theme)
-    const themeCommands: ThemeCommand[] = THEME_PRESETS
-      .filter(theme => matchesThemeQuery(q, theme))
-      .map(theme => ({
-        id: `theme-${theme.id}`,
-        themeId: theme.id,
-        name: `Theme: ${theme.name}`,
-        description: theme.id === currentThemeId ? "(current)" : "",
-        keywords: ["theme", "color", "scheme"],
-        isCurrent: theme.id === currentThemeId,
-      }))
-    
-    // Combine results: themes first, then apps
+
+    const commandResults = (trimmedQuery ? commands.filter((command) => matchesCommandQuery(trimmedQuery, command)) : commands)
+      .map((command): ResultItem => ({ type: "command", command }))
+
+    // Combine results: commands first, then apps
     const combined: ResultItem[] = [
-      ...themeCommands.map((cmd): ResultItem => ({ type: "theme", command: cmd })),
+      ...commandResults,
       ...appResults.map((r): ResultItem => ({ type: "app", item: r.item })),
     ]
     
@@ -82,9 +75,8 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   })
 
   const handleSelect = (result: ResultItem, action: CommandAction) => {
-    if (result.type === "theme") {
-      // Dispatch theme selection through onGlobalAction
-      props.onGlobalAction?.({ type: "set_theme", themeId: result.command.themeId })
+    if (result.type === "command") {
+      props.onGlobalAction?.(result.command.action)
     } else {
       props.onSelect(result.item, action)
     }
@@ -93,15 +85,6 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   useKeyboard((event) => {
     if (event.name === "escape") {
       props.onClose()
-      event.preventDefault()
-      return
-    }
-
-    if (event.name === "return" || event.name === "enter") {
-      const selected = results()[selectedIndex()]
-      if (selected) {
-        handleSelect(selected, "switch")
-      }
       event.preventDefault()
       return
     }
@@ -136,16 +119,6 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       return
     }
 
-    if (event.name === "backspace") {
-      setQuery((current) => current.slice(0, -1))
-      event.preventDefault()
-      return
-    }
-
-    if (!event.ctrl && !event.meta && !event.option && event.sequence && event.sequence.length === 1) {
-      setQuery((current) => current + event.sequence)
-      event.preventDefault()
-    }
   })
 
   // Reset selection when results change
@@ -155,25 +128,45 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   })
 
   return (
-    <box
-      position="absolute"
+    <DialogBox
+      theme={props.theme}
       top="20%"
       left="20%"
       width="60%"
       height="60%"
-      flexDirection="column"
-      borderStyle="double"
-      borderColor={props.theme.primary}
-      backgroundColor={props.theme.background}
     >
       {/* Search input */}
       <box
-        height={1}
+        height={3}
         flexDirection="row"
         borderStyle="single"
         borderColor={props.theme.muted}
+        paddingLeft={1}
+        paddingRight={1}
       >
-        <text fg={props.theme.foreground}>{`> ${query()}█`}</text>
+        <box height={1} flexDirection="row" flexGrow={1}>
+          <text fg={props.theme.muted}>{"> "}</text>
+          <input
+            height={1}
+            flexGrow={1}
+            value={query()}
+            focused
+            backgroundColor={props.theme.background}
+            textColor={props.theme.foreground}
+            focusedBackgroundColor={props.theme.background}
+            focusedTextColor={props.theme.foreground}
+            placeholder="Search apps or commands..."
+            placeholderColor={props.theme.muted}
+            cursorColor={props.theme.accent}
+            onInput={(value) => setQuery(value)}
+            onSubmit={() => {
+              const selected = results()[selectedIndex()]
+              if (selected) {
+                handleSelect(selected, "switch")
+              }
+            }}
+          />
+        </box>
       </box>
 
       {/* Results list */}
@@ -182,13 +175,12 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
           {(result, index) => {
             const isSelected = () => index() === selectedIndex()
             const displayText = () => {
-              if (result.type === "theme") {
-                const suffix = result.command.isCurrent ? " (current)" : ""
-                return `[T] ${result.command.name}${suffix}`
+              if (result.type === "command") {
+                return `[Cmd] ${result.command.name}`
               }
               return `${result.item.name} - ${buildEntryCommand(result.item)}`
             }
-            const isTheme = () => result.type === "theme"
+            const isCommand = () => result.type === "command"
             
             return (
               <box
@@ -200,7 +192,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
               >
                 <text
                   width="100%"
-                  fg={isSelected() ? props.theme.background : (isTheme() ? props.theme.accent : props.theme.foreground)}
+                  fg={isSelected() ? props.theme.background : (isCommand() ? props.theme.accent : props.theme.foreground)}
                   bg={isSelected() ? props.theme.primary : props.theme.background}
                 >
                   {" "}{displayText()}
@@ -212,11 +204,19 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       </box>
 
       {/* Footer hints */}
-      <box height={1} borderStyle="single" borderColor={props.theme.muted}>
-        <text fg={props.theme.muted}>
-          Enter:Select | x:Stop | Ctrl+E:Edit | Esc:Close | ↑↓:Navigate
-        </text>
+      <box
+        height={3}
+        borderStyle="single"
+        borderColor={props.theme.muted}
+        paddingLeft={1}
+        paddingRight={1}
+      >
+        <box height={1}>
+          <text fg={props.theme.muted}>
+            Enter:Select | x:Stop | Ctrl+E:Edit | Esc:Close | ↑↓:Navigate
+          </text>
+        </box>
       </box>
-    </box>
+    </DialogBox>
   )
 }
