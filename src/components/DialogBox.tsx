@@ -2,12 +2,14 @@ import { Component } from "solid-js"
 import type { JSX } from "solid-js"
 import type { ThemeConfig } from "../types"
 
+type DimensionValue = number | "auto" | `${number}%`
+
 export interface DialogBoxProps {
   theme: ThemeConfig
-  top?: number | string
-  left?: number | string
-  width?: number | string
-  height?: number | string
+  top?: DimensionValue
+  left?: DimensionValue
+  width?: DimensionValue
+  height?: DimensionValue
   children?: JSX.Element
 }
 
