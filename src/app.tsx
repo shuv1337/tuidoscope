@@ -11,18 +11,17 @@ import { ThemePicker } from "./components/ThemePicker"
 import { createAppsStore } from "./stores/apps"
 import { createTabsStore } from "./stores/tabs"
 import { createUIStore } from "./stores/ui"
-import { spawnPty, killPty, resizePty } from "./lib/pty"
-import { initSessionPath, saveSession } from "./lib/session"
 import { saveConfig } from "./lib/config"
 import { matchesKeybind } from "./lib/keybinds"
 import { debugLog } from "./lib/debug"
 import { getThemeById } from "./lib/themes"
-import type { Config, AppEntry, AppEntryConfig, SessionData, SessionAppRef, RunningApp, ThemeConfig } from "./types"
+import type { SessionClient } from "./lib/session-client"
+import type { RunningAppSnapshot } from "./lib/ipc"
+import type { AppStatus, AppEntry, AppEntryConfig, Config, ThemeConfig } from "./types"
 
 export interface AppProps {
   config: Config
-  session: SessionData | null
-  configFileFound: boolean
+  sessionClient: SessionClient
 }
 
 export const App: Component<AppProps> = (props) => {
@@ -41,49 +40,10 @@ export const App: Component<AppProps> = (props) => {
   // Tab list selection (separate from active tab for keyboard navigation)
   const [selectedIndex, setSelectedIndex] = createSignal(0)
 
-  // Initialize session path
-  initSessionPath(props.config)
-
-  // Track if initial autostart has run
-  const [hasAutostarted, setHasAutostarted] = createSignal(false)
-  const [isQuitting, setIsQuitting] = createSignal(false)
+  const [isDisconnecting, setIsDisconnecting] = createSignal(false)
   const [editingEntryId, setEditingEntryId] = createSignal<string | null>(null)
   const [lastGTime, setLastGTime] = createSignal(0)
   const [currentTheme, setCurrentTheme] = createSignal<ThemeConfig>(props.config.theme)
-
-  const manualStopRuns = new Set<number>()
-  let nextRunId = 1
-  
-  const buildSessionRef = (entry: AppEntry): SessionAppRef => ({
-    id: entry.id,
-    name: entry.name,
-    command: entry.command,
-    args: entry.args,
-    cwd: entry.cwd,
-  })
-
-  const resolveSessionEntry = (ref: string | SessionAppRef): AppEntry | undefined => {
-    const id = typeof ref === "string" ? ref : ref.id
-    const direct = appsStore.getEntry(id)
-    if (direct) {
-      return direct
-    }
-
-    if (typeof ref === "string") {
-      return undefined
-    }
-
-    const matchesArgs = (candidate?: string, incoming?: string) =>
-      (candidate ?? "") === (incoming ?? "")
-
-    return appsStore.store.entries.find(
-      (entry) =>
-        entry.name === ref.name &&
-        entry.command === ref.command &&
-        matchesArgs(entry.args, ref.args) &&
-        entry.cwd === ref.cwd
-    )
-  }
 
   // Double-tap Ctrl+A detection for passthrough
   let lastCtrlATime = 0
@@ -95,6 +55,13 @@ export const App: Component<AppProps> = (props) => {
     return { cols, rows }
   }
 
+  const setActiveTab = (id: string | null, options: { broadcast?: boolean } = {}) => {
+    tabsStore.setActiveTab(id)
+    if (options.broadcast) {
+      props.sessionClient.setActiveTab(id)
+    }
+  }
+
   // Start an app
   const startApp = (entry: AppEntry) => {
     // Don't start if already running
@@ -104,66 +71,14 @@ export const App: Component<AppProps> = (props) => {
 
     const { cols, rows } = getPtyDimensions()
 
-    // Don't spawn with invalid dimensions
+    // Don't start with invalid dimensions
     if (cols < 10 || rows < 3) {
       console.warn(`Skipping start for ${entry.name}: invalid dimensions ${cols}x${rows}`)
       return
     }
 
-    const ptyProcess = spawnPty(entry, { cols, rows })
-
-    const runId = nextRunId++
-    const runningApp: RunningApp = {
-      entry,
-      pty: ptyProcess,
-      status: "running",
-      buffer: "",
-      runId,
-    }
-
-    let pendingOutput = ""
-    let flushTimer: ReturnType<typeof setTimeout> | null = null
-
-    const flushOutput = () => {
-      if (pendingOutput.length === 0) {
-        flushTimer = null
-        return
-      }
-      tabsStore.appendToBuffer(entry.id, pendingOutput)
-      pendingOutput = ""
-      flushTimer = null
-    }
-
-    // Handle PTY output
-    ptyProcess.onData((data) => {
-      pendingOutput += data
-      if (!flushTimer) {
-        flushTimer = setTimeout(flushOutput, 50)
-      }
-    })
-
-    // Handle PTY exit
-    ptyProcess.onExit(({ exitCode }) => {
-      flushOutput()
-      const wasManualStop = manualStopRuns.has(runId)
-      if (wasManualStop) {
-        manualStopRuns.delete(runId)
-      }
-
-      if (exitCode === 0) {
-        tabsStore.updateAppStatus(entry.id, "stopped")
-      } else {
-        tabsStore.updateAppStatus(entry.id, "error")
-      }
-
-      // Auto-restart if configured
-      if (!wasManualStop && entry.restartOnExit && exitCode !== 0) {
-        setTimeout(() => startApp(entry), 1000)
-      }
-    })
-
-    tabsStore.addRunningApp(runningApp)
-    tabsStore.setActiveTab(entry.id)
+    props.sessionClient.start(entry)
+    setActiveTab(entry.id, { broadcast: true })
     uiStore.showTemporaryMessage(`Started: ${entry.name}`)
   }
 
@@ -171,9 +86,7 @@ export const App: Component<AppProps> = (props) => {
   const stopApp = (id: string, options: { silent?: boolean } = {}) => {
     const app = tabsStore.getRunningApp(id)
     if (app) {
-      manualStopRuns.add(app.runId)
-      killPty(app.pty)
-      tabsStore.removeRunningApp(id)
+      props.sessionClient.stop(id)
       if (!options.silent) {
         uiStore.showTemporaryMessage(`Stopped: ${app.entry.name}`)
       }
@@ -189,11 +102,8 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
-    for (const id of runningIds) {
-      stopApp(id, { silent: true })
-    }
-
-    tabsStore.setActiveTab(null)
+    props.sessionClient.stopAll()
+    setActiveTab(null, { broadcast: true })
 
     if (options.showMessage) {
       uiStore.showTemporaryMessage(
@@ -205,12 +115,9 @@ export const App: Component<AppProps> = (props) => {
   // Restart an app
   const restartApp = (id: string) => {
     const app = tabsStore.getRunningApp(id)
-    if (app) {
-      stopApp(id)
-      setTimeout(() => {
-        const entry = appsStore.getEntry(id)
-        if (entry) startApp(entry)
-      }, 500)
+    const entry = appsStore.getEntry(id)
+    if (app && entry) {
+      props.sessionClient.restart(entry)
     }
   }
 
@@ -255,7 +162,7 @@ export const App: Component<AppProps> = (props) => {
     if (!tabsStore.store.runningApps.has(id)) {
       startApp(entry)
     } else {
-      tabsStore.setActiveTab(id)
+      setActiveTab(id, { broadcast: true })
     }
   }
 
@@ -330,6 +237,7 @@ export const App: Component<AppProps> = (props) => {
   const handleEditApp = (id: string, updates: Pick<AppEntryConfig, "name" | "command" | "args" | "cwd">) => {
     appsStore.updateEntry(id, updates)
     tabsStore.updateRunningEntry(id, updates)
+    props.sessionClient.updateEntry(id, updates)
     uiStore.closeModal()
     setEditingEntryId(null)
 
@@ -343,37 +251,22 @@ export const App: Component<AppProps> = (props) => {
     void persistAppsConfig()
   }
 
-  // Quit handler
-  const handleQuit = async () => {
-    if (isQuitting()) {
+  const handleDisconnect = () => {
+    if (isDisconnecting()) {
       return
     }
-    setIsQuitting(true)
+    setIsDisconnecting(true)
+    props.sessionClient.disconnect()
+    renderer.destroy()
+    setTimeout(() => process.exit(0), 50)
+  }
 
-    // Save session and exit
-    if (props.config.session.persist) {
-      const runningRefs = Array.from(tabsStore.store.runningApps.values()).map((app) =>
-        buildSessionRef(app.entry)
-      )
-      const activeApp = tabsStore.store.activeTabId
-        ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
-        : undefined
-      const activeRef = activeApp ? buildSessionRef(activeApp.entry) : null
-
-      try {
-        await saveSession({
-          runningApps: runningRefs,
-          activeTab: activeRef,
-          timestamp: Date.now(),
-        })
-      } catch (error) {
-        debugLog(`[App] Failed to save session: ${error}`)
-      }
+  const handleShutdown = () => {
+    if (isDisconnecting()) {
+      return
     }
-
-    // Kill all running apps
-    stopAllApps({ showMessage: false })
-
+    setIsDisconnecting(true)
+    props.sessionClient.shutdown()
     renderer.destroy()
     setTimeout(() => process.exit(0), 50)
   }
@@ -406,7 +299,7 @@ export const App: Component<AppProps> = (props) => {
       // Double-tap detection: if in terminal mode and within 500ms, send \x01 to PTY
       if (tabsStore.store.focusMode === "terminal" && now - lastCtrlATime < 500) {
         if (activeApp) {
-          activeApp.pty.write("\x01")
+          props.sessionClient.sendInput(activeApp.entry.id, "\x01")
         }
         lastCtrlATime = 0
         event.preventDefault()
@@ -423,7 +316,7 @@ export const App: Component<AppProps> = (props) => {
     if (tabsStore.store.focusMode === "terminal") {
       // Pass raw input to terminal
       if (activeApp && event.sequence) {
-        activeApp.pty.write(event.sequence)
+        props.sessionClient.sendInput(activeApp.entry.id, event.sequence)
         event.preventDefault()
       }
       return
@@ -537,9 +430,16 @@ export const App: Component<AppProps> = (props) => {
       }
 
       case "q":
-        void handleQuit()
+        handleDisconnect()
         event.preventDefault()
         return
+    }
+
+    // Q (shift+q): shutdown session
+    if (event.name === "Q" || (event.shift && event.name === "q")) {
+      handleShutdown()
+      event.preventDefault()
+      return
     }
 
     // K (shift+k): kill all apps
@@ -550,40 +450,69 @@ export const App: Component<AppProps> = (props) => {
     }
   })
 
-  // Auto-start apps and restore session once dimensions are valid
-  createEffect(() => {
-    const { cols, rows } = getPtyDimensions()
-
-    // Wait for valid dimensions
-    if (cols < 10 || rows < 3 || hasAutostarted()) {
-      return
+  onMount(() => {
+    const handleSnapshot = (message: { runningApps: RunningAppSnapshot[]; activeTabId: string | null }) => {
+      const apps = message.runningApps.map((app) => ({
+        entry: app.entry,
+        status: app.status,
+        buffer: app.buffer,
+        runId: app.runId,
+      }))
+      tabsStore.setRunningApps(apps)
+      setActiveTab(message.activeTabId)
     }
 
-    setHasAutostarted(true)
-
-    // Auto-start configured apps
-    for (const entry of appsStore.store.entries) {
-      if (entry.autostart) {
-        startApp(entry)
-      }
+    const handleStarted = (message: { app: RunningAppSnapshot }) => {
+      tabsStore.addRunningApp({
+        entry: message.app.entry,
+        status: message.app.status,
+        buffer: message.app.buffer,
+        runId: message.app.runId,
+      })
     }
 
-    // Restore session
-    if (props.session) {
-      for (const ref of props.session.runningApps) {
-        const entry = resolveSessionEntry(ref)
-        if (entry && !entry.autostart) {
-          startApp(entry)
-        }
-      }
-
-      if (props.session.activeTab) {
-        const entry = resolveSessionEntry(props.session.activeTab)
-        if (entry) {
-          tabsStore.setActiveTab(entry.id)
-        }
-      }
+    const handleStopped = (message: { id: string }) => {
+      tabsStore.removeRunningApp(message.id)
     }
+
+    const handleStatus = (message: { id: string; status: AppStatus }) => {
+      tabsStore.updateAppStatus(message.id, message.status)
+    }
+
+    const handleOutput = (message: { id: string; data: string }) => {
+      tabsStore.appendToBuffer(message.id, message.data)
+    }
+
+    const handleActive = (message: { id: string | null }) => {
+      setActiveTab(message.id)
+    }
+
+    const handleDisconnectEvent = () => {
+      if (isDisconnecting()) {
+        return
+      }
+      setIsDisconnecting(true)
+      renderer.destroy()
+      setTimeout(() => process.exit(0), 50)
+    }
+
+    props.sessionClient.on("snapshot", handleSnapshot)
+    props.sessionClient.on("started", handleStarted)
+    props.sessionClient.on("stopped", handleStopped)
+    props.sessionClient.on("status", handleStatus)
+    props.sessionClient.on("output", handleOutput)
+    props.sessionClient.on("active", handleActive)
+    props.sessionClient.on("disconnect", handleDisconnectEvent)
+
+    onCleanup(() => {
+      props.sessionClient.off("snapshot", handleSnapshot)
+      props.sessionClient.off("started", handleStarted)
+      props.sessionClient.off("stopped", handleStopped)
+      props.sessionClient.off("status", handleStatus)
+      props.sessionClient.off("output", handleOutput)
+      props.sessionClient.off("active", handleActive)
+      props.sessionClient.off("disconnect", handleDisconnectEvent)
+    })
   })
 
   // Handle terminal resize based on terminal dimensions
@@ -595,12 +524,7 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
-    // Resize all running PTYs
-    for (const [, app] of tabsStore.store.runningApps) {
-      if (app.status === "running") {
-        resizePty(app.pty, termWidth, termHeight)
-      }
-    }
+    props.sessionClient.resize(termWidth, termHeight)
   })
 
   // Handle input to terminal
@@ -610,15 +534,13 @@ export const App: Component<AppProps> = (props) => {
       : undefined
 
     if (activeApp) {
-      activeApp.pty.write(data)
+      props.sessionClient.sendInput(activeApp.entry.id, data)
     }
   }
 
   // Cleanup on unmount
   onCleanup(() => {
-    for (const [id] of tabsStore.store.runningApps) {
-      stopApp(id, { silent: true })
-    }
+    props.sessionClient.disconnect()
   })
 
   // Get the currently active running app

@@ -24,7 +24,7 @@ export const StatusBar: Component<StatusBarProps> = (props) => {
           </text>
         }>
           <text fg={props.theme.foreground}>
-            {" j/k:Nav  gg/G:Jump  Enter:Select  Space:Palette  t:New  e:Edit  x:Stop  r:Restart  K:KillAll  q:Quit  Ctrl+A:Terminal"}
+            {" j/k:Nav  gg/G:Jump  Enter:Select  Space:Palette  t:New  e:Edit  x:Stop  r:Restart  K:KillAll  q:Detach  Q:Quit  Ctrl+A:Terminal"}
           </text>
         </Show>
       </box>
