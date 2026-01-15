@@ -79,7 +79,8 @@ The double-tap is useful for:
 | `x` | Stop selected running app |
 | `r` | Restart selected running app |
 | `K` | Kill all running apps (Shift+K) |
-| `q` | Quit tuidoscope |
+| `q` | Disconnect (leave apps running) |
+| `Q` | Quit and stop all apps |
 
 ### TERMINAL Mode Shortcuts
 

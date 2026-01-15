@@ -129,7 +129,8 @@ Tuidoscope uses a simple two-mode system:
 | `x` | Stop selected app |
 | `r` | Restart selected app |
 | `K` | Kill all running apps |
-| `q` | Quit tuidoscope |
+| `q` | Disconnect (leave apps running) |
+| `Q` | Quit and stop all apps |
 
 **TERMINAL Mode**: All keystrokes pass through to the embedded terminal.
 

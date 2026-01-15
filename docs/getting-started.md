@@ -70,7 +70,10 @@ Tuidoscope uses a simple two-mode keyboard system:
   - `r` - Restart selected app
   - `K` (Shift+K) - Kill all running apps
   - `Space` - Open command palette
-  - `q` - Quit tuidoscope
+  - `q` - Disconnect (leave apps running)
+  - `Q` (Shift+Q) - Quit and stop all apps
+
+Disconnecting keeps the session server running. Launch `tuidoscope` again to reattach.
 
 - **Terminal Mode**: All input goes to the focused terminal
   - `Ctrl+A` - Switch back to Tabs mode

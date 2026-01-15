@@ -22,7 +22,7 @@ In current versions:
 - **Terminal Mode:** `Ctrl+C` is passed directly to the PTY and interrupts the running process (expected behavior)
 - **Tabs Mode:** `Ctrl+C` is ignored - it does **not** exit the app
 
-If you need to quit tuidoscope, press `q` in Tabs Mode.
+Press `q` in Tabs Mode to disconnect and keep apps running, or `Q` to quit and stop them.
 
 ---
 
@@ -216,7 +216,11 @@ session:
 
 ### How do I quit tuidoscope?
 
-Press `q` in Tabs Mode.
+Press `q` in Tabs Mode to disconnect, or `Q` to quit and stop all apps.
+
+### How do I stop the background session server?
+
+Run `tuidoscope --shutdown` to terminate the session server and stop all apps.
 
 ### How do I add a new tab?
 
