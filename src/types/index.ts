@@ -1,5 +1,3 @@
-import type { PtyProcess } from "../lib/pty"
-
 // Configuration types
 export interface ThemeConfig {
   primary: string
@@ -49,7 +47,6 @@ export type AppStatus = "stopped" | "running" | "error"
 
 export interface RunningApp {
   entry: AppEntry
-  pty: PtyProcess
   status: AppStatus
   buffer: string
   runId: number

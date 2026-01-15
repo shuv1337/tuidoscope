@@ -85,4 +85,7 @@ export const paths = {
   get debugLog() {
     return join(getStateDir(), "debug.log")
   },
+  get socket() {
+    return join(getStateDir(), "tuidoscope.sock")
+  },
 }

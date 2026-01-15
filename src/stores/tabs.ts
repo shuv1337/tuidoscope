@@ -36,6 +36,16 @@ export function createTabsStore() {
     })
   }
 
+  const setRunningApps = (apps: RunningApp[]) => {
+    setStore("runningApps", () => {
+      const nextApps = new Map<string, RunningApp>()
+      for (const app of apps) {
+        nextApps.set(app.entry.id, app)
+      }
+      return nextApps
+    })
+  }
+
   const removeRunningApp = (id: string) => {
     setStore("runningApps", (apps) => {
       const newApps = new Map(apps)
@@ -96,6 +106,7 @@ export function createTabsStore() {
     setFocusMode,
     toggleFocus,
     addRunningApp,
+    setRunningApps,
     removeRunningApp,
     updateAppStatus,
     updateRunningEntry,
