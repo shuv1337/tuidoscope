@@ -2,7 +2,7 @@ import net from "node:net"
 import { existsSync, unlinkSync } from "fs"
 import { unlink } from "fs/promises"
 import { loadConfig } from "./config"
-import { initSessionPath, restoreSession, saveSession } from "./session"
+import { clearSession, initSessionPath, restoreSession, saveSession } from "./session"
 import { spawnPty, killPty, resizePty, type PtyProcess } from "./pty"
 import { debugLog } from "./debug"
 import { ensureSocketDir, SOCKET_PATH, serializeMessage, type ClientMessage, type RunningAppSnapshot, type ServerMessage } from "./ipc"
@@ -85,10 +85,16 @@ export async function startSessionServer(): Promise<void> {
   let server!: net.Server
   let suppressSessionUpdates = false
   let persistTimer: ReturnType<typeof setTimeout> | null = null
+  let persistPromise: Promise<void> | null = null
   let shuttingDown = false
 
   const persistSession = async () => {
     if (!config.session.persist) {
+      return
+    }
+
+    if (persistPromise) {
+      await persistPromise
       return
     }
 
@@ -111,19 +117,27 @@ export async function startSessionServer(): Promise<void> {
         }
       : null
 
+    persistPromise = (async () => {
+      try {
+        await saveSession({
+          runningApps: runningRefs,
+          activeTab: activeRef,
+          timestamp: Date.now(),
+        })
+      } catch (error) {
+        debugLog(`[server] Failed to save session: ${error}`)
+      }
+    })()
+
     try {
-      await saveSession({
-        runningApps: runningRefs,
-        activeTab: activeRef,
-        timestamp: Date.now(),
-      })
-    } catch (error) {
-      debugLog(`[server] Failed to save session: ${error}`)
+      await persistPromise
+    } finally {
+      persistPromise = null
     }
   }
 
   const persistIfNeeded = () => {
-    if (suppressSessionUpdates || !config.session.persist) {
+    if (suppressSessionUpdates || shuttingDown || !config.session.persist) {
       return
     }
 
@@ -281,7 +295,7 @@ export async function startSessionServer(): Promise<void> {
     persistIfNeeded()
   }
 
-  const shutdown = async () => {
+  const shutdown = async (options?: { clearSession?: boolean }) => {
     if (shuttingDown) {
       return
     }
@@ -292,7 +306,18 @@ export async function startSessionServer(): Promise<void> {
       persistTimer = null
     }
 
-    await persistSession()
+    if (options?.clearSession) {
+      if (persistPromise) {
+        await persistPromise
+      }
+      try {
+        await clearSession()
+      } catch (error) {
+        debugLog(`[server] Failed to clear session: ${error}`)
+      }
+    } else {
+      await persistSession()
+    }
     suppressSessionUpdates = true
     stopAllApps()
     for (const client of clients) {
@@ -344,7 +369,7 @@ export async function startSessionServer(): Promise<void> {
         updateEntry(message.id, message.updates)
         break
       case "shutdown":
-        void shutdown()
+        void shutdown({ clearSession: message.clearSession })
         break
       default:
         break

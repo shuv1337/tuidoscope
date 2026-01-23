@@ -86,13 +86,16 @@ export class SessionClient extends EventEmitter {
     this.send({ type: "update_entry", id, updates })
   }
 
-  shutdown() {
-    this.send({ type: "shutdown" })
+  shutdown(options?: { clearSession?: boolean }) {
+    this.send({ type: "shutdown", clearSession: options?.clearSession })
     this.disconnect()
   }
 
-  async shutdownAndWait(timeoutMs = 1500): Promise<void> {
-    this.send({ type: "shutdown" })
+  async shutdownAndWait(
+    timeoutMs = 1500,
+    options?: { clearSession?: boolean }
+  ): Promise<void> {
+    this.send({ type: "shutdown", clearSession: options?.clearSession })
 
     await new Promise<void>((resolve) => {
       let finished = false
@@ -200,7 +203,7 @@ export async function shutdownSessionServer(): Promise<boolean> {
   try {
     const socket = await connectSocket()
     const client = new SessionClient(socket)
-    await client.shutdownAndWait()
+    await client.shutdownAndWait(1500, { clearSession: true })
     return true
   } catch (error) {
     await clearStaleSocket(error)

@@ -25,7 +25,7 @@ export type ClientMessage =
   | { type: "resize"; cols: number; rows: number }
   | { type: "set_active"; id: string | null }
   | { type: "update_entry"; id: string; updates: Partial<AppEntry> }
-  | { type: "shutdown" }
+  | { type: "shutdown"; clearSession?: boolean }
 
 export type ServerMessage =
   | { type: "snapshot"; runningApps: RunningAppSnapshot[]; activeTabId: string | null }
