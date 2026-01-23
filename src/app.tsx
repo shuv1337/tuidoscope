@@ -38,7 +38,7 @@ export const App: Component<AppProps> = (props) => {
   const windowsStore = createWindowsStore()
   const uiStore = createUIStore()
 
-
+  const pendingPaneBuffers = new Map<string, string>()
 
   // Get terminal dimensions from opentui
   const terminalDims = useTerminalDimensions()
@@ -671,6 +671,14 @@ export const App: Component<AppProps> = (props) => {
           message.activeWindowId ?? null,
           message.activePaneId ?? null
         )
+        if (pendingPaneBuffers.size > 0) {
+          for (const [paneId, data] of pendingPaneBuffers.entries()) {
+            if (windowsStore.getRunningPane(paneId)) {
+              windowsStore.appendPaneBuffer(paneId, data)
+              pendingPaneBuffers.delete(paneId)
+            }
+          }
+        }
         return
       }
 
@@ -717,6 +725,11 @@ export const App: Component<AppProps> = (props) => {
         buffer: message.pane.buffer,
         runId: message.pane.runId,
       })
+      const pending = pendingPaneBuffers.get(message.pane.paneId)
+      if (pending) {
+        windowsStore.appendPaneBuffer(message.pane.paneId, pending)
+        pendingPaneBuffers.delete(message.pane.paneId)
+      }
     }
 
     const handlePaneStopped = (message: { paneId: string }) => {
@@ -728,7 +741,12 @@ export const App: Component<AppProps> = (props) => {
     }
 
     const handlePaneOutput = (message: { paneId: string; data: string }) => {
-      windowsStore.appendPaneBuffer(message.paneId, message.data)
+      if (windowsStore.getRunningPane(message.paneId)) {
+        windowsStore.appendPaneBuffer(message.paneId, message.data)
+        return
+      }
+      const existing = pendingPaneBuffers.get(message.paneId) ?? ""
+      pendingPaneBuffers.set(message.paneId, existing + message.data)
     }
 
     const handleWindowChanged = (message: { window: WindowSnapshot }) => {
