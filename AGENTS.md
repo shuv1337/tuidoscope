@@ -5,6 +5,7 @@
 - **Build:** `bun run build` (Runs `build.ts` and adds shebang)
 - **Typecheck:** `bun run typecheck` (`tsc --noEmit`)
 - **Global Install:** `bun install -g tuidoscope`
+- **Post-commit validation:** After committing changes, run `bun run build` and confirm the global binary matches by hashing `dist/index.js` and `$(readlink -f $(command -v tuidoscope))` with `sha256sum`.
 
 ## Configuration
 - Default config location: `~/.config/tuidoscope/tuidoscope.yaml` (XDG_CONFIG_HOME) or local `./tuidoscope.yaml`.
