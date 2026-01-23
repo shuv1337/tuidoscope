@@ -358,6 +358,13 @@ export const App: Component<AppProps> = (props) => {
     // Reset gg timer on other keys
     setLastGTime(0)
 
+    // Q (shift+q): shutdown session
+    if (event.name === "Q" || (event.shift && event.name === "q")) {
+      handleShutdown()
+      event.preventDefault()
+      return
+    }
+
     // Single-key commands in tabs mode
     switch (event.name) {
       case "j":
@@ -431,16 +438,12 @@ export const App: Component<AppProps> = (props) => {
       }
 
       case "q":
+        if (event.shift) {
+          break
+        }
         handleDisconnect()
         event.preventDefault()
         return
-    }
-
-    // Q (shift+q): shutdown session
-    if (event.name === "Q" || (event.shift && event.name === "q")) {
-      handleShutdown()
-      event.preventDefault()
-      return
     }
 
     // K (shift+k): kill all apps
