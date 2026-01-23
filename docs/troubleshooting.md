@@ -220,7 +220,7 @@ Press `q` in Tabs Mode to disconnect, or `Q` to quit and stop all apps.
 
 ### How do I stop the background session server?
 
-Run `tuidoscope --shutdown` to terminate the session server and stop all apps.
+Run `tuidoscope --shutdown` to terminate the session server and stop all apps. This also clears the persisted session snapshot so apps will not relaunch unless `autostart: true` or `session.persist: true` is explicitly enabled.
 
 ### How do I add a new tab?
 

@@ -290,6 +290,8 @@ session:
 | `persist` | boolean | `false` | Remember running apps between restarts |
 | `file` | string | XDG state dir | Custom session file path |
 
+`tuidoscope --shutdown` clears the persisted session snapshot so only `autostart: true` apps relaunch.
+
 When `persist: true`, tuidoscope saves:
 - Which apps were running
 - Which tab was active

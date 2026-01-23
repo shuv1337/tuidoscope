@@ -92,6 +92,8 @@ Each app entry defines a TUI application to be managed.
 - `persist`: (Default: `false`) If true, tuidoscope remembers which apps were running and their state between restarts.
 - `file`: Custom path for the session state file. Supports `<STATE_DIR>` placeholder.
 
+`tuidoscope --shutdown` clears the persisted session snapshot so only apps marked `autostart: true` relaunch.
+
 ## Path Placeholders
 The following placeholders can be used in `cwd`, `args`, and `session.file`:
 - `~`: Expanded to the user's home directory.
