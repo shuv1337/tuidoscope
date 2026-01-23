@@ -267,9 +267,9 @@ export const App: Component<AppProps> = (props) => {
       return
     }
     setIsDisconnecting(true)
-    renderer.destroy()
     void (async () => {
       await props.sessionClient.shutdownAndWait()
+      renderer.destroy()
       process.exit(0)
     })()
   }
