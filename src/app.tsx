@@ -267,9 +267,11 @@ export const App: Component<AppProps> = (props) => {
       return
     }
     setIsDisconnecting(true)
-    props.sessionClient.shutdown()
     renderer.destroy()
-    setTimeout(() => process.exit(0), 50)
+    void (async () => {
+      await props.sessionClient.shutdownAndWait()
+      process.exit(0)
+    })()
   }
 
   // Hook up keyboard events from opentui

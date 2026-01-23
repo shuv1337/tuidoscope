@@ -91,6 +91,30 @@ export class SessionClient extends EventEmitter {
     this.disconnect()
   }
 
+  async shutdownAndWait(timeoutMs = 1500): Promise<void> {
+    this.send({ type: "shutdown" })
+
+    await new Promise<void>((resolve) => {
+      let finished = false
+      const finish = () => {
+        if (finished) return
+        finished = true
+        clearTimeout(timer)
+        this.socket.off("close", finish)
+        this.socket.off("error", finish)
+        resolve()
+      }
+
+      const timer = setTimeout(() => {
+        this.socket.end()
+        finish()
+      }, timeoutMs)
+
+      this.socket.once("close", finish)
+      this.socket.once("error", finish)
+    })
+  }
+
   disconnect() {
     this.socket.end()
   }
@@ -176,7 +200,7 @@ export async function shutdownSessionServer(): Promise<boolean> {
   try {
     const socket = await connectSocket()
     const client = new SessionClient(socket)
-    client.shutdown()
+    await client.shutdownAndWait()
     return true
   } catch (error) {
     await clearStaleSocket(error)
