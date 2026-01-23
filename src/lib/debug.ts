@@ -6,9 +6,24 @@ import { paths } from "./xdg"
 const DEBUG_LOG_PATH = process.env.TUIDOSCOPE_DEBUG_LOG || paths.debugLog
 
 let dirCreated = false
+let debugEnabled = !!process.env.TUIDOSCOPE_DEBUG
+
+/**
+ * Enable debug logging programmatically (e.g., from --debug flag)
+ */
+export function enableDebug(): void {
+  debugEnabled = true
+}
+
+/**
+ * Check if debug logging is enabled
+ */
+export function isDebugEnabled(): boolean {
+  return debugEnabled
+}
 
 export function debugLog(message: string) {
-  if (!process.env.TUIDOSCOPE_DEBUG) {
+  if (!debugEnabled) {
     return
   }
 

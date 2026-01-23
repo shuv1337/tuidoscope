@@ -1,7 +1,7 @@
 import { render, extend } from "@opentui/solid"
 import { App } from "./app"
 import { loadConfig } from "./lib/config"
-import { debugLog } from "./lib/debug"
+import { debugLog, enableDebug } from "./lib/debug"
 import { connectSessionClient, shutdownSessionServer } from "./lib/session-client"
 import { startSessionServer } from "./lib/session-server"
 import { parseArgs, printHelp, printVersion, printUnknownFlags } from "./lib/cli"
@@ -27,6 +27,10 @@ async function main() {
     if (options.version) {
       printVersion()
       process.exit(0)
+    }
+
+    if (options.debug) {
+      enableDebug()
     }
 
     debugLog("[init] main() started")
