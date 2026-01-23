@@ -4,13 +4,35 @@ import { loadConfig } from "./lib/config"
 import { debugLog } from "./lib/debug"
 import { connectSessionClient, shutdownSessionServer } from "./lib/session-client"
 import { startSessionServer } from "./lib/session-server"
+import { parseArgs, printHelp, printVersion, printUnknownFlags } from "./lib/cli"
 
 async function main() {
   try {
+    // Parse CLI arguments first
+    const options = parseArgs(process.argv)
+
+    // Handle unknown flags
+    if (options.unknown.length > 0) {
+      printUnknownFlags(options.unknown)
+      process.exit(1)
+    }
+
+    // Handle --help
+    if (options.help) {
+      printHelp()
+      process.exit(0)
+    }
+
+    // Handle --version
+    if (options.version) {
+      printVersion()
+      process.exit(0)
+    }
+
     debugLog("[init] main() started")
 
-    const args = new Set(process.argv.slice(2))
-    if (args.has("--shutdown")) {
+    // Handle --shutdown
+    if (options.shutdown) {
       debugLog("[init] Shutdown requested")
       const didShutdown = await shutdownSessionServer()
       if (!didShutdown) {
@@ -19,7 +41,9 @@ async function main() {
       }
       return
     }
-    if (args.has("--server")) {
+
+    // Handle --server
+    if (options.server) {
       debugLog("[init] Starting session server")
       await startSessionServer()
       return
