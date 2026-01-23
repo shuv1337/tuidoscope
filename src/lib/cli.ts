@@ -12,7 +12,7 @@ export interface CLIOptions {
   unknown: string[]
 }
 
-const VERSION = "0.1.16"
+const VERSION = "0.1.17"
 
 const HELP_TEXT = `tuidoscope - A TUI multiplexer for managing terminal applications
 
@@ -24,7 +24,7 @@ Options:
   -d, --debug      Enable debug logging (writes to state dir)
   -a, --add        Launch directly into the add app wizard
       --server     Start the session server (internal use)
-      --shutdown   Shutdown a running session server
+      --shutdown   Shutdown session server and clear session state
 
 Keyboard shortcuts (in tabs mode):
   j/k or ↑/↓       Navigate between apps
