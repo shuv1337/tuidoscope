@@ -62,6 +62,20 @@ function configToEntry(config: AppEntryConfig): AppEntry {
   }
 }
 
+function buildDefaultShellEntry(): AppEntry {
+  const shell = process.env.SHELL || "/bin/bash"
+  return {
+    id: "shell",
+    name: "Shell",
+    command: shell,
+    args: undefined,
+    cwd: process.env.HOME || process.cwd(),
+    env: undefined,
+    autostart: false,
+    restartOnExit: false,
+  }
+}
+
 function buildSnapshot(app: ServerRunningApp): RunningAppSnapshot {
   return {
     entry: app.entry,
@@ -1087,6 +1101,11 @@ async function startZellijSessionServer(config: Config): Promise<void> {
         createWindow(entry, { makeActive: false })
       }
     }
+  }
+
+  if (!windows.size) {
+    const shellEntry = entries.find((entry) => entry.id === "shell") ?? buildDefaultShellEntry()
+    createWindow(shellEntry)
   }
 
   if (!activeWindowId && windows.size > 0) {
