@@ -1,4 +1,4 @@
-import { Component, Show } from "solid-js"
+import { Component } from "solid-js"
 import type { JSX } from "solid-js"
 import type { PaneLayoutNode, RunningPane, ThemeConfig } from "../types"
 import { PaneView } from "./PaneView"
@@ -66,16 +66,13 @@ export const PaneLayout: Component<PaneLayoutProps> = (props) => {
 
   return (
     <box width={props.width} height={props.height}>
-      <Show
-        when={props.layout}
-        fallback={
-          <box flexGrow={1} justifyContent="center" alignItems="center">
-            <text fg={props.theme.muted}>No panes running</text>
-          </box>
-        }
-      >
-        {(layout) => renderNode(layout(), props.width, props.height)}
-      </Show>
+      {props.layout ? (
+        renderNode(props.layout, props.width, props.height)
+      ) : (
+        <box flexGrow={1} justifyContent="center" alignItems="center">
+          <text fg={props.theme.muted}>No panes running</text>
+        </box>
+      )}
     </box>
   )
 }
