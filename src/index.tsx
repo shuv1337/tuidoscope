@@ -49,7 +49,7 @@ async function main() {
     // Handle --server
     if (options.server) {
       debugLog("[init] Starting session server")
-      await startSessionServer()
+      await startSessionServer(options.layout)
       return
     }
     
@@ -73,9 +73,12 @@ async function main() {
     
     // Load configuration
     const { config } = await loadConfig()
+    if (options.layout) {
+      config.layout = options.layout
+    }
     debugLog("[init] Config loaded")
 
-    const sessionClient = await connectSessionClient()
+    const sessionClient = await connectSessionClient({ layout: options.layout })
 
     // Render the app using opentui/solid
     debugLog("[init] Calling render()...")

@@ -26,6 +26,7 @@ theme:
 
 # UI settings
 tab_width: 20
+layout: "classic" # classic or zellij
 
 # Session management
 session:
@@ -75,7 +76,13 @@ For reference, these are the base colors used in the default theme:
 - **Cyan:** `#7fdbca`
 
 ### `tab_width`
-(Default: `20`) The width of the tab list in the UI.
+(Default: `20`) The width of the tab list in the classic UI.
+
+### `layout`
+(Default: `classic`) Selects the UI layout.
+- `classic`: Sidebar app list + single terminal pane.
+- `zellij`: Experimental multiplexer layout with window tabs on the bottom and split panes. Each pane spawns its own terminal.
+Runtime override: `tuidoscope --layout zellij`.
 
 ### `apps`
 Each app entry defines a TUI application to be managed.

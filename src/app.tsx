@@ -2,6 +2,8 @@ import { Component, Show, createSignal, createEffect, onCleanup, createMemo, onM
 import { useKeyboard, useTerminalDimensions, useRenderer } from "@opentui/solid"
 import { TabList } from "./components/TabList"
 import { TerminalPane } from "./components/TerminalPane"
+import { PaneLayout } from "./components/PaneLayout"
+import { WindowBar } from "./components/WindowBar"
 import { StatusBar } from "./components/StatusBar"
 import { CommandPalette, type GlobalAction } from "./components/CommandPalette"
 import { AddTabModal } from "./components/AddTabModal"
@@ -10,13 +12,15 @@ import { ThemePicker } from "./components/ThemePicker"
 
 import { createAppsStore } from "./stores/apps"
 import { createTabsStore } from "./stores/tabs"
+import { createWindowsStore } from "./stores/windows"
 import { createUIStore } from "./stores/ui"
 import { saveConfig } from "./lib/config"
 import { matchesKeybind } from "./lib/keybinds"
 import { debugLog } from "./lib/debug"
 import { getThemeById } from "./lib/themes"
+import { computePaneRects, collectPaneIds } from "./lib/layout"
 import type { SessionClient } from "./lib/session-client"
-import type { RunningAppSnapshot } from "./lib/ipc"
+import type { RunningAppSnapshot, RunningPaneSnapshot, ServerMessage, WindowSnapshot } from "./lib/ipc"
 import type { AppStatus, AppEntry, AppEntryConfig, Config, ThemeConfig } from "./types"
 
 export interface AppProps {
@@ -31,6 +35,7 @@ export const App: Component<AppProps> = (props) => {
   // Initialize stores
   const appsStore = createAppsStore(props.config.apps)
   const tabsStore = createTabsStore()
+  const windowsStore = createWindowsStore()
   const uiStore = createUIStore()
 
 
@@ -49,7 +54,9 @@ export const App: Component<AppProps> = (props) => {
   // Double-tap Ctrl+A detection for passthrough
   let lastCtrlATime = 0
 
-  const getPtyDimensions = () => {
+  const isZellijLayout = () => props.config.layout === "zellij"
+
+  const getClassicPtyDimensions = () => {
     const dims = terminalDims()
     const cols = dims.width - props.config.tab_width - 2
     const rows = dims.height - 4
@@ -70,7 +77,7 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
-    const { cols, rows } = getPtyDimensions()
+    const { cols, rows } = getClassicPtyDimensions()
 
     // Don't start with invalid dimensions
     if (cols < 10 || rows < 3) {
@@ -158,6 +165,11 @@ export const App: Component<AppProps> = (props) => {
   const handleSelectApp = (id: string) => {
     const entry = appsStore.getEntry(id)
     if (!entry) return
+
+    if (isZellijLayout()) {
+      props.sessionClient.createWindow(entry)
+      return
+    }
 
     // If not running, start it
     if (!tabsStore.store.runningApps.has(id)) {
@@ -274,6 +286,87 @@ export const App: Component<AppProps> = (props) => {
     })()
   }
 
+  const getActivePaneEntry = () => {
+    const paneId = windowsStore.store.activePaneId
+    const pane = paneId ? windowsStore.getRunningPane(paneId) : undefined
+    return pane?.entry
+  }
+
+  const activateWindow = (windowId: string) => {
+    const window = windowsStore.store.windows.find((item) => item.id === windowId)
+    props.sessionClient.setActiveWindow(windowId)
+    if (window) {
+      props.sessionClient.setActivePane(window.activePaneId)
+    }
+  }
+
+  const activatePane = (paneId: string) => {
+    props.sessionClient.setActivePane(paneId)
+  }
+
+  const splitActivePane = (direction: "horizontal" | "vertical") => {
+    const paneId = windowsStore.store.activePaneId
+    const entry = getActivePaneEntry()
+    if (!paneId || !entry) {
+      uiStore.showTemporaryMessage("No active pane to split")
+      return
+    }
+    props.sessionClient.splitPane(paneId, direction, entry)
+  }
+
+  const createWindowFromActive = () => {
+    const entry = getActivePaneEntry()
+    if (!entry) {
+      uiStore.showTemporaryMessage("No active pane to clone")
+      return
+    }
+    props.sessionClient.createWindow(entry)
+  }
+
+  const closeActivePane = () => {
+    const paneId = windowsStore.store.activePaneId
+    if (!paneId) {
+      uiStore.showTemporaryMessage("No active pane")
+      return
+    }
+    props.sessionClient.closePane(paneId)
+  }
+
+  const closeActiveWindow = () => {
+    const windowId = windowsStore.store.activeWindowId
+    if (!windowId) {
+      uiStore.showTemporaryMessage("No active window")
+      return
+    }
+    props.sessionClient.closeWindow(windowId)
+  }
+
+  const cycleWindow = (direction: "next" | "prev") => {
+    const windows = windowsStore.store.windows
+    if (!windows.length) {
+      return
+    }
+    const currentIndex = windows.findIndex((window) => window.id === windowsStore.store.activeWindowId)
+    const nextIndex =
+      direction === "next"
+        ? (currentIndex + 1 + windows.length) % windows.length
+        : (currentIndex - 1 + windows.length) % windows.length
+    const nextWindow = windows[nextIndex]
+    if (nextWindow) {
+      activateWindow(nextWindow.id)
+    }
+  }
+
+  const cyclePane = () => {
+    const paneIds = activeWindowPaneIds()
+    if (!paneIds.length) {
+      return
+    }
+    const currentIndex = paneIds.findIndex((paneId) => paneId === windowsStore.store.activePaneId)
+    const nextIndex = (currentIndex + 1 + paneIds.length) % paneIds.length
+    activatePane(paneIds[nextIndex])
+  }
+
   // Hook up keyboard events from opentui
   useKeyboard((event) => {
     debugLog(`[App] key: ${event.name} modal: ${uiStore.store.activeModal} prevented: ${event.defaultPrevented}`)
@@ -291,17 +384,27 @@ export const App: Component<AppProps> = (props) => {
       return
     }
 
-    // Get active app for PTY operations
+    const isZellij = isZellijLayout()
+
+    // Get active app/pane for PTY operations
     const activeApp = tabsStore.store.activeTabId
       ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
       : undefined
+    const activePaneId = windowsStore.store.activePaneId
+    const activePane = activePaneId ? windowsStore.getRunningPane(activePaneId) : undefined
 
     // === CTRL+A TOGGLE (works in both modes) ===
     if (matchesKeybind(event, "ctrl+a")) {
       const now = Date.now()
+      const isTerminalFocus = isZellij
+        ? windowsStore.store.focusMode === "terminal"
+        : tabsStore.store.focusMode === "terminal"
       // Double-tap detection: if in terminal mode and within 500ms, send \x01 to PTY
-      if (tabsStore.store.focusMode === "terminal" && now - lastCtrlATime < 500) {
-        if (activeApp) {
+      if (isTerminalFocus && now - lastCtrlATime < 500) {
+        if (isZellij && activePane) {
+          props.sessionClient.sendInput(activePane.paneId, "\x01")
+        }
+        if (!isZellij && activeApp) {
           props.sessionClient.sendInput(activeApp.entry.id, "\x01")
         }
         lastCtrlATime = 0
@@ -310,8 +413,87 @@ export const App: Component<AppProps> = (props) => {
       }
       // Otherwise toggle focus mode
       lastCtrlATime = now
-      tabsStore.toggleFocus()
+      if (isZellij) {
+        windowsStore.toggleFocus()
+      } else {
+        tabsStore.toggleFocus()
+      }
       event.preventDefault()
+      return
+    }
+
+    if (isZellij) {
+      if (windowsStore.store.focusMode === "terminal") {
+        if (activePane && event.sequence) {
+          props.sessionClient.sendInput(activePane.paneId, event.sequence)
+          event.preventDefault()
+        }
+        return
+      }
+
+      // Manager focus mode
+      if (event.sequence === "\x03" || (event.ctrl && event.name === "c")) {
+        event.preventDefault()
+        return
+      }
+
+      if (event.name === "Q" || (event.shift && event.name === "q")) {
+        handleShutdown()
+        event.preventDefault()
+        return
+      }
+
+      switch (event.name) {
+        case "v":
+          splitActivePane("vertical")
+          event.preventDefault()
+          return
+        case "s":
+          splitActivePane("horizontal")
+          event.preventDefault()
+          return
+        case "n":
+          createWindowFromActive()
+          event.preventDefault()
+          return
+        case "x":
+          closeActivePane()
+          event.preventDefault()
+          return
+        case "w":
+          closeActiveWindow()
+          event.preventDefault()
+          return
+        case "[":
+          cycleWindow("prev")
+          event.preventDefault()
+          return
+        case "]":
+          cycleWindow("next")
+          event.preventDefault()
+          return
+        case "p":
+          cyclePane()
+          event.preventDefault()
+          return
+        case " ":
+        case "space":
+          uiStore.openModal("command-palette")
+          event.preventDefault()
+          return
+        case "t":
+          uiStore.openModal("add-tab")
+          event.preventDefault()
+          return
+        case "q":
+          if (!event.shift) {
+            handleDisconnect()
+            event.preventDefault()
+            return
+          }
+          break
+      }
+
       return
     }
 
@@ -464,15 +646,42 @@ export const App: Component<AppProps> = (props) => {
   })
 
   onMount(() => {
-    const handleSnapshot = (message: { runningApps: RunningAppSnapshot[]; activeTabId: string | null }) => {
-      const apps = message.runningApps.map((app) => ({
+    const handleSnapshot = (message: ServerMessage) => {
+      if (message.type !== "snapshot") {
+        return
+      }
+
+      if (message.layout === "zellij") {
+        const panes = (message.panes ?? []).map((pane) => ({
+          paneId: pane.paneId,
+          entry: pane.entry,
+          status: pane.status,
+          buffer: pane.buffer,
+          runId: pane.runId,
+        }))
+        const windows = (message.windows ?? []).map((window) => ({
+          id: window.id,
+          title: window.title,
+          layout: window.layout,
+          activePaneId: window.activePaneId,
+        }))
+        windowsStore.setSnapshot(
+          windows,
+          panes,
+          message.activeWindowId ?? null,
+          message.activePaneId ?? null
+        )
+        return
+      }
+
+      const apps = (message.runningApps ?? []).map((app) => ({
         entry: app.entry,
         status: app.status,
         buffer: app.buffer,
         runId: app.runId,
       }))
       tabsStore.setRunningApps(apps)
-      setActiveTab(message.activeTabId)
+      setActiveTab(message.activeTabId ?? null)
     }
 
     const handleStarted = (message: { app: RunningAppSnapshot }) => {
@@ -500,6 +709,49 @@ export const App: Component<AppProps> = (props) => {
       setActiveTab(message.id)
     }
 
+    const handlePaneStarted = (message: { pane: RunningPaneSnapshot }) => {
+      windowsStore.addRunningPane({
+        paneId: message.pane.paneId,
+        entry: message.pane.entry,
+        status: message.pane.status,
+        buffer: message.pane.buffer,
+        runId: message.pane.runId,
+      })
+    }
+
+    const handlePaneStopped = (message: { paneId: string }) => {
+      windowsStore.removeRunningPane(message.paneId)
+    }
+
+    const handlePaneStatus = (message: { paneId: string; status: AppStatus }) => {
+      windowsStore.updatePaneStatus(message.paneId, message.status)
+    }
+
+    const handlePaneOutput = (message: { paneId: string; data: string }) => {
+      windowsStore.appendPaneBuffer(message.paneId, message.data)
+    }
+
+    const handleWindowChanged = (message: { window: WindowSnapshot }) => {
+      windowsStore.upsertWindow({
+        id: message.window.id,
+        title: message.window.title,
+        layout: message.window.layout,
+        activePaneId: message.window.activePaneId,
+      })
+    }
+
+    const handleWindowClosed = (message: { windowId: string }) => {
+      windowsStore.removeWindow(message.windowId)
+    }
+
+    const handleActiveWindow = (message: { id: string | null }) => {
+      windowsStore.setActiveWindow(message.id)
+    }
+
+    const handleActivePane = (message: { id: string | null }) => {
+      windowsStore.setActivePane(message.id)
+    }
+
     const handleDisconnectEvent = () => {
       if (isDisconnecting()) {
         return
@@ -515,6 +767,14 @@ export const App: Component<AppProps> = (props) => {
     props.sessionClient.on("status", handleStatus)
     props.sessionClient.on("output", handleOutput)
     props.sessionClient.on("active", handleActive)
+    props.sessionClient.on("pane_started", handlePaneStarted)
+    props.sessionClient.on("pane_stopped", handlePaneStopped)
+    props.sessionClient.on("pane_status", handlePaneStatus)
+    props.sessionClient.on("pane_output", handlePaneOutput)
+    props.sessionClient.on("window_changed", handleWindowChanged)
+    props.sessionClient.on("window_closed", handleWindowClosed)
+    props.sessionClient.on("active_window", handleActiveWindow)
+    props.sessionClient.on("active_pane", handleActivePane)
     props.sessionClient.on("disconnect", handleDisconnectEvent)
 
     onCleanup(() => {
@@ -524,13 +784,67 @@ export const App: Component<AppProps> = (props) => {
       props.sessionClient.off("status", handleStatus)
       props.sessionClient.off("output", handleOutput)
       props.sessionClient.off("active", handleActive)
+      props.sessionClient.off("pane_started", handlePaneStarted)
+      props.sessionClient.off("pane_stopped", handlePaneStopped)
+      props.sessionClient.off("pane_status", handlePaneStatus)
+      props.sessionClient.off("pane_output", handlePaneOutput)
+      props.sessionClient.off("window_changed", handleWindowChanged)
+      props.sessionClient.off("window_closed", handleWindowClosed)
+      props.sessionClient.off("active_window", handleActiveWindow)
+      props.sessionClient.off("active_pane", handleActivePane)
       props.sessionClient.off("disconnect", handleDisconnectEvent)
     })
   })
 
+  // Get the currently active running app/pane
+  const activeRunningApp = createMemo(() => {
+    const activeId = tabsStore.store.activeTabId
+    return activeId ? tabsStore.getRunningApp(activeId) : undefined
+  })
+
+  const activeWindow = createMemo(() => {
+    const activeId = windowsStore.store.activeWindowId
+    return windowsStore.store.windows.find((window) => window.id === activeId) ?? null
+  })
+
+  const activeRunningPane = createMemo(() => {
+    const paneId = windowsStore.store.activePaneId
+    return paneId ? windowsStore.getRunningPane(paneId) : undefined
+  })
+
+  const activeWindowPaneIds = createMemo(() => {
+    const window = activeWindow()
+    return window ? collectPaneIds(window.layout) : []
+  })
+
   // Handle terminal resize based on terminal dimensions
   createEffect(() => {
-    const { cols: termWidth, rows: termHeight } = getPtyDimensions()
+    if (isZellijLayout()) {
+      const window = activeWindow()
+      if (!window) {
+        return
+      }
+
+      const dims = terminalDims()
+      const contentWidth = dims.width
+      const contentHeight = dims.height - 2
+      if (contentWidth < 10 || contentHeight < 3) {
+        return
+      }
+
+      const rects = computePaneRects(window.layout, contentWidth, contentHeight)
+      for (const [paneId, rect] of rects.entries()) {
+        const cols = Math.max(1, rect.width - 2)
+        const rows = Math.max(1, rect.height - 3)
+        if (cols < 10 || rows < 3) {
+          continue
+        }
+        props.sessionClient.resizePane(paneId, cols, rows)
+      }
+      return
+    }
+
+    const { cols: termWidth, rows: termHeight } = getClassicPtyDimensions()
 
     // Only resize with valid dimensions
     if (termWidth < 10 || termHeight < 3) {
@@ -542,6 +856,14 @@ export const App: Component<AppProps> = (props) => {
 
   // Handle input to terminal
   const handleTerminalInput = (data: string) => {
+    if (isZellijLayout()) {
+      const paneId = windowsStore.store.activePaneId
+      if (paneId) {
+        props.sessionClient.sendInput(paneId, data)
+      }
+      return
+    }
+
     const activeApp = tabsStore.store.activeTabId
       ? tabsStore.getRunningApp(tabsStore.store.activeTabId)
       : undefined
@@ -556,12 +878,6 @@ export const App: Component<AppProps> = (props) => {
     props.sessionClient.disconnect()
   })
 
-  // Get the currently active running app
-  const activeRunningApp = createMemo(() => {
-    const activeId = tabsStore.store.activeTabId
-    return activeId ? tabsStore.getRunningApp(activeId) : undefined
-  })
-
   const editingEntry = createMemo(() => {
     const id = editingEntryId()
     const entry = id ? appsStore.getEntry(id) : undefined
@@ -570,41 +886,65 @@ export const App: Component<AppProps> = (props) => {
 
   return (
     <box flexDirection="column" width="100%" height="100%">
-      {/* Main content area */}
-      <box flexDirection="row" flexGrow={1}>
-        {/* Tab list sidebar */}
-        <TabList
-          entries={appsStore.store.entries}
-          activeTabId={tabsStore.store.activeTabId}
-          selectedIndex={selectedIndex()}
-          getStatus={getAppStatus}
-          isFocused={tabsStore.store.focusMode === "tabs"}
-          width={props.config.tab_width}
-          height={terminalDims().height - 1}
-          scrollOffset={tabsStore.store.scrollOffset}
-          theme={currentTheme()}
-          onSelect={handleSelectApp}
-          onAddClick={() => uiStore.openModal("add-tab")}
-        />
+      <Show
+        when={isZellijLayout()}
+        fallback={
+          <box flexDirection="row" flexGrow={1}>
+            <TabList
+              entries={appsStore.store.entries}
+              activeTabId={tabsStore.store.activeTabId}
+              selectedIndex={selectedIndex()}
+              getStatus={getAppStatus}
+              isFocused={tabsStore.store.focusMode === "tabs"}
+              width={props.config.tab_width}
+              height={terminalDims().height - 1}
+              scrollOffset={tabsStore.store.scrollOffset}
+              theme={currentTheme()}
+              onSelect={handleSelectApp}
+              onAddClick={() => uiStore.openModal("add-tab")}
+            />
 
-        {/* Terminal pane */}
-        <TerminalPane
-          runningApp={activeRunningApp()}
-          isFocused={tabsStore.store.focusMode === "terminal"}
-          width={terminalDims().width - props.config.tab_width}
-          height={terminalDims().height - 1}
-          theme={currentTheme()}
-          onInput={handleTerminalInput}
-        />
-      </box>
+            <TerminalPane
+              runningApp={activeRunningApp()}
+              isFocused={tabsStore.store.focusMode === "terminal"}
+              width={terminalDims().width - props.config.tab_width}
+              height={terminalDims().height - 1}
+              theme={currentTheme()}
+              onInput={handleTerminalInput}
+            />
+          </box>
+        }
+      >
+        <box flexDirection="column" flexGrow={1}>
+          <PaneLayout
+            layout={activeWindow()?.layout ?? null}
+            panes={windowsStore.store.runningPanes}
+            activePaneId={windowsStore.store.activePaneId}
+            width={terminalDims().width}
+            height={terminalDims().height - 2}
+            theme={currentTheme()}
+          />
+          <WindowBar
+            windows={windowsStore.store.windows}
+            activeWindowId={windowsStore.store.activeWindowId}
+            theme={currentTheme()}
+            onSelect={activateWindow}
+          />
+        </box>
+      </Show>
 
       {/* Status bar */}
       <StatusBar
-        appName={activeRunningApp()?.entry.name ?? null}
-        appStatus={activeRunningApp()?.status ?? null}
-        focusMode={tabsStore.store.focusMode}
+        appName={
+          isZellijLayout()
+            ? activeRunningPane()?.entry.name ?? null
+            : activeRunningApp()?.entry.name ?? null
+        }
+        appStatus={isZellijLayout() ? activeRunningPane()?.status ?? null : activeRunningApp()?.status ?? null}
+        focusMode={isZellijLayout() ? windowsStore.store.focusMode : tabsStore.store.focusMode}
         message={uiStore.store.statusMessage}
         theme={currentTheme()}
+        layoutMode={props.config.layout}
       />
 
       {/* Modals */}
@@ -619,6 +959,23 @@ export const App: Component<AppProps> = (props) => {
             }
 
             uiStore.closeModal()
+            if (isZellijLayout()) {
+              if (action === "switch") {
+                props.sessionClient.createWindow(entry)
+                return
+              }
+              if (action === "stop") {
+                const activePane = activeRunningPane()
+                if (activePane && activePane.entry.id === entry.id) {
+                  props.sessionClient.closePane(activePane.paneId)
+                  return
+                }
+                uiStore.showTemporaryMessage("Stop applies to active pane only")
+                return
+              }
+              return
+            }
+
             if (action === "switch") {
               handleSelectApp(entry.id)
             } else if (action === "stop") {

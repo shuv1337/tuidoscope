@@ -4,7 +4,14 @@ import { existsSync } from "fs"
 import { dirname } from "path"
 import { expandPath } from "./config"
 import { paths } from "./xdg"
-import type { SessionAppRef, SessionData, Config } from "../types"
+import type {
+  Config,
+  PaneLayoutNode,
+  SessionAppRef,
+  SessionData,
+  SessionPaneData,
+  SessionWindowData,
+} from "../types"
 
 let sessionPath: string = paths.session
 
@@ -59,11 +66,21 @@ export async function restoreSession(): Promise<SessionData | null> {
         ? parsed.runningApps.filter(isSessionRef)
         : []
       const activeTab = isSessionRef(parsed.activeTab) ? parsed.activeTab : null
+      const windows = Array.isArray(parsed.windows)
+        ? parsed.windows.filter(isSessionWindowData)
+        : undefined
+      const panes = Array.isArray(parsed.panes)
+        ? parsed.panes.filter(isSessionPaneData)
+        : undefined
 
-      if (typeof parsed.timestamp === "number" && runningApps.length > 0) {
+      if (typeof parsed.timestamp === "number" && (runningApps.length > 0 || windows?.length)) {
         return {
           runningApps,
           activeTab,
+          windows,
+          panes,
+          activeWindowId: typeof parsed.activeWindowId === "string" ? parsed.activeWindowId : null,
+          activePaneId: typeof parsed.activePaneId === "string" ? parsed.activePaneId : null,
           timestamp: parsed.timestamp,
         }
       }
@@ -72,6 +89,10 @@ export async function restoreSession(): Promise<SessionData | null> {
         return {
           runningApps,
           activeTab,
+          windows,
+          panes,
+          activeWindowId: typeof parsed.activeWindowId === "string" ? parsed.activeWindowId : null,
+          activePaneId: typeof parsed.activePaneId === "string" ? parsed.activePaneId : null,
           timestamp: parsed.timestamp,
         }
       }
@@ -94,6 +115,40 @@ function isSessionAppRef(value: unknown): value is SessionAppRef {
   if (typeof candidate.command !== "string") return false
   if (typeof candidate.cwd !== "string") return false
   if (candidate.args !== undefined && typeof candidate.args !== "string") return false
+  return true
+}
+
+function isPaneLayoutNode(value: unknown): value is PaneLayoutNode {
+  if (!value || typeof value !== "object") return false
+  const candidate = value as PaneLayoutNode
+  if (candidate.type === "leaf") {
+    return typeof (candidate as { paneId?: unknown }).paneId === "string"
+  }
+  if (candidate.type === "split") {
+    const direction = (candidate as { direction?: unknown }).direction
+    const children = (candidate as { children?: unknown }).children
+    if (direction !== "horizontal" && direction !== "vertical") return false
+    if (!Array.isArray(children) || children.length !== 2) return false
+    return children.every(isPaneLayoutNode)
+  }
+  return false
+}
+
+function isSessionPaneData(value: unknown): value is SessionPaneData {
+  if (!value || typeof value !== "object") return false
+  const candidate = value as SessionPaneData
+  if (typeof candidate.paneId !== "string") return false
+  if (!isSessionAppRef(candidate.entry)) return false
+  return true
+}
+
+function isSessionWindowData(value: unknown): value is SessionWindowData {
+  if (!value || typeof value !== "object") return false
+  const candidate = value as SessionWindowData
+  if (typeof candidate.id !== "string") return false
+  if (typeof candidate.title !== "string") return false
+  if (!isPaneLayoutNode(candidate.layout)) return false
+  if (typeof candidate.activePaneId !== "string") return false
   return true
 }
 

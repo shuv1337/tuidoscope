@@ -52,6 +52,7 @@ const ConfigSchema = z.object({
   version: z.number().default(2),
   theme: ThemeSchema.default({}),
   tab_width: z.number().default(20),
+  layout: z.enum(["classic", "zellij"]).default("classic"),
   apps: z.array(AppEntrySchema).default([]),
   session: SessionSchema.default({}),
 })

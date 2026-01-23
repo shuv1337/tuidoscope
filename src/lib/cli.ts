@@ -9,6 +9,7 @@ export interface CLIOptions {
   add: boolean
   server: boolean
   shutdown: boolean
+  layout?: "classic" | "zellij"
   unknown: string[]
 }
 
@@ -23,6 +24,7 @@ Options:
   -v, --version    Show version number and exit
   -d, --debug      Enable debug logging (writes to state dir)
   -a, --add        Launch directly into the add app wizard
+      --layout     Override layout mode (classic|zellij)
       --server     Start the session server (internal use)
       --shutdown   Shutdown session server and clear session state
 
@@ -58,10 +60,20 @@ export function parseArgs(argv: string[]): CLIOptions {
     add: false,
     server: false,
     shutdown: false,
+    layout: undefined,
     unknown: [],
   }
 
-  for (const arg of args) {
+  const parseLayout = (value: string | undefined) => {
+    if (value === "classic" || value === "zellij") {
+      options.layout = value
+      return true
+    }
+    return false
+  }
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index]
     switch (arg) {
       case "-h":
       case "--help":
@@ -86,6 +98,22 @@ export function parseArgs(argv: string[]): CLIOptions {
         options.shutdown = true
         break
       default:
+        if (arg === "--layout") {
+          const value = args[index + 1]
+          if (!parseLayout(value)) {
+            options.unknown.push(arg)
+          } else {
+            index += 1
+          }
+          break
+        }
+        if (arg.startsWith("--layout=")) {
+          const value = arg.slice("--layout=".length)
+          if (!parseLayout(value)) {
+            options.unknown.push(arg)
+          }
+          break
+        }
         if (arg.startsWith("-")) {
           options.unknown.push(arg)
         }

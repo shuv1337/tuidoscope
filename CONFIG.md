@@ -33,9 +33,12 @@ On first run without a config file, tuidoscope starts with an empty app list. Pr
 version: 2                    # Config schema version (required)
 theme: { ... }                # Color theme
 tab_width: 20                 # Tab sidebar width
+layout: "classic"            # classic or zellij layout
 apps: [ ... ]                 # Application entries
 session: { ... }              # Session persistence
 ```
+
+Runtime override: `tuidoscope --layout zellij`.
 
 ---
 
@@ -52,6 +55,8 @@ Tuidoscope uses a simple focus-toggle model with fixed keybindings. There are no
 **TERMINAL Mode** - For interacting with apps:
 - All keyboard input passes through to the PTY
 - Only `Ctrl+A` is intercepted for mode switching
+
+In `layout: zellij`, the non-terminal focus mode is **MANAGER** and provides window/pane commands.
 
 ### Mode Toggle
 
@@ -81,6 +86,21 @@ The double-tap is useful for:
 | `K` | Kill all running apps (Shift+K) |
 | `q` | Disconnect (leave apps running) |
 | `Q` | Quit and stop all apps |
+
+### MANAGER Mode Shortcuts (layout: zellij)
+
+| Key | Action |
+|-----|--------|
+| `v` | Split active pane vertically |
+| `s` | Split active pane horizontally |
+| `n` | New window (clone active pane entry) |
+| `x` | Close active pane |
+| `w` | Close active window |
+| `[` | Previous window |
+| `]` | Next window |
+| `p` | Cycle panes |
+| `Space` | Command palette |
+| `Ctrl+A` | Switch to TERMINAL mode |
 
 ### TERMINAL Mode Shortcuts
 
@@ -297,6 +317,8 @@ When `persist: true`, tuidoscope saves:
 - Which tab was active
 - App process state
 
+When `layout: zellij`, it also stores window/pane layouts and active pane.
+
 ---
 
 ## Path Placeholders
@@ -343,6 +365,9 @@ theme:
 
 # Tab sidebar width
 tab_width: 20
+
+# Layout mode (classic sidebar or zellij-style panes)
+layout: "classic"
 
 # Applications
 apps:

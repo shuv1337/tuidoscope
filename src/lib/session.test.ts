@@ -15,6 +15,7 @@ describe("session persistence", () => {
       version: 2,
       theme: defaultTheme,
       tab_width: 20,
+      layout: "classic",
       apps: [],
       session: { persist: true, file: sessionFile },
     }
@@ -65,6 +66,7 @@ describe("session persistence", () => {
       version: 2,
       theme: defaultTheme,
       tab_width: 20,
+      layout: "classic",
       apps: [],
       session: { persist: true, file: sessionFile },
     }

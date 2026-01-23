@@ -6,12 +6,36 @@ import { clearSession, initSessionPath, restoreSession, saveSession } from "./se
 import { spawnPty, killPty, resizePty, type PtyProcess } from "./pty"
 import { debugLog } from "./debug"
 import { ensureSocketDir, SOCKET_PATH, serializeMessage, type ClientMessage, type RunningAppSnapshot, type ServerMessage } from "./ipc"
-import type { AppEntry, AppEntryConfig, AppStatus, SessionAppRef } from "../types"
+import type {
+  AppEntry,
+  AppEntryConfig,
+  AppStatus,
+  Config,
+  LayoutMode,
+  PaneId,
+  PaneSplitDirection,
+  SessionAppRef,
+  SessionPaneData,
+  SessionWindowData,
+  WindowId,
+  WindowState,
+} from "../types"
 import { generateId } from "./id"
+import { buildSplitNode, collectPaneIds, removePaneLeaf, replacePaneLeaf } from "./layout"
 
 const MAX_BUFFER_CHARS = 200_000
 
 interface ServerRunningApp {
+  entry: AppEntry
+  restartEntry: AppEntry
+  pty: PtyProcess
+  status: AppStatus
+  buffer: string
+  runId: number
+}
+
+interface ServerRunningPane {
+  paneId: PaneId
   entry: AppEntry
   restartEntry: AppEntry
   pty: PtyProcess
@@ -69,8 +93,15 @@ function resolveSessionEntry(ref: string | SessionAppRef, entries: AppEntry[]): 
   )
 }
 
-export async function startSessionServer(): Promise<void> {
+export async function startSessionServer(layoutOverride?: LayoutMode): Promise<void> {
   const { config } = await loadConfig()
+  if (layoutOverride) {
+    config.layout = layoutOverride
+  }
+  if (config.layout === "zellij") {
+    await startZellijSessionServer(config)
+    return
+  }
   initSessionPath(config)
 
   const entries = config.apps.map(configToEntry)
@@ -391,7 +422,14 @@ export async function startSessionServer(): Promise<void> {
     clients.add(socket)
 
     const snapshot: RunningAppSnapshot[] = Array.from(runningApps.values()).map(buildSnapshot)
-    socket.write(serializeMessage({ type: "snapshot", runningApps: snapshot, activeTabId }))
+    socket.write(
+      serializeMessage({
+        type: "snapshot",
+        layout: "classic",
+        runningApps: snapshot,
+        activeTabId,
+      })
+    )
 
     let buffer = ""
     socket.on("data", (data) => {
@@ -472,6 +510,590 @@ export async function startSessionServer(): Promise<void> {
       if (entry.autostart) {
         startApp(entry)
       }
+    }
+  }
+
+  process.on("SIGTERM", () => void shutdown())
+  process.on("SIGINT", () => void shutdown())
+}
+
+async function startZellijSessionServer(config: Config): Promise<void> {
+  initSessionPath(config)
+
+  const entries = config.apps.map(configToEntry)
+  const runningPanes = new Map<PaneId, ServerRunningPane>()
+  const pendingOutputs = new Map<PaneId, PendingOutput>()
+  const windows = new Map<WindowId, WindowState>()
+  const clients = new Set<net.Socket>()
+  const manualStopRuns = new Set<number>()
+  const lastPaneSizes = new Map<PaneId, { cols: number; rows: number }>()
+  let nextRunId = 1
+  let activeWindowId: WindowId | null = null
+  let activePaneId: PaneId | null = null
+  let server!: net.Server
+  let suppressSessionUpdates = false
+  let persistTimer: ReturnType<typeof setTimeout> | null = null
+  let persistPromise: Promise<void> | null = null
+  let shuttingDown = false
+
+  const persistSession = async () => {
+    if (!config.session.persist) {
+      return
+    }
+
+    if (persistPromise) {
+      await persistPromise
+      return
+    }
+
+    const paneRefs: SessionPaneData[] = Array.from(runningPanes.values()).map((pane) => ({
+      paneId: pane.paneId,
+      entry: {
+        id: pane.entry.id,
+        name: pane.entry.name,
+        command: pane.entry.command,
+        args: pane.entry.args,
+        cwd: pane.entry.cwd,
+      },
+    }))
+
+    const runningRefs: SessionAppRef[] = paneRefs.map((pane) => pane.entry)
+    const activePane = activePaneId ? runningPanes.get(activePaneId) : undefined
+    const activeRef = activePane
+      ? {
+          id: activePane.entry.id,
+          name: activePane.entry.name,
+          command: activePane.entry.command,
+          args: activePane.entry.args,
+          cwd: activePane.entry.cwd,
+        }
+      : null
+
+    const windowRefs: SessionWindowData[] = Array.from(windows.values()).map((window) => ({
+      id: window.id,
+      title: window.title,
+      layout: window.layout,
+      activePaneId: window.activePaneId,
+    }))
+
+    persistPromise = (async () => {
+      try {
+        await saveSession({
+          runningApps: runningRefs,
+          activeTab: activeRef,
+          windows: windowRefs,
+          panes: paneRefs,
+          activeWindowId,
+          activePaneId,
+          timestamp: Date.now(),
+        })
+      } catch (error) {
+        debugLog(`[server] Failed to save session: ${error}`)
+      }
+    })()
+
+    try {
+      await persistPromise
+    } finally {
+      persistPromise = null
+    }
+  }
+
+  const persistIfNeeded = () => {
+    if (suppressSessionUpdates || shuttingDown || !config.session.persist) {
+      return
+    }
+
+    if (persistTimer) {
+      return
+    }
+
+    persistTimer = setTimeout(() => {
+      persistTimer = null
+      void persistSession()
+    }, 100)
+  }
+
+  const broadcast = (message: ServerMessage) => {
+    const payload = serializeMessage(message)
+    for (const client of clients) {
+      if (!client.destroyed) {
+        client.write(payload)
+      }
+    }
+  }
+
+  const buildPaneSnapshot = (pane: ServerRunningPane) => ({
+    paneId: pane.paneId,
+    entry: pane.entry,
+    status: pane.status,
+    buffer: pane.buffer,
+    runId: pane.runId,
+  })
+
+  const buildWindowSnapshot = (window: WindowState) => ({
+    id: window.id,
+    title: window.title,
+    layout: window.layout,
+    activePaneId: window.activePaneId,
+  })
+
+  const findWindowByPane = (paneId: PaneId) => {
+    for (const window of windows.values()) {
+      if (collectPaneIds(window.layout).includes(paneId)) {
+        return window
+      }
+    }
+    return undefined
+  }
+
+  const flushOutput = (paneId: PaneId) => {
+    const pending = pendingOutputs.get(paneId)
+    if (!pending || pending.data.length === 0) {
+      if (pending) {
+        pending.flushTimer = null
+      }
+      return
+    }
+
+    const chunk = pending.data
+    pending.data = ""
+    pending.flushTimer = null
+
+    const pane = runningPanes.get(paneId)
+    if (pane) {
+      pane.buffer = (pane.buffer + chunk).slice(-MAX_BUFFER_CHARS)
+    }
+
+    broadcast({ type: "pane_output", paneId, data: chunk })
+  }
+
+  const updateActiveWindow = (id: WindowId | null) => {
+    activeWindowId = id
+    broadcast({ type: "active_window", id })
+    persistIfNeeded()
+  }
+
+  const updateActivePane = (paneId: PaneId | null) => {
+    activePaneId = paneId
+    if (paneId) {
+      const window = findWindowByPane(paneId)
+      if (window) {
+        window.activePaneId = paneId
+        windows.set(window.id, window)
+        updateActiveWindow(window.id)
+        broadcast({ type: "window_changed", window: buildWindowSnapshot(window) })
+      }
+    }
+    broadcast({ type: "active_pane", id: paneId })
+    persistIfNeeded()
+  }
+
+  const startPane = (entry: AppEntry, paneId: PaneId = generateId()) => {
+    const existing = runningPanes.get(paneId)
+    if (existing && existing.status === "running") {
+      return paneId
+    }
+    if (existing) {
+      runningPanes.delete(paneId)
+      pendingOutputs.delete(paneId)
+    }
+
+    const size = lastPaneSizes.get(paneId) ?? { cols: 80, rows: 24 }
+    const ptyProcess = spawnPty(entry, { cols: size.cols, rows: size.rows })
+    const runId = nextRunId++
+
+    const pane: ServerRunningPane = {
+      paneId,
+      entry,
+      restartEntry: entry,
+      pty: ptyProcess,
+      status: "running",
+      buffer: "",
+      runId,
+    }
+
+    runningPanes.set(paneId, pane)
+    pendingOutputs.set(paneId, { data: "", flushTimer: null })
+
+    ptyProcess.onData((data) => {
+      const pending = pendingOutputs.get(paneId)
+      if (!pending) {
+        return
+      }
+      pending.data += data
+      if (!pending.flushTimer) {
+        pending.flushTimer = setTimeout(() => flushOutput(paneId), 50)
+      }
+    })
+
+    ptyProcess.onExit(({ exitCode }) => {
+      flushOutput(paneId)
+      const wasManualStop = manualStopRuns.has(runId)
+      if (wasManualStop) {
+        manualStopRuns.delete(runId)
+      }
+
+      const current = runningPanes.get(paneId)
+      if (current) {
+        current.status = exitCode === 0 ? "stopped" : "error"
+        broadcast({ type: "pane_status", paneId, status: current.status })
+      }
+
+      if (!wasManualStop && pane.restartEntry.restartOnExit && exitCode !== 0) {
+        setTimeout(() => startPane(pane.restartEntry, paneId), 1000)
+      }
+    })
+
+    broadcast({ type: "pane_started", pane: buildPaneSnapshot(pane) })
+    persistIfNeeded()
+    return paneId
+  }
+
+  const stopPane = (paneId: PaneId) => {
+    const pane = runningPanes.get(paneId)
+    if (!pane) {
+      return
+    }
+
+    manualStopRuns.add(pane.runId)
+    killPty(pane.pty)
+    runningPanes.delete(paneId)
+    pendingOutputs.delete(paneId)
+    broadcast({ type: "pane_stopped", paneId })
+    persistIfNeeded()
+  }
+
+  const createWindow = (entry: AppEntry, options: { makeActive?: boolean } = {}) => {
+    const paneId = startPane(entry)
+    const windowId = generateId()
+    const window: WindowState = {
+      id: windowId,
+      title: entry.name,
+      layout: { type: "leaf", paneId },
+      activePaneId: paneId,
+    }
+    windows.set(windowId, window)
+    broadcast({ type: "window_changed", window: buildWindowSnapshot(window) })
+    if (options.makeActive !== false) {
+      updateActiveWindow(windowId)
+      updateActivePane(paneId)
+    }
+    persistIfNeeded()
+  }
+
+  const splitPane = (paneId: PaneId, direction: PaneSplitDirection, entry: AppEntry) => {
+    const window = findWindowByPane(paneId)
+    if (!window) {
+      return
+    }
+    const newPaneId = startPane(entry)
+    const nextLayout = replacePaneLeaf(
+      window.layout,
+      paneId,
+      buildSplitNode(direction, paneId, newPaneId)
+    )
+    const nextWindow: WindowState = {
+      ...window,
+      layout: nextLayout,
+      activePaneId: newPaneId,
+    }
+    windows.set(window.id, nextWindow)
+    broadcast({ type: "window_changed", window: buildWindowSnapshot(nextWindow) })
+    updateActivePane(newPaneId)
+  }
+
+  const closePane = (paneId: PaneId) => {
+    const window = findWindowByPane(paneId)
+    if (!window) {
+      return
+    }
+
+    stopPane(paneId)
+    const removal = removePaneLeaf(window.layout, paneId)
+    if (!removal.removed) {
+      return
+    }
+
+    if (!removal.layout) {
+      windows.delete(window.id)
+      broadcast({ type: "window_closed", windowId: window.id })
+      if (activeWindowId === window.id) {
+        const nextWindow = windows.values().next().value as WindowState | undefined
+        updateActiveWindow(nextWindow?.id ?? null)
+        updateActivePane(nextWindow?.activePaneId ?? null)
+      }
+      return
+    }
+
+    const remainingPaneIds = collectPaneIds(removal.layout)
+    const nextActivePane = remainingPaneIds[0]
+    const nextWindow: WindowState = {
+      ...window,
+      layout: removal.layout,
+      activePaneId: nextActivePane,
+    }
+    windows.set(window.id, nextWindow)
+    broadcast({ type: "window_changed", window: buildWindowSnapshot(nextWindow) })
+    if (activePaneId === paneId) {
+      updateActivePane(nextActivePane)
+    }
+  }
+
+  const closeWindow = (windowId: WindowId) => {
+    const window = windows.get(windowId)
+    if (!window) {
+      return
+    }
+
+    const paneIds = collectPaneIds(window.layout)
+    for (const paneId of paneIds) {
+      stopPane(paneId)
+    }
+
+    windows.delete(windowId)
+    broadcast({ type: "window_closed", windowId })
+
+    if (activeWindowId === windowId) {
+      const nextWindow = windows.values().next().value as WindowState | undefined
+      updateActiveWindow(nextWindow?.id ?? null)
+      updateActivePane(nextWindow?.activePaneId ?? null)
+    }
+    persistIfNeeded()
+  }
+
+  const resizePane = (paneId: PaneId, cols: number, rows: number) => {
+    lastPaneSizes.set(paneId, { cols, rows })
+    const pane = runningPanes.get(paneId)
+    if (pane && pane.status === "running") {
+      resizePty(pane.pty, cols, rows)
+    }
+  }
+
+  const shutdown = async (options?: { clearSession?: boolean }) => {
+    if (shuttingDown) {
+      return
+    }
+    shuttingDown = true
+
+    if (persistTimer) {
+      clearTimeout(persistTimer)
+      persistTimer = null
+    }
+
+    if (options?.clearSession) {
+      if (persistPromise) {
+        await persistPromise
+      }
+      try {
+        await clearSession()
+      } catch (error) {
+        debugLog(`[server] Failed to clear session: ${error}`)
+      }
+    } else {
+      await persistSession()
+    }
+
+    suppressSessionUpdates = true
+    for (const window of windows.values()) {
+      for (const paneId of collectPaneIds(window.layout)) {
+        stopPane(paneId)
+      }
+    }
+    windows.clear()
+
+    for (const client of clients) {
+      client.end()
+    }
+
+    await new Promise<void>((resolve) => server.close(() => resolve()))
+
+    try {
+      if (existsSync(SOCKET_PATH)) {
+        await unlink(SOCKET_PATH)
+      }
+    } catch (error) {
+      debugLog(`[server] Failed to remove socket on shutdown: ${error}`)
+    }
+
+    process.exit(0)
+  }
+
+  const handleMessage = (message: ClientMessage) => {
+    switch (message.type) {
+      case "create_window":
+        createWindow(message.entry)
+        break
+      case "split_pane":
+        splitPane(message.paneId, message.direction, message.entry)
+        break
+      case "close_pane":
+        closePane(message.paneId)
+        break
+      case "close_window":
+        closeWindow(message.windowId)
+        break
+      case "set_active_window":
+        if (message.id) {
+          const window = windows.get(message.id)
+          updateActivePane(window?.activePaneId ?? null)
+        } else {
+          updateActivePane(null)
+          updateActiveWindow(null)
+        }
+        break
+      case "set_active_pane":
+        updateActivePane(message.id)
+        break
+      case "resize_pane":
+        resizePane(message.paneId, message.cols, message.rows)
+        break
+      case "input": {
+        const pane = runningPanes.get(message.id)
+        if (pane) {
+          pane.pty.write(message.data)
+        }
+        break
+      }
+      case "shutdown":
+        void shutdown({ clearSession: message.clearSession })
+        break
+      default:
+        break
+    }
+  }
+
+  await ensureSocketDir()
+
+  if (existsSync(SOCKET_PATH)) {
+    try {
+      await unlink(SOCKET_PATH)
+    } catch (error) {
+      debugLog(`[server] Failed to remove stale socket: ${error}`)
+    }
+  }
+
+  server = net.createServer((socket) => {
+    socket.setEncoding("utf8")
+    clients.add(socket)
+
+    const snapshotWindows = Array.from(windows.values()).map(buildWindowSnapshot)
+    const snapshotPanes = Array.from(runningPanes.values()).map(buildPaneSnapshot)
+    socket.write(
+      serializeMessage({
+        type: "snapshot",
+        layout: "zellij",
+        windows: snapshotWindows,
+        panes: snapshotPanes,
+        activeWindowId,
+        activePaneId,
+      })
+    )
+
+    let buffer = ""
+    socket.on("data", (data) => {
+      buffer += data
+      let newlineIndex = buffer.indexOf("\n")
+      while (newlineIndex !== -1) {
+        const line = buffer.slice(0, newlineIndex).trim()
+        buffer = buffer.slice(newlineIndex + 1)
+        newlineIndex = buffer.indexOf("\n")
+        if (!line) {
+          continue
+        }
+        try {
+          const message = JSON.parse(line) as ClientMessage
+          handleMessage(message)
+        } catch (error) {
+          socket.write(
+            serializeMessage({
+              type: "error",
+              message: `Invalid message: ${error instanceof Error ? error.message : "parse error"}`,
+            })
+          )
+        }
+      }
+    })
+
+    socket.on("close", () => {
+      clients.delete(socket)
+    })
+
+    socket.on("error", () => {
+      clients.delete(socket)
+    })
+  })
+
+  server.listen(SOCKET_PATH, () => {
+    debugLog(`[server] Listening on ${SOCKET_PATH}`)
+  })
+
+  process.on("exit", () => {
+    try {
+      if (existsSync(SOCKET_PATH)) {
+        unlinkSync(SOCKET_PATH)
+      }
+    } catch {
+      // ignore
+    }
+  })
+
+  if (config.session.persist) {
+    const session = await restoreSession()
+
+    const startedEntries = new Set<string>()
+    if (session?.panes && session.windows?.length) {
+      for (const pane of session.panes) {
+        const entry = resolveSessionEntry(pane.entry, entries)
+        if (entry) {
+          startPane(entry, pane.paneId)
+          startedEntries.add(entry.id)
+        }
+      }
+
+      for (const window of session.windows) {
+        const paneIds = collectPaneIds(window.layout)
+        if (paneIds.some((paneId) => runningPanes.has(paneId))) {
+          windows.set(window.id, {
+            id: window.id,
+            title: window.title,
+            layout: window.layout,
+            activePaneId: window.activePaneId,
+          })
+        }
+      }
+
+      activeWindowId = session.activeWindowId ?? session.windows[0]?.id ?? null
+      activePaneId = session.activePaneId ?? session.windows[0]?.activePaneId ?? null
+    }
+
+    for (const entry of entries) {
+      if (entry.autostart && !startedEntries.has(entry.id)) {
+        createWindow(entry, { makeActive: false })
+      }
+    }
+
+    if (!windows.size && session?.runningApps?.length) {
+      for (const ref of session.runningApps) {
+        const entry = resolveSessionEntry(ref, entries)
+        if (entry) {
+          createWindow(entry, { makeActive: false })
+        }
+      }
+    }
+  } else {
+    for (const entry of entries) {
+      if (entry.autostart) {
+        createWindow(entry, { makeActive: false })
+      }
+    }
+  }
+
+  if (!activeWindowId && windows.size > 0) {
+    const firstWindow = windows.values().next().value as WindowState | undefined
+    if (firstWindow) {
+      updateActiveWindow(firstWindow.id)
+      updateActivePane(firstWindow.activePaneId)
     }
   }
 

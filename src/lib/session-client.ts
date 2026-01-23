@@ -4,7 +4,7 @@ import { existsSync } from "fs"
 import { unlink } from "fs/promises"
 import { debugLog } from "./debug"
 import { SOCKET_PATH, serializeMessage, type ClientMessage, type ServerMessage } from "./ipc"
-import type { AppEntry } from "../types"
+import type { AppEntry, LayoutMode } from "../types"
 
 const CONNECT_RETRIES = 20
 const CONNECT_DELAY_MS = 100
@@ -82,6 +82,34 @@ export class SessionClient extends EventEmitter {
     this.send({ type: "set_active", id })
   }
 
+  createWindow(entry: AppEntry) {
+    this.send({ type: "create_window", entry })
+  }
+
+  splitPane(paneId: string, direction: "horizontal" | "vertical", entry: AppEntry) {
+    this.send({ type: "split_pane", paneId, direction, entry })
+  }
+
+  closePane(paneId: string) {
+    this.send({ type: "close_pane", paneId })
+  }
+
+  closeWindow(windowId: string) {
+    this.send({ type: "close_window", windowId })
+  }
+
+  setActiveWindow(id: string | null) {
+    this.send({ type: "set_active_window", id })
+  }
+
+  setActivePane(id: string | null) {
+    this.send({ type: "set_active_pane", id })
+  }
+
+  resizePane(paneId: string, cols: number, rows: number) {
+    this.send({ type: "resize_pane", paneId, cols, rows })
+  }
+
   updateEntry(id: string, updates: Partial<AppEntry>) {
     this.send({ type: "update_entry", id, updates })
   }
@@ -133,7 +161,7 @@ async function connectSocket(): Promise<net.Socket> {
   })
 }
 
-async function spawnServerProcess(): Promise<void> {
+async function spawnServerProcess(layout?: LayoutMode): Promise<void> {
   // Bun.main is a stable way to find the actual entrypoint even when the CLI is
   // invoked via a symlink (e.g. `tui`) where process.argv[1] may not end in .js.
   const candidates = [
@@ -143,6 +171,9 @@ async function spawnServerProcess(): Promise<void> {
 
   const entry = candidates.find((candidate) => /\.(tsx|ts|js)$/.test(candidate))
   const args = entry ? [entry, "--server"] : ["--server"]
+  if (layout) {
+    args.push("--layout", layout)
+  }
 
   const proc = Bun.spawn([process.execPath, ...args], {
     detached: true,
@@ -187,13 +218,13 @@ async function clearStaleSocket(error: unknown) {
   }
 }
 
-export async function connectSessionClient(): Promise<SessionClient> {
+export async function connectSessionClient(options?: { layout?: LayoutMode }): Promise<SessionClient> {
   try {
     const socket = await connectSocket()
     return new SessionClient(socket)
   } catch (error) {
     await clearStaleSocket(error)
-    await spawnServerProcess()
+    await spawnServerProcess(options?.layout)
     const socket = await waitForServer()
     return new SessionClient(socket)
   }
