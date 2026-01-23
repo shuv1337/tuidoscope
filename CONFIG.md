@@ -279,7 +279,7 @@ apps:
 
 ```yaml
 session:
-  persist: true
+  persist: false
   file: "~/.local/state/tuidoscope/session.yaml"
 ```
 
@@ -287,7 +287,7 @@ session:
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `persist` | boolean | `true` | Remember running apps between restarts |
+| `persist` | boolean | `false` | Remember running apps between restarts |
 | `file` | string | XDG state dir | Custom session file path |
 
 When `persist: true`, tuidoscope saves:
@@ -365,7 +365,7 @@ apps:
 
 # Session
 session:
-  persist: true
+  persist: false
   file: "<STATE_DIR>/session.yaml"
 ```
 

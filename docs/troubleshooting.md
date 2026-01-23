@@ -171,17 +171,17 @@ Most modern terminals (Alacritty, iTerm2, GNOME Terminal, Konsole, WezTerm, Ghos
 
 3. **Verify session file exists:**
    ```bash
-   cat ~/.local/state/tuidoscope/session.json
+   cat ~/.local/state/tuidoscope/session.yaml
    ```
 
 ### Session file location
 
-By default, the session is stored at `~/.local/state/tuidoscope/session.json`. You can customize this:
+By default, the session is stored at `~/.local/state/tuidoscope/session.yaml`. You can customize this:
 
 ```yaml
 session:
   persist: true
-  file: "/custom/path/session.json"
+  file: "/custom/path/session.yaml"
 ```
 
 ---

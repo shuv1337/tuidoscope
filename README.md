@@ -23,7 +23,7 @@ A centralized TUI management application for running multiple TUI applications i
 - **Simple Modal Keyboard**: Two modes - TABS mode for navigation and TERMINAL mode for PTY input. Toggle with `Ctrl+A`.
 - **Command Palette**: Quickly search and switch between apps with a fuzzy-search palette (`Space`).
 - **Runtime Management**: Add, edit, and remove application entries directly within the app without restarting.
-- **Session Persistence**: Automatically remembers and restores your running applications and active tab between restarts.
+- **Session Persistence**: Optional config to remember and restore running applications and the active tab between restarts.
 - **Highly Configurable**: Customize themes and application lists via YAML.
 - **Path Expansion**: Supports `~`, `<CONFIG_DIR>`, and `<STATE_DIR>` tokens in paths.
 - **App Availability Detection**: Add Tab modal shows which TUI apps are installed on your system.
@@ -166,7 +166,7 @@ theme:
 - Embedded terminal windows via `ghostty-opentui`.
 - Vertical tab sidebar for application management.
 - Command palette with fuzzy search.
-- Session persistence (running apps & active tab).
+- Optional session persistence (running apps & active tab).
 - Runtime application configuration (Add/Edit).
 - Path expansion for working directories.
 

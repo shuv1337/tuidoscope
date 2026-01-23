@@ -15,7 +15,7 @@ Tuidoscope is particularly useful for:
 - **AI-Assisted Development:** Keep AI coding agents like `claude`, `opencode`, or `aider` active in dedicated tabs, ready to assist with your project.
 - **File Management:** Organize different file managers like `yazi`, `ranger`, or `lf` for different projects or tasks.
 - **Infrastructure Management:** Run `k9s` or `lazydocker` in a centralized dashboard to monitor your containers and clusters.
-- **Consolidated Workspace:** Instead of managing multiple terminal tabs or tmux panes manually, tuidoscope provides a structured environment with session persistence, remembering your active apps between restarts.
+- **Consolidated Workspace:** Instead of managing multiple terminal tabs or tmux panes manually, tuidoscope provides a structured environment with optional session persistence (enable `session.persist`) to remember your active apps between restarts.
 
 ## Installation
 

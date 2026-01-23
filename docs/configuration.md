@@ -29,7 +29,7 @@ tab_width: 20
 
 # Session management
 session:
-  persist: true
+  persist: false
   # file: "<STATE_DIR>/session.yaml" # Optional custom session file
 
 # Application List
@@ -89,7 +89,7 @@ Each app entry defines a TUI application to be managed.
 - `env`: (Optional) Key-value pairs of environment variables for the app.
 
 ### `session`
-- `persist`: (Default: `true`) If true, tuidoscope remembers which apps were running and their state between restarts.
+- `persist`: (Default: `false`) If true, tuidoscope remembers which apps were running and their state between restarts.
 - `file`: Custom path for the session state file. Supports `<STATE_DIR>` placeholder.
 
 ## Path Placeholders

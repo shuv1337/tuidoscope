@@ -44,7 +44,7 @@ const AppEntrySchema = z.object({
 
 // Session schema now uses XDG state dir by default
 const SessionSchema = z.object({
-  persist: z.boolean().default(true),
+  persist: z.boolean().default(false),
   file: z.string().optional(), // Will use XDG default if not specified
 })
 
