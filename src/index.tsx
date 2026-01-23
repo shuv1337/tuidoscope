@@ -80,7 +80,9 @@ async function main() {
     // Render the app using opentui/solid
     debugLog("[init] Calling render()...")
     try {
-      await render(() => <App config={config} sessionClient={sessionClient} />)
+      await render(() => (
+        <App config={config} sessionClient={sessionClient} startWithAddModal={options.add} />
+      ))
       debugLog("[init] render() completed")
     } catch (renderError) {
       debugLog(`[init] ERROR in render(): ${renderError}`)

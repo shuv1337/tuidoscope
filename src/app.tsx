@@ -22,6 +22,7 @@ import type { AppStatus, AppEntry, AppEntryConfig, Config, ThemeConfig } from ".
 export interface AppProps {
   config: Config
   sessionClient: SessionClient
+  startWithAddModal?: boolean
 }
 
 export const App: Component<AppProps> = (props) => {
@@ -447,6 +448,13 @@ export const App: Component<AppProps> = (props) => {
       stopAllApps({ showMessage: true })
       event.preventDefault()
       return
+    }
+  })
+
+  // Handle --add flag: open add modal on startup
+  onMount(() => {
+    if (props.startWithAddModal) {
+      uiStore.openModal("add-tab")
     }
   })
 
