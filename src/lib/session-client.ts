@@ -107,9 +107,15 @@ async function connectSocket(): Promise<net.Socket> {
 }
 
 async function spawnServerProcess(): Promise<void> {
-  const argv = process.argv[1]
-  const isScript = Boolean(argv && /\.(tsx|ts|js)$/.test(argv))
-  const args = isScript ? [argv, "--server"] : ["--server"]
+  // Bun.main is a stable way to find the actual entrypoint even when the CLI is
+  // invoked via a symlink (e.g. `tui`) where process.argv[1] may not end in .js.
+  const candidates = [
+    typeof Bun !== "undefined" ? Bun.main : undefined,
+    process.argv[1],
+  ].filter((value): value is string => typeof value === "string" && value.length > 0)
+
+  const entry = candidates.find((candidate) => /\.(tsx|ts|js)$/.test(candidate))
+  const args = entry ? [entry, "--server"] : ["--server"]
 
   const proc = Bun.spawn([process.execPath, ...args], {
     detached: true,

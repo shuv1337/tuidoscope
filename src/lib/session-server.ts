@@ -1,5 +1,5 @@
 import net from "node:net"
-import { existsSync } from "fs"
+import { existsSync, unlinkSync } from "fs"
 import { unlink } from "fs/promises"
 import { loadConfig } from "./config"
 import { initSessionPath, restoreSession, saveSession } from "./session"
@@ -84,6 +84,8 @@ export async function startSessionServer(): Promise<void> {
   let lastRows = 24
   let server!: net.Server
   let suppressSessionUpdates = false
+  let persistTimer: ReturnType<typeof setTimeout> | null = null
+  let shuttingDown = false
 
   const persistSession = async () => {
     if (!config.session.persist) {
@@ -121,10 +123,19 @@ export async function startSessionServer(): Promise<void> {
   }
 
   const persistIfNeeded = () => {
-    if (!suppressSessionUpdates) {
-    persistIfNeeded()
-
+    if (suppressSessionUpdates || !config.session.persist) {
+      return
     }
+
+    // Debounce frequent updates (output/status changes, tab changes, etc.) into fewer disk writes.
+    if (persistTimer) {
+      return
+    }
+
+    persistTimer = setTimeout(() => {
+      persistTimer = null
+      void persistSession()
+    }, 100)
   }
 
   const broadcast = (message: ServerMessage) => {
@@ -271,15 +282,35 @@ export async function startSessionServer(): Promise<void> {
   }
 
   const shutdown = async () => {
+    if (shuttingDown) {
+      return
+    }
+    shuttingDown = true
+
+    if (persistTimer) {
+      clearTimeout(persistTimer)
+      persistTimer = null
+    }
+
     await persistSession()
     suppressSessionUpdates = true
     stopAllApps()
     for (const client of clients) {
       client.end()
     }
-    server.close(() => {
-      process.exit(0)
-    })
+
+    await new Promise<void>((resolve) => server.close(() => resolve()))
+
+    // Best-effort cleanup so subsequent clients don't trip over stale socket paths.
+    try {
+      if (existsSync(SOCKET_PATH)) {
+        await unlink(SOCKET_PATH)
+      }
+    } catch (error) {
+      debugLog(`[server] Failed to remove socket on shutdown: ${error}`)
+    }
+
+    process.exit(0)
   }
 
   const handleMessage = (message: ClientMessage) => {
@@ -373,6 +404,18 @@ export async function startSessionServer(): Promise<void> {
 
   server.listen(SOCKET_PATH, () => {
     debugLog(`[server] Listening on ${SOCKET_PATH}`)
+  })
+
+  // If the process exits without running the async shutdown handler (hard kill/crash),
+  // try to remove the socket file to avoid confusing future clients.
+  process.on("exit", () => {
+    try {
+      if (existsSync(SOCKET_PATH)) {
+        unlinkSync(SOCKET_PATH)
+      }
+    } catch {
+      // ignore
+    }
   })
 
   if (config.session.persist) {
