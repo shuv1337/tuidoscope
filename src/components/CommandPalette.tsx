@@ -3,9 +3,10 @@ import { useKeyboard } from "@opentui/solid"
 import type { AppEntry, ThemeConfig } from "../types"
 import { createAppSearch } from "../lib/fuzzy"
 import { buildEntryCommand } from "../lib/command"
+import { getVisibleWindowOffset } from "../lib/list-window"
 import { DialogBox } from "./DialogBox"
 
-export type CommandAction = "switch" | "start" | "stop" | "restart" | "edit"
+export type CommandAction = "switch" | "start" | "stop" | "restart" | "edit" | "remove"
 export type GlobalAction = { type: "open_theme_picker" }
 
 export interface CommandPaletteProps {
@@ -41,9 +42,12 @@ type ResultItem =
   | { type: "app"; item: AppEntry }
   | { type: "command"; command: CommandEntry }
 
+const VISIBLE_RESULTS = 10
+
 export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   const [query, setQuery] = createSignal("")
   const [selectedIndex, setSelectedIndex] = createSignal(0)
+  const [visibleOffset, setVisibleOffset] = createSignal(0)
 
   const search = createMemo(() => createAppSearch(props.entries))
 
@@ -82,6 +86,10 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
     }
   }
 
+  const visibleResults = createMemo(() =>
+    results().slice(visibleOffset(), visibleOffset() + VISIBLE_RESULTS)
+  )
+
   useKeyboard((event) => {
     if (event.name === "escape") {
       props.onClose()
@@ -107,6 +115,15 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       return
     }
 
+    if ((event.ctrl && event.name === "r") || event.sequence === "\u0012") {
+      const selected = results()[selectedIndex()]
+      if (selected && selected.type === "app") {
+        props.onSelect(selected.item, "remove")
+      }
+      event.preventDefault()
+      return
+    }
+
     if (event.name === "up" || event.name === "k") {
       setSelectedIndex((current) => Math.max(0, current - 1))
       event.preventDefault()
@@ -114,7 +131,8 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
     }
 
     if (event.name === "down" || event.name === "j") {
-      setSelectedIndex((current) => Math.min(results().length - 1, current + 1))
+      const total = results().length
+      setSelectedIndex((current) => total === 0 ? 0 : Math.min(total - 1, current + 1))
       event.preventDefault()
       return
     }
@@ -125,6 +143,18 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   createEffect(() => {
     results()
     setSelectedIndex(0)
+  })
+
+  createEffect(() => {
+    const nextOffset = getVisibleWindowOffset(
+      selectedIndex(),
+      results().length,
+      VISIBLE_RESULTS,
+      visibleOffset()
+    )
+    if (nextOffset !== visibleOffset()) {
+      setVisibleOffset(nextOffset)
+    }
   })
 
   return (
@@ -171,9 +201,10 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
 
       {/* Results list */}
       <box flexDirection="column" flexGrow={1} overflow="hidden">
-        <For each={results().slice(0, 10)}>
+        <For each={visibleResults()}>
           {(result, index) => {
-            const isSelected = () => index() === selectedIndex()
+            const actualIndex = () => visibleOffset() + index()
+            const isSelected = () => actualIndex() === selectedIndex()
             const displayText = () => {
               if (result.type === "command") {
                 return `[Cmd] ${result.command.name}`
@@ -213,7 +244,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       >
         <box height={1}>
           <text fg={props.theme.muted}>
-            Enter:Select | x:Stop | Ctrl+E:Edit | Esc:Close | ↑↓:Navigate
+            Enter:Select | x:Stop | Ctrl+E:Edit | Ctrl+R:Remove | Esc:Close | ↑↓:Navigate
           </text>
         </box>
       </box>
