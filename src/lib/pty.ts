@@ -176,7 +176,11 @@ export function spawnPty(
     ...entry.env,
   }
 
-  const useScript = process.platform !== "win32" && !process.env.TUIDISCOPE_NO_SCRIPT
+  // Spawn the command directly: Bun.Terminal already provides a real PTY, so the
+  // old `script` wrapper was a redundant second PTY that never forwarded
+  // window-size (TIOCSWINSZ) changes to the inner terminal — which broke live
+  // resize of embedded apps. Opt back into the wrapper with TUIDISCOPE_USE_SCRIPT=1.
+  const useScript = process.platform !== "win32" && !!process.env.TUIDISCOPE_USE_SCRIPT
   const entryCommand = buildEntryCommand(entry)
   const commandString = buildCommandString(entryCommand)
   const { program, args } = parseCommand(entryCommand)
